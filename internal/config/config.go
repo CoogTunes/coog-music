@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/alexedwards/scs/v2"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
@@ -14,6 +15,7 @@ type AppConfig struct {
 	DBDriver      string
 	DBSource      string
 	ServerAddress string
+	Session       *scs.SessionManager
 }
 
 func GetDBEnvVariable(key string) string {
