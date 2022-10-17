@@ -4,8 +4,14 @@ import (
 	"database/sql"
 	"github.com/DeLuci/coog-music/internal/config"
 	"github.com/DeLuci/coog-music/internal/driver"
+	"github.com/alexedwards/scs/v2"
 	"log"
+	"net/http"
+	"time"
 )
+
+var app config.AppConfig
+var session *scs.SessionManager
 
 func main() {
 	db, err := run()
@@ -28,6 +34,12 @@ func run() (*driver.DB, error) {
 		log.Fatal("Cannot connect to database! Dying...")
 	}
 	log.Println("connected to database!!!")
+
+	session = scs.New()
+	session.Lifetime = 24 * time.Hour
+	session.Cookie.Persist = true
+	session.Cookie.SameSite = http.SameSiteLaxMode
+	session.Cookie.Secure = app.InProduction
 
 	return db, nil
 }
