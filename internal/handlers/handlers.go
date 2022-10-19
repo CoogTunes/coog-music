@@ -5,6 +5,7 @@ import (
 	"github.com/DeLuci/coog-music/internal/driver"
 	"github.com/DeLuci/coog-music/internal/repository"
 	"github.com/DeLuci/coog-music/internal/repository/dbrepo"
+	"net/http"
 )
 
 // Repo the repository used by the handlers
@@ -27,4 +28,8 @@ func NewRepo(a *config.AppConfig, db *driver.DB) *Repository {
 // NewHandlers set the repository for the handlers
 func NewHandlers(r *Repository) {
 	Repo = r
+}
+
+func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
+
 }
