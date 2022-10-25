@@ -2,12 +2,17 @@ package main
 
 import (
 	"database/sql"
+
 	"github.com/DeLuci/coog-music/internal/config"
 	"github.com/DeLuci/coog-music/internal/driver"
-	"github.com/alexedwards/scs/v2"
+
+	// "github.com/DeLuci/coog-music/internal"
+	// "github.com/DeLuci/coog-music/cmd/web/routers"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/alexedwards/scs/v2"
 )
 
 var app config.AppConfig
@@ -24,6 +29,15 @@ func main() {
 			panic(err)
 		}
 	}(db.SQL)
+
+	srv := &http.Server{
+		// Addr:    app.ServerAddress,
+		Addr:    ":8080",
+		Handler: routes(),
+	}
+
+	err = srv.ListenAndServe()
+	log.Fatal(err)
 }
 
 func run() (*driver.DB, error) {
