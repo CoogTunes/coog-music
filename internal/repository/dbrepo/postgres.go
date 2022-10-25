@@ -1,40 +1,37 @@
 package dbrepo
 
 import (
+	"database/sql"
+
 	"github.com/DeLuci/coog-music/internal/models"
 )
 
-func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
+func (m *postgresDBRepo) GetArtists2() ([]models.Artist, error) {
 
 	var artists []models.Artist
-	var artist models.Artist
+	query := "select * from artists"
 
-	artist.Name = "me my name"
+	rows, err := m.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
 
-	// artists = append(artists, {})
-	// query := "select * from artists"
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
 
-	// rows, err := m.DB.Query(query)
-	// if err != nil {
-	// 	return nil, err
-	// }
+		}
+	}(rows)
 
-	// defer func(rows *sql.Rows) {
-	// 	err := rows.Close()
-	// 	if err != nil {
+	for rows.Next() {
+		var artist models.Artist
 
-	// 	}
-	// }(rows)
+		rows.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &artist.Songs, &artist.Admin)
 
-	// for rows.Next() {
-	// 	var artist models.Artist
-
-	// 	rows.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &artist.Songs, &artist.Admin)
-
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	artists = append(artists, artist)
-	// }
+		if err != nil {
+			return nil, err
+		}
+		artists = append(artists, artist)
+	}
 	return artists, nil
 }

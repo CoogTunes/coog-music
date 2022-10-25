@@ -5,6 +5,7 @@ import (
 
 	"github.com/DeLuci/coog-music/internal/config"
 	"github.com/DeLuci/coog-music/internal/driver"
+	"github.com/DeLuci/coog-music/internal/handlers"
 
 	// "github.com/DeLuci/coog-music/internal"
 	// "github.com/DeLuci/coog-music/cmd/web/routers"
@@ -55,5 +56,7 @@ func run() (*driver.DB, error) {
 	session.Cookie.SameSite = http.SameSiteLaxMode
 	session.Cookie.Secure = app.InProduction
 
+	repo := handlers.NewRepo(&app, db)
+	handlers.NewHandlers(repo)
 	return db, nil
 }

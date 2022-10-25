@@ -43,7 +43,7 @@ func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
 	// productParam := chi.URLParam(r, "product")
 	//decodedValue := url.QueryEscape(productParam)
 	//splitProduct := strings.Split(productParam, " ")
-	artists, err := m.DB.GetArtists()
+	artists, err := m.DB.GetArtists2()
 	if err != nil {
 		log.Println("START")
 		log.Println(err)

@@ -5,5 +5,5 @@ import (
 )
 
 type DatabaseRepo interface {
-	GetArtists() ([]models.Artist, error)
+	GetArtists2() ([]models.Artist, error)
 }
