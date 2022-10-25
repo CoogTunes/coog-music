@@ -15,7 +15,7 @@ func routes() http.Handler {
 	mux.Use(NoSurf)
 	mux.Use(SessionLoad)
 
-	mux.Get("/", handlers.Repo.GetUser)
+	mux.Get("/", handlers.Repo.GetArtists)
 
 	return mux
 }
