@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/DeLuci/coog-music/internal/config"
 	"github.com/DeLuci/coog-music/internal/driver"
 	"github.com/DeLuci/coog-music/internal/repository"
 	"github.com/DeLuci/coog-music/internal/repository/dbrepo"
-	"net/http"
 )
 
 // Repo the repository used by the handlers
