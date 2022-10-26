@@ -9,6 +9,7 @@ import (
 func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 
 	var artists []models.Artist
+	// probably need to add a where statement and get rid of *
 	query := "SELECT * FROM artists"
 
 	rows, err := m.DB.Query(query)
@@ -26,7 +27,7 @@ func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 	for rows.Next() {
 		var artist models.Artist
 
-		rows.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &artist.Songs, &artist.Admin)
+		rows.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &artist.Songs, &artist.Admin, &artist.Publisher)
 
 		if err != nil {
 			return nil, err
@@ -72,6 +73,7 @@ func (m *postgresDBRepo) AddSongToPlaylist(song models.Song, playlist models.Pla
 }
 
 func (m *postgresDBRepo) PlaySong(res models.Song) error {
+	// Do we need this where statement?
 	query := "select song_id from song where title == $1"
 
 	_, err := m.DB.Exec(query, res.Song_id)

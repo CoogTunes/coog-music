@@ -15,7 +15,15 @@ func routes() http.Handler {
 	mux.Use(NoSurf)
 	mux.Use(SessionLoad)
 
-	mux.Get("/", handlers.Repo.GetArtists)
+	// This one works
+	mux.Get("/artists", handlers.Repo.GetArtists)
+
+	// Need to finish handlers and maybe adjust routing
+	mux.Post("/song", handlers.Repo.AddSong)
+	mux.Post("/user", handlers.Repo.AddUser)
+	mux.Post("/song/{playlistId}", handlers.Repo.AddSongToPlaylist)
+	mux.Get("/song", handlers.Repo.PlaySong)
+	mux.Post("/album/{songid}", handlers.Repo.AddSongToAlbum)
 
 	return mux
 }

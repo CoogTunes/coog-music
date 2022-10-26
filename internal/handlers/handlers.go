@@ -48,3 +48,19 @@ func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
 		log.Print(err)
 	}
 }
+
+func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
+
+}
+func (m *Repository) AddUser(w http.ResponseWriter, r *http.Request) {
+
+}
+func (m *Repository) AddSongToPlaylist(w http.ResponseWriter, r *http.Request) {
+
+}
+func (m *Repository) PlaySong(w http.ResponseWriter, r *http.Request) {
+
+}
+func (m *Repository) AddSongToAlbum(w http.ResponseWriter, r *http.Request) {
+
+}
