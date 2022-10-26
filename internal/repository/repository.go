@@ -1,11 +1,14 @@
 package repository
 
-import "github.com/DeLuci/coog-music/internal/models"
+import (
+	"github.com/DeLuci/coog-music/internal/models"
+)
 
 type DatabaseRepo interface {
-	AddSong(res models.Song)
-	AddUser(res models.Users)
-	AddSongToPlaylist(res models.Song, playlist models.Playlist)
-	PlaySong(res models.Song)
-	AddSongToAlbum(res models.Song, album models.Album)
+	GetArtists() ([]models.Artist, error)
+	AddSong(res models.Song) error
+	AddUser(res models.Users) error
+	AddSongToPlaylist(res models.Song, playlist models.Playlist) error
+	PlaySong(res models.Song) error
+	AddSongToAlbum(res models.Song, album models.Album) error
 }

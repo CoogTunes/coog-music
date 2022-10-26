@@ -1,10 +1,14 @@
 package handlers
 
 import (
+	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/DeLuci/coog-music/internal/config"
 	"github.com/DeLuci/coog-music/internal/driver"
+
+	// "github.com/DeLuci/coog-music/internal/models"
 	"github.com/DeLuci/coog-music/internal/repository"
 	"github.com/DeLuci/coog-music/internal/repository/dbrepo"
 )
@@ -31,6 +35,16 @@ func NewHandlers(r *Repository) {
 	Repo = r
 }
 
-func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
-
+func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
+	artists, err := m.DB.GetArtists()
+	if err != nil {
+		log.Println(err)
+	}
+	j, _ := json.MarshalIndent(artists, "", "   ")
+	log.Println(string(j))
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(j)
+	if err != nil {
+		log.Print(err)
+	}
 }
