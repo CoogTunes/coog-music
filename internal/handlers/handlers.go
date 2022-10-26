@@ -36,18 +36,9 @@ func NewHandlers(r *Repository) {
 }
 
 func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
-
-	// m.DB.GetArtists()
-	// json.NewEncoder(w).Encode()
-
-	// productParam := chi.URLParam(r, "product")
-	//decodedValue := url.QueryEscape(productParam)
-	//splitProduct := strings.Split(productParam, " ")
-	artists, err := m.DB.GetArtists2()
+	artists, err := m.DB.GetArtists()
 	if err != nil {
-		log.Println("START")
 		log.Println(err)
-		log.Println("END")
 	}
 	j, _ := json.MarshalIndent(artists, "", "   ")
 	log.Println(string(j))

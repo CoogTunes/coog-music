@@ -6,10 +6,10 @@ import (
 	"github.com/DeLuci/coog-music/internal/models"
 )
 
-func (m *postgresDBRepo) GetArtists2() ([]models.Artist, error) {
+func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 
 	var artists []models.Artist
-	query := "select * from artists"
+	query := "SELECT * FROM artists"
 
 	rows, err := m.DB.Query(query)
 	if err != nil {
