@@ -6,6 +6,37 @@ import (
 	"github.com/DeLuci/coog-music/internal/models"
 )
 
+func (m *postgresDBRepo) GetUsers() ([]models.Users, error) {
+
+	var users []models.Users
+	// probably need to add a where statement and get rid of *
+	query := "SELECT * FROM Users"
+
+	rows, err := m.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+
+		}
+	}(rows)
+
+	for rows.Next() {
+		var user models.Users
+
+		rows.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Gender, &user.Password, &user.Admin)
+
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
+
 func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 
 	var artists []models.Artist

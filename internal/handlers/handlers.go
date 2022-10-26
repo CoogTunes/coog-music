@@ -49,6 +49,20 @@ func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (m *Repository) GetUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := m.DB.GetUsers()
+	if err != nil {
+		log.Println(err)
+	}
+	j, _ := json.MarshalIndent(users, "", "   ")
+	log.Println(string(j))
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(j)
+	if err != nil {
+		log.Print(err)
+	}
+}
+
 func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
 
 }

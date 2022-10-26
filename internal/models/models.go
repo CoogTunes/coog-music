@@ -5,11 +5,13 @@ import (
 )
 
 type Users struct {
+	User_id    string
 	Username   string
 	Password   string
 	First_name string
 	Last_name  string
 	Gender     string
+	Admin      bool
 }
 
 type Song struct {
