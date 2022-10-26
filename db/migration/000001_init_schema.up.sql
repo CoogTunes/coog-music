@@ -10,7 +10,7 @@ CREATE TABLE "Users" (
 );
 
 CREATE TABLE "Song" (
-                      vin  "song_id" bigserial UNIQUE NOT NULL,
+                        "song_id" bigserial UNIQUE NOT NULL,
                         "title" varchar,
                         "artist_id" int,
                         "release_date" date DEFAULT 'now()',
