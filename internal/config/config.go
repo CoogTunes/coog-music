@@ -1,10 +1,11 @@
 package config
 
 import (
-	"github.com/alexedwards/scs/v2"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
+
+	"github.com/alexedwards/scs/v2"
+	"github.com/joho/godotenv"
 )
 
 type AppConfig struct {

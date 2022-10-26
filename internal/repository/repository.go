@@ -6,4 +6,9 @@ import (
 
 type DatabaseRepo interface {
 	GetArtists() ([]models.Artist, error)
+	AddSong(res models.Song) error
+	AddUser(res models.Users) error
+	AddSongToPlaylist(res models.Song, playlist models.Playlist) error
+	PlaySong(res models.Song) error
+	AddSongToAlbum(res models.Song, album models.Album) error
 }

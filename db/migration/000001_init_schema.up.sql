@@ -21,7 +21,7 @@ CREATE TABLE "Song" (
                         PRIMARY KEY ("song_id", "artist_id")
 );
 
-CREATE TABLE "Artists" (
+CREATE TABLE "Artist" (
                            "name" varchar,
                            "artist_id" bigserial UNIQUE NOT NULL,
                            "location" varchar,
