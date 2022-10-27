@@ -67,6 +67,14 @@ func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
 
 }
 func (m *Repository) AddUser(w http.ResponseWriter, r *http.Request) {
+	// temp proof of concept for post requests
+	log.Println("in add user post")
+	r.ParseForm()
+
+	pwd := r.Form.Get("password")
+	email := r.Form.Get("email")
+
+	log.Println("pwd, email", pwd, email)
 
 }
 func (m *Repository) AddSongToPlaylist(w http.ResponseWriter, r *http.Request) {
