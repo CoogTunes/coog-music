@@ -23,7 +23,7 @@ func routes() http.Handler {
 	mux.Post("/song", handlers.Repo.AddSong)
 	mux.Post("/user", handlers.Repo.AddUser)
 	mux.Post("/song/{playlistId}", handlers.Repo.AddSongToPlaylist)
-	mux.Get("/song", handlers.Repo.PlaySong)
+	mux.Get("/song/{id}", handlers.Repo.GetSong)
 	mux.Post("/album/{songid}", handlers.Repo.AddSongToAlbum)
 
 	return mux

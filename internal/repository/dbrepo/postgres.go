@@ -2,6 +2,7 @@ package dbrepo
 
 import (
 	"database/sql"
+	"log"
 
 	"github.com/DeLuci/coog-music/internal/models"
 )
@@ -68,15 +69,16 @@ func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 	return artists, nil
 }
 
-func (m *postgresDBRepo) AddUser(res models.Users) error {
-	query := "insert into users (username, password) values ($1, $2)"
+func (m *postgresDBRepo) AddUser(res models.Users) (models.Users, error) {
+	var user models.Users
 
-	_, err := m.DB.Exec(query, res.Username, res.Password)
-	if err != nil {
-		return err
-	}
+	query := "insert into Users (username, password, first_name, last_name, gender, admin) values ($1, $2, $3, $4, $5, $6) RETURNING *"
 
-	return nil
+	row := m.DB.QueryRow(query, res.Username, res.Password, res.First_name, res.Last_name, res.Gender, res.Admin)
+
+	row.Scan(&user.User_id, &user.Username)
+
+	return user, nil
 }
 
 func (m *postgresDBRepo) AddSong(res models.Song) error {
@@ -103,17 +105,18 @@ func (m *postgresDBRepo) AddSongToPlaylist(song models.Song, playlist models.Pla
 	return nil
 }
 
-func (m *postgresDBRepo) PlaySong(res models.Song) error {
-	// Do we need this where statement?
-	query := "select song_id from song where title == $1"
+func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
 
-	_, err := m.DB.Exec(query, res.Song_id)
-	if err != nil {
-		return err
-	}
-	//generate a session id for songplay
+	var song models.Song
 
-	return nil
+	query := "select * from song where song_id = $1"
+
+	row := m.DB.QueryRow(query, songID)
+	log.Println("row", row)
+	log.Println(row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Artist_name, &song.Album, &song.Total_plays))
+
+	return song, nil
+
 }
 
 func (m *postgresDBRepo) AddSongToAlbum(res models.Song, album models.Album) error {

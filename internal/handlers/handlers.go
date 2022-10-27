@@ -7,8 +7,8 @@ import (
 
 	"github.com/DeLuci/coog-music/internal/config"
 	"github.com/DeLuci/coog-music/internal/driver"
+	"github.com/go-chi/chi/v5"
 
-	// "github.com/DeLuci/coog-music/internal/models"
 	"github.com/DeLuci/coog-music/internal/repository"
 	"github.com/DeLuci/coog-music/internal/repository/dbrepo"
 )
@@ -55,7 +55,7 @@ func (m *Repository) GetUsers(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	j, _ := json.MarshalIndent(users, "", "   ")
-	log.Println(string(j))
+	// log.Println(string(j))
 	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(j)
 	if err != nil {
@@ -72,8 +72,20 @@ func (m *Repository) AddUser(w http.ResponseWriter, r *http.Request) {
 func (m *Repository) AddSongToPlaylist(w http.ResponseWriter, r *http.Request) {
 
 }
-func (m *Repository) PlaySong(w http.ResponseWriter, r *http.Request) {
+func (m *Repository) GetSong(w http.ResponseWriter, r *http.Request) {
 
+	x := chi.URLParam(r, "id")
+	song, err := m.DB.GetSong(x)
+	if err != nil {
+		log.Println(err)
+	}
+	j, _ := json.MarshalIndent(song, "", "   ")
+	// log.Println(string(j))
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(j)
+	if err != nil {
+		log.Print(err)
+	}
 }
 func (m *Repository) AddSongToAlbum(w http.ResponseWriter, r *http.Request) {
 
