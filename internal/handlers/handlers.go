@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/DeLuci/coog-music/internal/config"
 	"github.com/DeLuci/coog-music/internal/driver"
+	"github.com/DeLuci/coog-music/internal/models"
 	"github.com/go-chi/chi/v5"
 
 	"github.com/DeLuci/coog-music/internal/repository"
@@ -49,12 +51,15 @@ func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (m *Repository) GetUsers(w http.ResponseWriter, r *http.Request) {
-	users, err := m.DB.GetUsers()
+func (m *Repository) GetUser(w http.ResponseWriter, r *http.Request) {
+
+	id := chi.URLParam(r, "id")
+
+	user, err := m.DB.GetUser(id)
 	if err != nil {
 		log.Println(err)
 	}
-	j, _ := json.MarshalIndent(users, "", "   ")
+	j, _ := json.MarshalIndent(user, "", "   ")
 	// log.Println(string(j))
 	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(j)
@@ -67,16 +72,64 @@ func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
 
 }
 func (m *Repository) AddUser(w http.ResponseWriter, r *http.Request) {
-	// temp proof of concept for post requests
-	log.Println("in add user post")
 	r.ParseForm()
+	// get fields
+	username := r.Form.Get("username")
+	password := r.Form.Get("password")
+	first_name := r.Form.Get("first_name")
+	last_name := r.Form.Get("last_name")
+	gender := r.Form.Get("gender")
+	stringAdmin := r.Form.Get("admin")
 
-	pwd := r.Form.Get("password")
-	email := r.Form.Get("email")
+	// make sure admin is a boolean
+	boolAdmin, err := strconv.ParseBool(stringAdmin)
+	if err != nil {
+		log.Println(err)
+	}
 
-	log.Println("pwd, email", pwd, email)
+	// -1 is just to pass the user object to postgres.go, but it will not be used.
+	newUser := models.Users{"-1", username, password, first_name, last_name, gender, boolAdmin}
 
+	m.DB.AddUser(newUser)
 }
+
+func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	// get fields
+	name := r.Form.Get("name")
+	artist_id := r.Form.Get("artist_id")
+	location := r.Form.Get("location")
+	join_date := r.Form.Get("join_date")
+	stringAdmin := r.Form.Get("admin")
+	publisher := r.Form.Get("publisher")
+	var songs []int
+	// make sure admin is a boolean
+	boolAdmin, err := strconv.ParseBool(stringAdmin)
+	if err != nil {
+		log.Println(err)
+	}
+
+	int_artist_id, err := strconv.Atoi(artist_id)
+	if err != nil {
+		log.Println(err)
+	}
+	// joindate and songs[] should be empty to start.
+	artistToAdd := models.Artist{name, int_artist_id, location, join_date, songs, boolAdmin, publisher}
+
+	addedArtist, err := m.DB.AddArtist(artistToAdd)
+	if err != nil {
+		log.Println(err)
+	}
+
+	j, _ := json.MarshalIndent(addedArtist, "", "   ")
+	log.Println(string(j))
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(j)
+	if err != nil {
+		log.Print(err)
+	}
+}
+
 func (m *Repository) AddSongToPlaylist(w http.ResponseWriter, r *http.Request) {
 
 }

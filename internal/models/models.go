@@ -27,7 +27,7 @@ type Song struct {
 
 type Artist struct {
 	Name      string
-	Artist_id int64
+	Artist_id int
 	Location  string
 	Join_date string
 	Songs     []int

@@ -21,15 +21,14 @@ func routes() http.Handler {
 	mux.Use(middleware.AllowContentType("application/json", "application/x-www-form-urlencoded", "multipart/form-data"))
 
 	// These work
-	mux.Get("/users", handlers.Repo.GetUsers)
-	mux.Get("/song/{id}", handlers.Repo.GetSong)
-
-	//might work
+	mux.Post("/user", handlers.Repo.AddUser)
+	mux.Get("/user/{id}", handlers.Repo.GetUser)
+	mux.Post("/artist", handlers.Repo.AddArtist)
 	mux.Get("/artists", handlers.Repo.GetArtists)
+	mux.Get("/song/{id}", handlers.Repo.GetSong)
 
 	// Need to finish handlers and maybe adjust routing
 	mux.Post("/song", handlers.Repo.AddSong)
-	mux.Post("/user", handlers.Repo.AddUser)
 	mux.Post("/song/{playlistId}", handlers.Repo.AddSongToPlaylist)
 	mux.Post("/album/{songid}", handlers.Repo.AddSongToAlbum)
 

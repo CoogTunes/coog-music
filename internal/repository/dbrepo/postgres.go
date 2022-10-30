@@ -7,42 +7,27 @@ import (
 	"github.com/DeLuci/coog-music/internal/models"
 )
 
-func (m *postgresDBRepo) GetUsers() ([]models.Users, error) {
+// For logging in?
+func (m *postgresDBRepo) GetUser(User_id string) (models.Users, error) {
 
-	var users []models.Users
-	// probably need to add a where statement and get rid of *
-	query := "SELECT * FROM Users"
+	var user models.Users
 
-	rows, err := m.DB.Query(query)
+	query := "SELECT * FROM Users WHERE user_id = $1"
+	rows := m.DB.QueryRow(query, User_id)
+
+	err := rows.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Gender, &user.Password, &user.Admin)
 	if err != nil {
-		return nil, err
+
 	}
 
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-
-		}
-	}(rows)
-
-	for rows.Next() {
-		var user models.Users
-
-		rows.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Gender, &user.Password, &user.Admin)
-
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, user)
-	}
-	return users, nil
+	return user, nil
 }
 
+// For searching artists?
 func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
-
 	var artists []models.Artist
 	// probably need to add a where statement and get rid of *
-	query := "SELECT * FROM artists"
+	query := "SELECT * FROM artist"
 
 	rows, err := m.DB.Query(query)
 	if err != nil {
@@ -59,7 +44,7 @@ func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 	for rows.Next() {
 		var artist models.Artist
 
-		rows.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &artist.Songs, &artist.Admin, &artist.Publisher)
+		rows.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &artist.Admin, &artist.Publisher)
 
 		if err != nil {
 			return nil, err
@@ -72,13 +57,28 @@ func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 func (m *postgresDBRepo) AddUser(res models.Users) (models.Users, error) {
 	var user models.Users
 
-	query := "insert into Users (username, password, first_name, last_name, gender, admin) values ($1, $2, $3, $4, $5, $6) RETURNING *"
+	query := "insert into Users (username, password, first_name, last_name, gender, admin) values ($1, $2, $3, $4, $5, $6)"
 
 	row := m.DB.QueryRow(query, res.Username, res.Password, res.First_name, res.Last_name, res.Gender, res.Admin)
 
-	row.Scan(&user.User_id, &user.Username)
-
+	err := row.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Gender, &user.Password, &user.Admin)
+	if err != nil {
+		log.Println(err)
+	}
 	return user, nil
+}
+
+func (m *postgresDBRepo) AddArtist(res models.Artist) (models.Artist, error) {
+	var artist models.Artist
+
+	query := "insert into Artist (name, artist_id, location, join_date, admin, publisher) values ($1, $2, $3, to_date($4, 'YYYY-MM-DD'), $5, $6) RETURNING *"
+	row := m.DB.QueryRow(query, res.Name, res.Artist_id, res.Location, res.Join_date, res.Admin, res.Publisher)
+
+	err := row.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &artist.Admin, &artist.Publisher)
+	if err != nil {
+		log.Println(err)
+	}
+	return artist, nil
 }
 
 func (m *postgresDBRepo) AddSong(res models.Song) error {

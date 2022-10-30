@@ -5,10 +5,14 @@ import (
 )
 
 type DatabaseRepo interface {
-	GetArtists() ([]models.Artist, error)
-	GetUsers() ([]models.Users, error)
-	AddSong(res models.Song) error
+	//These work
 	AddUser(res models.Users) (models.Users, error)
+	GetUser(id string) (models.Users, error)
+	AddArtist(res models.Artist) (models.Artist, error)
+	GetArtists() ([]models.Artist, error)
+	AddSong(res models.Song) error
+
+	//These' don't work
 	AddSongToPlaylist(res models.Song, playlist models.Playlist) error
 	GetSong(songID string) (models.Song, error)
 	AddSongToAlbum(res models.Song, album models.Album) error
