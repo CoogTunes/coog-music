@@ -39,16 +39,8 @@ func NewHandlers(r *Repository) {
 
 func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
 	artists, err := m.DB.GetArtists()
-	if err != nil {
-		log.Println(err)
-	}
-	j, _ := json.MarshalIndent(artists, "", "   ")
-	log.Println(string(j))
-	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(j)
-	if err != nil {
-		log.Print(err)
-	}
+
+	returnAsJSON(artists, w, err)
 }
 
 func (m *Repository) GetUser(w http.ResponseWriter, r *http.Request) {
@@ -56,16 +48,8 @@ func (m *Repository) GetUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	user, err := m.DB.GetUser(id)
-	if err != nil {
-		log.Println(err)
-	}
-	j, _ := json.MarshalIndent(user, "", "   ")
-	// log.Println(string(j))
-	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(j)
-	if err != nil {
-		log.Print(err)
-	}
+
+	returnAsJSON(user, w, err)
 }
 
 func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
@@ -90,7 +74,9 @@ func (m *Repository) AddUser(w http.ResponseWriter, r *http.Request) {
 	// -1 is just to pass the user object to postgres.go, but it will not be used.
 	newUser := models.Users{"-1", username, password, first_name, last_name, gender, boolAdmin}
 
-	m.DB.AddUser(newUser)
+	addedUser, err := m.DB.AddUser(newUser)
+
+	returnAsJSON(addedUser, w, err)
 }
 
 func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
@@ -116,37 +102,32 @@ func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
 	artistToAdd := models.Artist{name, int_artist_id, location, join_date, songs, boolAdmin}
 
 	addedArtist, err := m.DB.AddArtist(artistToAdd)
-	if err != nil {
-		log.Println(err)
-	}
 
-	j, _ := json.MarshalIndent(addedArtist, "", "   ")
-	log.Println(string(j))
-	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(j)
-	if err != nil {
-		log.Print(err)
-	}
+	returnAsJSON(addedArtist, w, err)
+
 }
 
 func (m *Repository) AddSongToPlaylist(w http.ResponseWriter, r *http.Request) {
 
 }
 func (m *Repository) GetSong(w http.ResponseWriter, r *http.Request) {
-
 	x := chi.URLParam(r, "id")
 	song, err := m.DB.GetSong(x)
+	returnAsJSON(song, w, err)
+}
+func (m *Repository) AddSongToAlbum(w http.ResponseWriter, r *http.Request) {
+
+}
+
+// i is the models.XYZ property
+func returnAsJSON(i interface{}, w http.ResponseWriter, err error) {
 	if err != nil {
 		log.Println(err)
 	}
-	j, _ := json.MarshalIndent(song, "", "   ")
-	// log.Println(string(j))
+	j, _ := json.MarshalIndent(i, "", "   ")
 	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(j)
 	if err != nil {
 		log.Print(err)
 	}
-}
-func (m *Repository) AddSongToAlbum(w http.ResponseWriter, r *http.Request) {
-
 }

@@ -57,7 +57,7 @@ func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 func (m *postgresDBRepo) AddUser(res models.Users) (models.Users, error) {
 	var user models.Users
 
-	query := "insert into Users (username, password, first_name, last_name, gender, admin) values ($1, $2, $3, $4, $5, $6)"
+	query := "insert into Users (username, password, first_name, last_name, gender, admin) values ($1, $2, $3, $4, $5, $6) RETURNING *"
 
 	row := m.DB.QueryRow(query, res.Username, res.Password, res.First_name, res.Last_name, res.Gender, res.Admin)
 
