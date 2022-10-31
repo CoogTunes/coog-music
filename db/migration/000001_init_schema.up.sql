@@ -45,29 +45,31 @@ CREATE TABLE Songplay (
 
 CREATE TABLE Playlist (
                             user_id integer,
+                            name varchar,
                             playlist_id bigserial UNIQUE PRIMARY KEY,
                             playlist_length integer,
-                            Songs integer[]
+                            song integer
 );
 
-CREATE TABLE SongPlaylist(
-                               song_id integer,
-                               playlist_id integer
-);
+-- CREATE TABLE SongPlaylist(
+--                                song_id integer,
+--                                playlist_id integer
+-- );
 
 CREATE TABLE Album (
                          name varchar,
                          artist_id integer,
                          album_id bigserial UNIQUE PRIMARY KEY,
                          publisher_id integer,
-                         date_added date DEFAULT 'now()'
+                         date_added date DEFAULT 'now()',
+                         song_id integer
 );
 
-CREATE TABLE AlbumSong (
-                             album_id integer,
-                             song_id integer,
-                             name varchar
-);
+-- CREATE TABLE AlbumSong (
+--                              album_id integer,
+--                              song_id integer,
+--                              name varchar
+-- );
 
 
 ALTER TABLE Song ADD FOREIGN KEY (artist_id) REFERENCES ARTIST (artist_id);

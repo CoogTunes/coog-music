@@ -15,6 +15,9 @@ type DatabaseRepo interface {
 	GetArtistName(artist_id int) (string, error)
 
 	//These' don't work
-	AddSongToPlaylist(res models.Song, playlist models.Playlist) error
-	AddSongToAlbum(res models.Song, album models.Album) error
+	AddSongToPlaylist(playlist models.Playlist) (models.Playlist, error)
+	AddSongToAlbum(res models.Album) (models.Album, error)
+
+	GetPlaylists()([]models.Playlist, error)
+	GetAlbums()([]models.Album, error)
 }

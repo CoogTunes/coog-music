@@ -37,7 +37,7 @@ func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-
+			log.Println(err)
 		}
 	}(rows)
 
@@ -108,17 +108,18 @@ func (m *postgresDBRepo) GetArtistName(artist_id int) (str string, err error) {
 	return song.Artist_id, err
 }
 
-//TODO: ADD LINKING TABLES AND USE THEM TO GRAB THE OTHER STUFF
+func (m *postgresDBRepo) AddSongToPlaylist(playlist models.Playlist) (models.Playlist, error) {
+	query := "insert into playlist (playlist.playlist_id, playlist.song) values($1, $2) returning *"
+	var pl models.Playlist
 
-func (m *postgresDBRepo) AddSongToPlaylist(song models.Song, playlist models.Playlist) error {
-	query := "insert into playlist (playlist.playlist_id, playlist.songs) values($1, $2)"
+	row := m.DB.QueryRow(query, playlist.Playlist_id, playlist.song)
+	err := row.Scan(&playlist.Playlist_id, &playlist.song)
 
-	_, err := m.DB.Exec(query, playlist.Playlist_id, song.Song_id)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 
-	return nil
+	return pl, nil
 }
 
 func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
@@ -135,21 +136,87 @@ func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
 
 }
 
-func (m *postgresDBRepo) AddSongToAlbum(res models.Song, album models.Album) error {
-	query := "select song from song where title == $1"
-	add_query := "insert into song(album) values ($1)"
+func (m *postgresDBRepo) AddSongToAlbum(res models.Album) (models.Album, error) {
 
-	_, err := m.DB.Exec(query, res.Title)
+	query := "insert into album(album.album_id, album.song_id) values ($1, $2) returning *"
+
+	row := m.DB.QueryRow(query, &res.Album_id, &res.song_id)
+
+	err := row.Scan(&res.Album_id, &res.song_id)
 	if err != nil {
-		return err
-	}
-	_, err2 := m.DB.Exec(add_query, album.Name)
-	if err2 != nil {
-		return err2
+		log.Println(err)
 	}
 
-	return nil
+	return res, nil
 }
 
-//play song (select and songplay session)
-//add song to album (artist thing
+func (m *postgresDBRepo) GetPlaylists() ([]models.Playlist, error) {
+	var playlists []models.Playlist
+
+	query := "SELECT * FROM PLAYLIST"
+
+	rows, err := m.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		var playlist models.Playlist
+
+		rows.Scan(&playlist.user_id, &playlist.name, &playlist.Playlist_id, &playlist.Playlist_length, &playlist.song)
+
+		if err != nil {
+			return nil, err
+		}
+
+		playlists = append(playlists, playlist)
+	}
+	return playlists, nil
+}
+
+func (m *postgresDBRepo) GetAlbums() ([]models.Album, error) {
+	var albums []models.Album
+
+	query := "SELECT * FROM ALBUM"
+
+	rows, err := m.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		var album models.Album
+
+		rows.Scan(
+			&album.name,
+			&album.Album_id,
+			&album.Publisher_id,
+			&album.artist_id,
+			&album.Date_added,
+			&album.song_id)
+
+		if err != nil {
+			return nil, err
+		}
+
+		albums = append(albums, album)
+	}
+	return albums, nil
+}
+
+//inset, select, update, delete
+//album, playlist
