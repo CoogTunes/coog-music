@@ -101,7 +101,6 @@ func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
 	location := r.Form.Get("location")
 	join_date := r.Form.Get("join_date")
 	stringAdmin := r.Form.Get("admin")
-	publisher := r.Form.Get("publisher")
 	var songs []int
 	// make sure admin is a boolean
 	boolAdmin, err := strconv.ParseBool(stringAdmin)
@@ -114,7 +113,7 @@ func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	// joindate and songs[] should be empty to start.
-	artistToAdd := models.Artist{name, int_artist_id, location, join_date, songs, boolAdmin, publisher}
+	artistToAdd := models.Artist{name, int_artist_id, location, join_date, songs, boolAdmin}
 
 	addedArtist, err := m.DB.AddArtist(artistToAdd)
 	if err != nil {

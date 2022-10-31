@@ -10,10 +10,10 @@ type DatabaseRepo interface {
 	GetUser(id string) (models.Users, error)
 	AddArtist(res models.Artist) (models.Artist, error)
 	GetArtists() ([]models.Artist, error)
-	AddSong(res models.Song) error
+	GetSong(songID string) (models.Song, error)
 
 	//These' don't work
 	AddSongToPlaylist(res models.Song, playlist models.Playlist) error
-	GetSong(songID string) (models.Song, error)
+	AddSong(res models.Song) error
 	AddSongToAlbum(res models.Song, album models.Album) error
 }

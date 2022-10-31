@@ -44,7 +44,7 @@ func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 	for rows.Next() {
 		var artist models.Artist
 
-		rows.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &artist.Admin, &artist.Publisher)
+		rows.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &artist.Admin)
 
 		if err != nil {
 			return nil, err
@@ -71,10 +71,10 @@ func (m *postgresDBRepo) AddUser(res models.Users) (models.Users, error) {
 func (m *postgresDBRepo) AddArtist(res models.Artist) (models.Artist, error) {
 	var artist models.Artist
 
-	query := "insert into Artist (name, artist_id, location, join_date, admin, publisher) values ($1, $2, $3, to_date($4, 'YYYY-MM-DD'), $5, $6) RETURNING *"
-	row := m.DB.QueryRow(query, res.Name, res.Artist_id, res.Location, res.Join_date, res.Admin, res.Publisher)
+	query := "insert into Artist (name, artist_id, location, join_date, admin) values ($1, $2, $3, to_date($4, 'YYYY-MM-DD'), $5) RETURNING *"
+	row := m.DB.QueryRow(query, res.Name, res.Artist_id, res.Location, res.Join_date, res.Admin)
 
-	err := row.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &artist.Admin, &artist.Publisher)
+	err := row.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &artist.Admin)
 	if err != nil {
 		log.Println(err)
 	}

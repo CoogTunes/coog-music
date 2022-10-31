@@ -32,7 +32,6 @@ type Artist struct {
 	Join_date string
 	Songs     []int
 	Admin     bool
-	Publisher string
 }
 
 type Playlist struct {
