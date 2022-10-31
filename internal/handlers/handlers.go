@@ -53,7 +53,35 @@ func (m *Repository) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	// get fields
+	title := r.Form.Get("title")
+	release_date := r.Form.Get("release_date")
+	album := r.Form.Get("album")
+	duration := r.Form.Get("duration")
+	artist_id := r.Form.Get("artist_id")
 
+	artist_id_int, err := strconv.Atoi(artist_id)
+	if err != nil {
+
+	}
+	songToAdd := models.Song{
+		Title:        title,
+		Release_date: release_date,
+		Duration:     duration,
+		Album:        album,
+	}
+
+	addedSong, err := m.DB.AddSong(songToAdd, artist_id_int)
+	if err != nil {
+		log.Println(err)
+	}
+
+	addedSong.Artist_name, err = m.DB.GetArtistName(artist_id_int)
+	if err != nil {
+		log.Println(err)
+	}
+	returnAsJSON(addedSong, w, err)
 }
 func (m *Repository) AddUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()

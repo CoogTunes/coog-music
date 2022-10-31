@@ -81,15 +81,31 @@ func (m *postgresDBRepo) AddArtist(res models.Artist) (models.Artist, error) {
 	return artist, nil
 }
 
-func (m *postgresDBRepo) AddSong(res models.Song) error {
-	query := "insert into song (title, artist_name) values ($1, $2)"
+func (m *postgresDBRepo) AddSong(res models.Song, artist_id int) (models.Song, error) {
 
-	_, err := m.DB.Exec(query, res.Artist_name, res.Title)
+	var song models.Song
+
+	query := `insert into song (title, artist_id, release_date, duration, album, total_plays)
+				 select $1, artist_id, to_date($2, 'YYYY-MM-DD'), $3, $4, 0 from artist where artist_id = $5 RETURNING *`
+	row := m.DB.QueryRow(query, res.Title, res.Release_date, res.Duration, res.Album, artist_id)
+
+	err := row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays)
 	if err != nil {
-		return err
+		log.Println(err)
+	}
+	return song, nil
+}
+
+func (m *postgresDBRepo) GetArtistName(artist_id int) (str string, err error) {
+	var song models.Song
+	query := `SELECT name FROM Artist as A, Song as S WHERE A.artist_id = S.artist_id AND A.artist_id = $1`
+	row := m.DB.QueryRow(query, artist_id)
+	err2 := row.Scan(&song.Artist_id)
+	if err2 != nil {
+		log.Println(err)
 	}
 
-	return nil
+	return song.Artist_id, err
 }
 
 //TODO: ADD LINKING TABLES AND USE THEM TO GRAB THE OTHER STUFF
@@ -113,7 +129,7 @@ func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
 
 	row := m.DB.QueryRow(query, songID)
 	log.Println("row", row)
-	log.Println(row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Artist_name, &song.Album, &song.Total_plays))
+	log.Println(row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays))
 
 	return song, nil
 
