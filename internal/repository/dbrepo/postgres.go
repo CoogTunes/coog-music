@@ -108,12 +108,13 @@ func (m *postgresDBRepo) GetArtistName(artist_id int) (str string, err error) {
 	return song.Artist_id, err
 }
 
-func (m *postgresDBRepo) AddSongToPlaylist(playlist models.Playlist) (models.Playlist, error) {
-	query := "insert into playlist (playlist.playlist_id, playlist.song) values($1, $2) returning *"
+func (m *postgresDBRepo) AddSongToPlaylist(playlist models.Playlist, users models.Users, songs models.Song) (models.Playlist, error) {
+	query := `insert into playlist (user_id, name, playlist_id, playlist_length, song_id)
+				select users.user_id, song.title, $1, $2, song.song_id from users, song where users.user id = $3 and song.song_id = $4`
 	var pl models.Playlist
 
-	row := m.DB.QueryRow(query, playlist.Playlist_id, playlist.song)
-	err := row.Scan(&playlist.Playlist_id, &playlist.song)
+	row := m.DB.QueryRow(query, playlist.Playlist_id, playlist.Playlist_length, users.User_id, songs.Song_id)
+	err := row.Scan(&playlist.User_id, &playlist.Name, &playlist.Playlist_id, &playlist.Playlist_length, &playlist.Song_id)
 
 	if err != nil {
 		log.Println(err)
@@ -136,18 +137,21 @@ func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
 
 }
 
-func (m *postgresDBRepo) AddSongToAlbum(res models.Album) (models.Album, error) {
+func (m *postgresDBRepo) AddSongToAlbum(res models.Album, song_id int) (models.Album, error) {
 
-	query := "insert into album(album.album_id, album.song_id) values ($1, $2) returning *"
+	var album models.Album
 
-	row := m.DB.QueryRow(query, &res.Album_id, &res.song_id)
+	query := `insert into album(name, artist_id, date_added, song_id)
+	select $1, $2, $3, to_date($4, 'YYY-MM-DD'), song_id from song where song_id = $5 returning *`
 
-	err := row.Scan(&res.Album_id, &res.song_id)
+	row := m.DB.QueryRow(query, res.Name, res.Artist_id, res.Date_added, res.Song_id)
+
+	err := row.Scan(&res.Name, &res.Artist_id, &res.Album_id, &res.Date_added, song_id)
 	if err != nil {
 		log.Println(err)
 	}
 
-	return res, nil
+	return album, nil
 }
 
 func (m *postgresDBRepo) GetPlaylists() ([]models.Playlist, error) {
@@ -170,7 +174,7 @@ func (m *postgresDBRepo) GetPlaylists() ([]models.Playlist, error) {
 	for rows.Next() {
 		var playlist models.Playlist
 
-		rows.Scan(&playlist.user_id, &playlist.name, &playlist.Playlist_id, &playlist.Playlist_length, &playlist.song)
+		rows.Scan(&playlist.User_id, &playlist.Name, &playlist.Playlist_id, &playlist.Playlist_length, &playlist.Song_id)
 
 		if err != nil {
 			return nil, err
@@ -202,12 +206,11 @@ func (m *postgresDBRepo) GetAlbums() ([]models.Album, error) {
 		var album models.Album
 
 		rows.Scan(
-			&album.name,
+			&album.Name,
 			&album.Album_id,
-			&album.Publisher_id,
-			&album.artist_id,
+			&album.Artist_id,
 			&album.Date_added,
-			&album.song_id)
+			&album.Song_id)
 
 		if err != nil {
 			return nil, err

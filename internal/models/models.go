@@ -35,16 +35,19 @@ type Artist struct {
 }
 
 type Playlist struct {
-	Songs           int
+	Song_id            int
+	Name            string
 	Playlist_length int
 	Playlist_id     int
+	User_id         int
 }
 
 type Album struct {
 	Name         string
 	Album_id     int
+	Artist_id    int
 	Date_added   time.Time
-	Publisher_id int
+	Song_id      int
 }
 
 type Songplay struct {
@@ -53,15 +56,4 @@ type Songplay struct {
 	Level       string
 	Song_id     int
 	Artist_id   int
-}
-
-type SongPlaylist struct {
-	Song_id     int
-	Playlist_id int
-}
-
-type AlbumSong struct {
-	Album_id int
-	Song_id  int
-	Name     string
 }

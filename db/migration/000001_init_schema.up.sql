@@ -48,7 +48,7 @@ CREATE TABLE Playlist (
                             name varchar,
                             playlist_id bigserial UNIQUE PRIMARY KEY,
                             playlist_length integer,
-                            song integer
+                            song_id integer
 );
 
 -- CREATE TABLE SongPlaylist(
@@ -60,7 +60,6 @@ CREATE TABLE Album (
                          name varchar,
                          artist_id integer,
                          album_id bigserial UNIQUE PRIMARY KEY,
-                         publisher_id integer,
                          date_added date DEFAULT 'now()',
                          song_id integer
 );
