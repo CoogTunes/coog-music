@@ -34,7 +34,7 @@ type Playlist struct {
 	User_id     int
 	Song_names  []int
 	Playlist_id int
-	Name        string
+	Name 		string
 }
 
 type Album struct {
@@ -56,7 +56,6 @@ type Songplay struct {
 type SongPlaylist struct {
 	Song_id     int
 	Playlist_id int
-	Name        string
 }
 
 type AlbumSong struct {

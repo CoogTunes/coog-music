@@ -34,7 +34,7 @@ func (m *postgresDBRepo) GetUser(User_id string) (models.Users, error) {
 
 	err := rows.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Gender, &user.Password, &user.Admin)
 	if err != nil {
-
+		log.Println(err)
 	}
 
 	return user, nil
@@ -146,7 +146,7 @@ func (m *postgresDBRepo) GetSongs() ([]models.Song, error) {
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-
+			log.Println(err)
 		}
 	}(rows)
 
@@ -156,7 +156,7 @@ func (m *postgresDBRepo) GetSongs() ([]models.Song, error) {
 		rows.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album_id, &song.Total_plays)
 
 		if err != nil {
-			return nil, err
+			log.Println(err)
 		}
 		songs = append(songs, song)
 	}
@@ -173,40 +173,59 @@ func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
 	log.Println("row", row)
 	log.Println(row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays))
 
+	//maybe call update playcount
 	return song, nil
+
+}
+
+func (m *postgresDBRepo) UpdateSongCount(song models.Song) (models.Song, error){
+	var songs models.Song
+
+	query := "UPDATE SONG SET total_plays = total_plays + 1"
+	
+	row := m.DB.QueryRow(query)
+	log.Println("row", row)
+	log.Println(row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays))
+
+	return songs, nil
 
 }
 
 //TODO: ADD LINKING TABLES AND USE THEM TO GRAB THE OTHER STUFF
 
-func (m *postgresDBRepo) AddSongToPlaylist(song models.Song, playlist models.Playlist) error {
-	query := "insert into playlist (playlist.playlist_id, playlist.songs) values($1, $2)"
+//somehow join them together
+func (m *postgresDBRepo) AddSongToPlaylist(song models.Song, playlist models.Playlist) (models.SongPlaylist, error) {
+	query := "insert into songplaylist (playlist_id, song_id) values($1, $2, $3) returning *"
+	var songplaylists models.SongPlaylist
 
-	_, err := m.DB.Exec(query, playlist.Playlist_id, song.Song_id)
+	row := m.DB.QueryRow(query, playlist.Playlist_id, song.Song_id)
+
+	err := row.Scan(query, &songplaylists.Playlist_id, &songplaylists.Song_id)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 
-	return nil
+	return songplaylists, nil
 }
 
-func (m *postgresDBRepo) AddSongToAlbum(res models.Song, album models.Album) (models.Album, error) {
+//join song to album based on this
+func (m *postgresDBRepo) AddSongToAlbum(res models.Song, album models.Album) (models.AlbumSong, error) {
 	// query := "select song from song where title == $1"
 	// add_query := "insert into song(album) values ($1)"
 
-	var albums models.Album
+	var albumsong models.AlbumSong
 
-	// query := `insert into album(name, artist_id, date_added, song_id)
-	// select $1, $2, $3, to_date($4, 'YYY-MM-DD'), song_id from song where song_id = $5 returning *`
+	query := `insert into albumsong(album_id, song_id)
+	values ($1, $2) returning *`
 
-	// row := m.DB.QueryRow(query, res.Artist_id, res.Date_added, res.Song_id)
+	row := m.DB.QueryRow(query, album.Album_id, res.Song_id)
 
-	// err := row.Scan(&res.Name, &res.Artist_id, &res.Album_id, &res.Date_added, song_id)
-	// if err != nil {
-	// 	log.Println(err)
-	// }
+	err := row.Scan(&albumsong.Name, &albumsong.Album_id, &albumsong.Song_id)//check for emptpy vals or errors in row
+	if err != nil {
+		log.Println(err)
+	}
 
-	return albums, nil
+	return albumsong, nil
 }
 
 func (m *postgresDBRepo) GetPlaylists() ([]models.Playlist, error) {
@@ -275,5 +294,69 @@ func (m *postgresDBRepo) GetAlbums() ([]models.Album, error) {
 	return albums, nil
 }
 
-//inset, select, update, delete
-//album, playlist
+func(m *postgresDBRepo) UpdateUser(user models.Users) (models.Users, error){
+
+	var users models.Users
+
+	query := 
+	`UPDATE Users
+	SET (username, password, first_name, last_name, gender, admin) = ($1,$2,$3,$4,$5,$6)
+    WHERE user_id = $7
+			RETURNING *`
+
+	row := m.DB.QueryRow(query, user.Username, user.Password, user.First_name, user.Last_name, user.Gender, user.Admin, user.User_id)
+
+	err := row.Scan(&users.User_id, &users.Username, &user.Password, &user.First_name, &user.Last_name, &user.Gender, &user.Admin)
+
+	if err != nil{
+		log.Println(err)
+	}
+
+	return users, nil
+
+
+}
+
+func(m* postgresDBRepo) UpdateArtist(artist models.Artist) (models.Artist, error){
+
+	var artists models.Artist
+
+	query := 
+	`UPDATE Artist
+	SET (name, location) = ($1, $2)`
+
+	row := m.DB.QueryRow(query, artist.Name, artist.Location)
+
+	err := row.Scan(&artist.Name, & artist.Artist_id, &artist.Location, &artist.Join_date)
+
+	if err != nil{
+		log.Println(err)
+	}
+
+	return artists, nil
+}
+
+func(m* postgresDBRepo) UpdateSong(song models.Song) (models.Song, error){
+
+	var songs models.Song
+
+	query := `
+	UPDATE SONG
+	SET (title, duration, total_plays) = ($1, $2, 0)`
+
+	row := m.DB.QueryRow(query, song.Title, song.Duration, song.Total_plays)
+
+	err := row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays)
+
+	if err != nil{
+		log.Println(err)
+	}
+
+	return songs, nil
+
+}
+
+
+//delete from playlist/album - jonathan's job
+//functions to add song to album/playlist and merge them together
+
