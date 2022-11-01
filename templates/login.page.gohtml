@@ -1,0 +1,39 @@
+{{template "base" .}}
+
+    {{define "css"}}
+        <link rel="stylesheet" href="/static/css/login.css">
+    {{end}}
+
+    {{define "content"}}
+        <div class="hero">
+            <div id="form_box">
+                <div class="button_box">
+                    <div id="btn"></div>
+                    <button type="button" class="toggle_btn" onclick="login()">Log In</button>
+                    <button type="button" class="toggle_btn" onclick="register()">Register</button>
+                </div>
+                <form id="login" method="post" action="/login" class="input_group">
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                    <input type="text" name="email" class="input_field" placeholder="Email" required>
+                    <input type="password" name="password" class="input_field" placeholder="Password" required>
+                    <input type="checkbox" class="check_box"><span>Remember Password</span>
+                    <button type="submit" name="submit_button" class="submit_btn" value="login">Log In</button>
+                </form>
+                <form id="register" method="post" action="/login" class="input_group">
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                    <input type="text" name = "first_name" class="input_field" placeholder="First Name" required>
+                    <input type="text" name = "last_name" class="input_field" placeholder="Last Name" required>
+{{/*                    <input type="text" name = "user_id" class="input_field" placeholder="User ID" required>*/}}
+                    <input type="email" name = "email" class="input_field" placeholder="Email" required>
+                    <input type="password" name = "password" id="password" placeholder="Password" required>
+                    <input type="password" name = "confirm_password" id="confirm_password" placeholder="Confirm Password" required>
+                    <input type="checkbox" class="check_box" required><span>I agree to the terms & conditions</span>
+                    <button type="submit" name="submit_button" class="submit_btn" value="register">Register</button>
+                </form>
+            </div>
+        </div>
+    {{end}}
+
+    {{define "js"}}
+        <script src="/static/js/coogtunes.js"></script>
+    {{end}}
