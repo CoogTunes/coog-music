@@ -45,7 +45,7 @@ CREATE TABLE Songplay (
 CREATE TABLE Playlist (
                             user_id integer,
                             name varchar,
-                            playlist_id bigserial UNIQUE PRIMARY KEY,
+                            playlist_id bigserial UNIQUE PRIMARY KEY
 );
 
 CREATE TABLE SongPlaylist(
