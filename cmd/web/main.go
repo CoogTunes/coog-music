@@ -2,6 +2,8 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
+	"github.com/DeLuci/coog-music/internal/render"
 
 	"github.com/DeLuci/coog-music/internal/config"
 	"github.com/DeLuci/coog-music/internal/driver"
@@ -31,6 +33,7 @@ func main() {
 		}
 	}(db.SQL)
 
+	fmt.Println("Connecting to localhost:8080!!!")
 	srv := &http.Server{
 		// Addr:    app.ServerAddress,
 		Addr:    ":8080",
@@ -56,7 +59,21 @@ func run() (*driver.DB, error) {
 	session.Cookie.SameSite = http.SameSiteLaxMode
 	session.Cookie.Secure = app.InProduction
 
+	app.Session = session
+	
+	tc, err := render.CreateTemplateCache()
+	if err != nil {
+		log.Fatal("cannot create template cache")
+		return nil, err
+	}
+
+	app.TemplateCache = tc
+	app.UseCache = false
+
 	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)
+
+	render.NewRenderer(&app)
+
 	return db, nil
 }
