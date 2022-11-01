@@ -168,23 +168,23 @@ func (m *postgresDBRepo) AddSongToPlaylist(song models.Song, playlist models.Pla
 	return nil
 }
 
-func (m *postgresDBRepo) AddSongToAlbum(res models.Song, album models.Album) error {
-	query := "select song from song where title == $1"
-	add_query := "insert into song(album) values ($1)"
+func (m *postgresDBRepo) AddSongToAlbum(res models.Song, album models.Album) (models.Album, error) {
+	// query := "select song from song where title == $1"
+	// add_query := "insert into song(album) values ($1)"
 
-	var album models.Album
+	var albums models.Album
 
-	query := `insert into album(name, artist_id, date_added, song_id)
-	select $1, $2, $3, to_date($4, 'YYY-MM-DD'), song_id from song where song_id = $5 returning *`
+	// query := `insert into album(name, artist_id, date_added, song_id)
+	// select $1, $2, $3, to_date($4, 'YYY-MM-DD'), song_id from song where song_id = $5 returning *`
 
-	row := m.DB.QueryRow(query, res.Name, res.Artist_id, res.Date_added, res.Song_id)
+	// row := m.DB.QueryRow(query, res.Artist_id, res.Date_added, res.Song_id)
 
-	err := row.Scan(&res.Name, &res.Artist_id, &res.Album_id, &res.Date_added, song_id)
-	if err != nil {
-		log.Println(err)
-	}
+	// err := row.Scan(&res.Name, &res.Artist_id, &res.Album_id, &res.Date_added, song_id)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
 
-	return album, nil
+	return albums, nil
 }
 
 func (m *postgresDBRepo) GetPlaylists() ([]models.Playlist, error) {
@@ -207,7 +207,7 @@ func (m *postgresDBRepo) GetPlaylists() ([]models.Playlist, error) {
 	for rows.Next() {
 		var playlist models.Playlist
 
-		rows.Scan(&playlist.User_id, &playlist.Name, &playlist.Playlist_id, &playlist.Playlist_length, &playlist.Song_id)
+		rows.Scan(&playlist.User_id, &playlist.Name, &playlist.Playlist_id)
 
 		if err != nil {
 			return nil, err
@@ -242,8 +242,7 @@ func (m *postgresDBRepo) GetAlbums() ([]models.Album, error) {
 			&album.Name,
 			&album.Album_id,
 			&album.Artist_id,
-			&album.Date_added,
-			&album.Song_id)
+			&album.Date_added)
 
 		if err != nil {
 			return nil, err
