@@ -351,6 +351,19 @@ func(m* postgresDBRepo) Follow(artist models.Artist, user models.Users) (models.
 	return followers, nil
 }
 
+func(m* postgresDBRepo) RemoveUser(user_id int) (error){
+
+	query := `DELETE FROM USERS WHERE user_id = $1`
+
+	_, err := m.DB.Exec(query, user_id)
+
+	if err != nil{
+		log.Println(err)
+	}
+
+	return nil
+}
+
 
 //delete from playlist/album
 //delete artist, user, song
