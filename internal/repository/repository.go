@@ -21,4 +21,9 @@ type DatabaseRepo interface {
 
 	GetPlaylists()([]models.Playlist, error)
 	GetAlbums()([]models.Album, error)
+
+	UpdateUser(user models.Users) (models.Users, error)
+	UpdateArtist(artist models.Artist) (models.Artist, error)
+	UpdateSong(song models.Song) (models.Song, error)
+
 }
