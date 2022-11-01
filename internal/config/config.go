@@ -1,6 +1,7 @@
 package config
 
 import (
+	"html/template"
 	"log"
 	"os"
 
@@ -12,6 +13,7 @@ type AppConfig struct {
 	UseCache      bool
 	InfoLog       *log.Logger
 	ErrorLog      *log.Logger
+	TemplateCache map[string]*template.Template
 	InProduction  bool
 	DBDriver      string
 	DBSource      string

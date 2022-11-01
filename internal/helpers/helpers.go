@@ -2,19 +2,16 @@
 
 package helpers
 
-// import (
-// 	"fmt"
-// 	"net/http"
-// 	"runtime/debug"
+import (
+	"github.com/DeLuci/coog-music/internal/config"
+	"net/http"
+)
 
-// 	"github.com/DeLuci/coog-music/internal/config"
-// )
+var app *config.AppConfig
 
-// var app *config.AppConfig
-
-// func NewHelpers(a *config.AppConfig) {
-// 	app = a
-// }
+func NewHelpers(a *config.AppConfig) {
+	app = a
+}
 
 // func ClientError(w http.ResponseWriter, status int) {
 // 	app.InfoLog.Println("Client error with status of", status)
@@ -27,7 +24,7 @@ package helpers
 // 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 // }
 
-// func IsAuthenticated(r *http.Request) bool {
-// 	exists := app.Session.Exists(r.Context(), "user_id")
-// 	return exists
-// }
+func IsAuthenticated(r *http.Request) bool {
+	exists := app.Session.Exists(r.Context(), "user_id")
+	return exists
+}

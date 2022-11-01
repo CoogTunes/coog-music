@@ -5,7 +5,7 @@ CREATE TABLE Users (
                          first_name varchar,
                          last_name varchar,
                          gender varchar,
-                         admin bool NOT NULL,
+                         admin bool Default FALSE NOT NULL,
                          PRIMARY KEY (user_id, username)
 );
 

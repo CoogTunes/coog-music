@@ -21,4 +21,6 @@ type DatabaseRepo interface {
 
 	GetPlaylists()([]models.Playlist, error)
 	GetAlbums()([]models.Album, error)
+	GetUsers() ([]models.Users, error)
+	Authenticate(email string, password string) error
 }

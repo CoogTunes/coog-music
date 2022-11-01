@@ -2,6 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/DeLuci/coog-music/internal/forms"
+	"github.com/DeLuci/coog-music/internal/render"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 	"strconv"
@@ -100,6 +104,67 @@ func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
 }
 
 // SONGS
+func (m *Repository) GetLogin(w http.ResponseWriter, r *http.Request) {
+	render.Template(w, r, "login.page.gohtml", &models.TemplateData{
+		Form: forms.New(nil),
+	})
+}
+
+func (m *Repository) PostLogin(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Fatal(err)
+	}
+	loginOrRegister := r.Form.Get("submit_button")
+
+	if loginOrRegister == "register" {
+		fmt.Println("Passes to function PostRegistration ")
+		m.PostRegistration(w, r)
+		return
+	}
+	//_ = m.App.Session.RenewToken(r.Context())
+
+	email := r.Form.Get("email")
+	pwd := r.Form.Get("password")
+
+	err = m.DB.Authenticate(email, pwd)
+	if err != nil {
+		log.Println(err)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	pwd := []byte(r.Form.Get("password"))
+	hashedPwd, err := bcrypt.GenerateFromPassword(pwd, bcrypt.DefaultCost)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	registrationModel := models.Users{
+		First_name: r.Form.Get("first_name"),
+		Last_name:  r.Form.Get("last_name"),
+		Username:   r.Form.Get("email"),
+		Password:   string(hashedPwd),
+		Gender:     "Male",
+	}
+	users, err := m.DB.AddUser(registrationModel)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
 func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	// get fields

@@ -1,10 +1,12 @@
 package dbrepo
 
 import (
+	"context"
 	"database/sql"
-	"log"
-
 	"github.com/DeLuci/coog-music/internal/models"
+	"golang.org/x/crypto/bcrypt"
+	"log"
+	"time"
 )
 
 // USERS
@@ -93,6 +95,26 @@ func (m *postgresDBRepo) GetArtistName(artist_id int) (str string, err error) {
 	}
 
 	return song.Artist_name, err
+}
+
+func (m *postgresDBRepo) Authenticate(email string, password string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var hashedPwd string
+	row := m.DB.QueryRowContext(ctx, "select password from users where username = $1", email)
+	err := row.Scan(&hashedPwd)
+	if err != nil {
+		return err
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPwd), []byte(password))
+	if err == bcrypt.ErrMismatchedHashAndPassword {
+		return err
+	} else if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // SONGS
