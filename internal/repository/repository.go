@@ -11,10 +11,14 @@ type DatabaseRepo interface {
 	AddArtist(res models.Artist) (models.Artist, error)
 	GetArtists() ([]models.Artist, error)
 	GetSong(songID string) (models.Song, error)
-	AddSong(res models.Song, artist_id int) (models.Song, error)
+	AddSong(res models.Song) (models.Song, error)
 	GetArtistName(artist_id int) (string, error)
+	GetSongs() ([]models.Song, error)
 
 	//These' don't work
-	AddSongToPlaylist(res models.Song, playlist models.Playlist) error
-	AddSongToAlbum(res models.Song, album models.Album) error
+	AddSongToPlaylist(song models.Song, playlist models.Playlist) error
+	AddSongToAlbum(res models.Song, album models.Album) (models.Album, error)
+
+	GetPlaylists()([]models.Playlist, error)
+	GetAlbums()([]models.Album, error)
 }
