@@ -7,6 +7,21 @@ import (
 	"github.com/DeLuci/coog-music/internal/models"
 )
 
+// USERS
+func (m *postgresDBRepo) AddUser(res models.Users) (models.Users, error) {
+	var user models.Users
+
+	query := "insert into Users (username, password, first_name, last_name, gender, admin) values ($1, $2, $3, $4, $5, $6) RETURNING *"
+
+	row := m.DB.QueryRow(query, res.Username, res.Password, res.First_name, res.Last_name, res.Gender, res.Admin)
+
+	err := row.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Gender, &user.Password, &user.Admin)
+	if err != nil {
+		log.Println(err)
+	}
+	return user, nil
+}
+
 // For logging in?
 func (m *postgresDBRepo) GetUser(User_id string) (models.Users, error) {
 
@@ -21,6 +36,20 @@ func (m *postgresDBRepo) GetUser(User_id string) (models.Users, error) {
 	}
 
 	return user, nil
+}
+
+// ARTISTS
+func (m *postgresDBRepo) AddArtist(res models.Artist) (models.Artist, error) {
+	var artist models.Artist
+
+	query := "insert into Artist (name, artist_id, location, join_date) values ($1, $2, $3, to_date($4, 'YYYY-MM-DD')) RETURNING *"
+	row := m.DB.QueryRow(query, res.Name, res.Artist_id, res.Location, res.Join_date)
+
+	err := row.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date)
+	if err != nil {
+		log.Println(err)
+	}
+	return artist, nil
 }
 
 // For searching artists?
@@ -44,7 +73,7 @@ func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 	for rows.Next() {
 		var artist models.Artist
 
-		rows.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &artist.Admin)
+		rows.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date)
 
 		if err != nil {
 			return nil, err
@@ -54,71 +83,62 @@ func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 	return artists, nil
 }
 
-func (m *postgresDBRepo) AddUser(res models.Users) (models.Users, error) {
-	var user models.Users
-
-	query := "insert into Users (username, password, first_name, last_name, gender, admin) values ($1, $2, $3, $4, $5, $6) RETURNING *"
-
-	row := m.DB.QueryRow(query, res.Username, res.Password, res.First_name, res.Last_name, res.Gender, res.Admin)
-
-	err := row.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Gender, &user.Password, &user.Admin)
-	if err != nil {
+func (m *postgresDBRepo) GetArtistName(artist_id int) (str string, err error) {
+	var song models.Song
+	query := `SELECT name FROM Artist as A, Song as S WHERE A.artist_id = S.artist_id AND A.artist_id = $1`
+	row := m.DB.QueryRow(query, artist_id)
+	err2 := row.Scan(&song.Artist_name)
+	if err2 != nil {
 		log.Println(err)
 	}
-	return user, nil
+
+	return song.Artist_name, err
 }
 
-func (m *postgresDBRepo) AddArtist(res models.Artist) (models.Artist, error) {
-	var artist models.Artist
-
-	query := "insert into Artist (name, artist_id, location, join_date, admin) values ($1, $2, $3, to_date($4, 'YYYY-MM-DD'), $5) RETURNING *"
-	row := m.DB.QueryRow(query, res.Name, res.Artist_id, res.Location, res.Join_date, res.Admin)
-
-	err := row.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &artist.Admin)
-	if err != nil {
-		log.Println(err)
-	}
-	return artist, nil
-}
-
-func (m *postgresDBRepo) AddSong(res models.Song, artist_id int) (models.Song, error) {
+// SONGS
+func (m *postgresDBRepo) AddSong(res models.Song) (models.Song, error) {
 
 	var song models.Song
 
-	query := `insert into song (title, artist_id, release_date, duration, album, total_plays)
-				 select $1, artist_id, to_date($2, 'YYYY-MM-DD'), $3, $4, 0 from artist where artist_id = $5 RETURNING *`
-	row := m.DB.QueryRow(query, res.Title, res.Release_date, res.Duration, res.Album, artist_id)
+	query := `insert into song (title, artist_id, release_date, duration, album_id, total_plays)
+				 select $1, ar.artist_id, to_date($2, 'YYYY-MM-DD'), $3, al.album_id, 0 from artist as ar, album as al where ar.artist_id = $4 AND al.album_id = $5 RETURNING *`
+	row := m.DB.QueryRow(query, res.Title, res.Release_date, res.Duration, res.Artist_id, res.Album_id)
 
-	err := row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays)
+	err := row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album_id, &song.Total_plays)
 	if err != nil {
 		log.Println(err)
 	}
 	return song, nil
 }
 
-func (m *postgresDBRepo) GetArtistName(artist_id int) (str string, err error) {
-	var song models.Song
-	query := `SELECT name FROM Artist as A, Song as S WHERE A.artist_id = S.artist_id AND A.artist_id = $1`
-	row := m.DB.QueryRow(query, artist_id)
-	err2 := row.Scan(&song.Artist_id)
-	if err2 != nil {
-		log.Println(err)
-	}
+func (m *postgresDBRepo) GetSongs() ([]models.Song, error) {
+	var songs []models.Song
+	// probably need to add a where statement and get rid of *
+	query := "SELECT * FROM song"
 
-	return song.Artist_id, err
-}
-
-//TODO: ADD LINKING TABLES AND USE THEM TO GRAB THE OTHER STUFF
-
-func (m *postgresDBRepo) AddSongToPlaylist(song models.Song, playlist models.Playlist) error {
-	query := "insert into playlist (playlist.playlist_id, playlist.songs) values($1, $2)"
-
-	_, err := m.DB.Exec(query, playlist.Playlist_id, song.Song_id)
+	rows, err := m.DB.Query(query)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+
+		}
+	}(rows)
+
+	for rows.Next() {
+		var song models.Song
+
+		rows.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album_id, &song.Total_plays)
+
+		if err != nil {
+			return nil, err
+		}
+		songs = append(songs, song)
+	}
+	return songs, nil
 }
 
 func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
@@ -133,6 +153,19 @@ func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
 
 	return song, nil
 
+}
+
+//TODO: ADD LINKING TABLES AND USE THEM TO GRAB THE OTHER STUFF
+
+func (m *postgresDBRepo) AddSongToPlaylist(song models.Song, playlist models.Playlist) error {
+	query := "insert into playlist (playlist.playlist_id, playlist.songs) values($1, $2)"
+
+	_, err := m.DB.Exec(query, playlist.Playlist_id, song.Song_id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (m *postgresDBRepo) AddSongToAlbum(res models.Song, album models.Album) error {

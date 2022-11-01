@@ -1,11 +1,7 @@
 package models
 
-import (
-	"time"
-)
-
 type Users struct {
-	User_id    string
+	User_id    int
 	Username   string
 	Password   string
 	First_name string
@@ -17,11 +13,12 @@ type Users struct {
 type Song struct {
 	Song_id      int
 	Title        string
-	Artist_id    string
+	Artist_id    int
+	Artist_name  string
 	Release_date string
 	Duration     string
-	Artist_name  string
 	Album        string
+	Album_id     int
 	Total_plays  int
 }
 
@@ -31,20 +28,21 @@ type Artist struct {
 	Location  string
 	Join_date string
 	Songs     []int
-	Admin     bool
 }
 
 type Playlist struct {
-	Songs           int
-	Playlist_length int
-	Playlist_id     int
+	User_id     int
+	Song_names  []int
+	Playlist_id int
+	Name        string
 }
 
 type Album struct {
-	Name         string
-	Album_id     int
-	Date_added   time.Time
-	Publisher_id int
+	Name       string
+	Album_id   int
+	Artist_id  int
+	Song_names []string
+	Date_added string
 }
 
 type Songplay struct {
@@ -58,6 +56,7 @@ type Songplay struct {
 type SongPlaylist struct {
 	Song_id     int
 	Playlist_id int
+	Name        string
 }
 
 type AlbumSong struct {
