@@ -61,7 +61,7 @@ CREATE TABLE Album (
                          name varchar,
                          artist_id integer,
                          album_id bigserial UNIQUE PRIMARY KEY,
-                         date_added date DEFAULT 'now()',
+                         date_added date DEFAULT 'now()'
 );
 
 CREATE TABLE AlbumSong (
