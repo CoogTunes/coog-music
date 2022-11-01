@@ -50,8 +50,7 @@ CREATE TABLE Playlist (
 
 CREATE TABLE SongPlaylist(
                             song_id integer,
-                            playlist_id integer,
-                            name varchar,
+                            playlist_id integer,,
                             PRIMARY KEY (playlist_id, song_id)
 
 );
@@ -66,7 +65,6 @@ CREATE TABLE Album (
 CREATE TABLE AlbumSong (
                             album_id integer,
                             song_id integer,
-                            name varchar,
                            	PRIMARY KEY (album_id, song_id)
 );
 

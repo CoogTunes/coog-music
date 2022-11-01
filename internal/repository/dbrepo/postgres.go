@@ -157,34 +157,39 @@ func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
 
 //TODO: ADD LINKING TABLES AND USE THEM TO GRAB THE OTHER STUFF
 
-func (m *postgresDBRepo) AddSongToPlaylist(song models.Song, playlist models.Playlist) error {
-	query := "insert into playlist (playlist.playlist_id, playlist.songs) values($1, $2)"
+//somehow join them together
+func (m *postgresDBRepo) AddSongToPlaylist(song models.Song, playlist models.Playlist) (models.SongPlaylist, error) {
+	query := "insert into songplaylist (playlist_id, song_id) values($1, $2, $3) returning *"
+	var songplaylists models.SongPlaylist
 
-	_, err := m.DB.Exec(query, playlist.Playlist_id, song.Song_id)
+	row := m.DB.QueryRow(query, playlist.Playlist_id, song.Song_id)
+
+	err := row.Scan(query, &songplaylists.Playlist_id, &songplaylists.Song_id)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 
-	return nil
+	return songplaylists, nil
 }
 
-func (m *postgresDBRepo) AddSongToAlbum(res models.Song, album models.Album) (models.Album, error) {
+//join song to album based on this
+func (m *postgresDBRepo) AddSongToAlbum(res models.Song, album models.Album) (models.AlbumSong, error) {
 	// query := "select song from song where title == $1"
 	// add_query := "insert into song(album) values ($1)"
 
-	var albums models.Album
+	var albumsong models.AlbumSong
 
-	// query := `insert into album(name, artist_id, date_added, song_id)
-	// select $1, $2, $3, to_date($4, 'YYY-MM-DD'), song_id from song where song_id = $5 returning *`
+	query := `insert into albumsong(album_id, song_id)
+	values ($1, $2) returning *`
 
-	// row := m.DB.QueryRow(query, res.Artist_id, res.Date_added, res.Song_id)
+	row := m.DB.QueryRow(query, album.Album_id, res.Song_id)
 
-	// err := row.Scan(&res.Name, &res.Artist_id, &res.Album_id, &res.Date_added, song_id)
-	// if err != nil {
-	// 	log.Println(err)
-	// }
+	err := row.Scan(&albumsong.Name, &albumsong.Album_id, &albumsong.Song_id)//check for emptpy vals or errors in row
+	if err != nil {
+		log.Println(err)
+	}
 
-	return albums, nil
+	return albumsong, nil
 }
 
 func (m *postgresDBRepo) GetPlaylists() ([]models.Playlist, error) {
