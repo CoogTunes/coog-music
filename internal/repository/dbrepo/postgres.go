@@ -1,10 +1,12 @@
 package dbrepo
 
 import (
+	"context"
 	"database/sql"
-	"log"
-
 	"github.com/DeLuci/coog-music/internal/models"
+	"golang.org/x/crypto/bcrypt"
+	"log"
+	"time"
 )
 
 func (m *postgresDBRepo) GetUsers() ([]models.Users, error) {
@@ -69,16 +71,36 @@ func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 	return artists, nil
 }
 
-func (m *postgresDBRepo) AddUser(res models.Users) (models.Users, error) {
-	var user models.Users
+func (m *postgresDBRepo) AddUser(res models.Users) error {
 
-	query := "insert into Users (username, password, first_name, last_name, gender, admin) values ($1, $2, $3, $4, $5, $6) RETURNING *"
+	query := `insert into Users (username, password, first_name, last_name, gender) values ($1, $2, $3, $4, $5)`
 
-	row := m.DB.QueryRow(query, res.Username, res.Password, res.First_name, res.Last_name, res.Gender, res.Admin)
+	_, err := m.DB.Exec(query, res.Username, res.Password, res.First_name, res.Last_name, res.Gender)
+	if err != nil {
+		return err
+	}
 
-	row.Scan(&user.User_id, &user.Username)
+	return nil
+}
 
-	return user, nil
+func (m *postgresDBRepo) Authenticate(email string, password string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var hashedPwd string
+	row := m.DB.QueryRowContext(ctx, "select password from users where username = $1", email)
+	err := row.Scan(&hashedPwd)
+	if err != nil {
+		return err
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPwd), []byte(password))
+	if err == bcrypt.ErrMismatchedHashAndPassword {
+		return err
+	} else if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (m *postgresDBRepo) AddSong(res models.Song) error {
