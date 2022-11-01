@@ -37,52 +37,7 @@ func NewHandlers(r *Repository) {
 	Repo = r
 }
 
-func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
-	artists, err := m.DB.GetArtists()
-
-	returnAsJSON(artists, w, err)
-}
-
-func (m *Repository) GetUser(w http.ResponseWriter, r *http.Request) {
-
-	id := chi.URLParam(r, "id")
-
-	user, err := m.DB.GetUser(id)
-
-	returnAsJSON(user, w, err)
-}
-
-func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	// get fields
-	title := r.Form.Get("title")
-	release_date := r.Form.Get("release_date")
-	album := r.Form.Get("album")
-	duration := r.Form.Get("duration")
-	artist_id := r.Form.Get("artist_id")
-
-	artist_id_int, err := strconv.Atoi(artist_id)
-	if err != nil {
-
-	}
-	songToAdd := models.Song{
-		Title:        title,
-		Release_date: release_date,
-		Duration:     duration,
-		Album:        album,
-	}
-
-	addedSong, err := m.DB.AddSong(songToAdd, artist_id_int)
-	if err != nil {
-		log.Println(err)
-	}
-
-	addedSong.Artist_name, err = m.DB.GetArtistName(artist_id_int)
-	if err != nil {
-		log.Println(err)
-	}
-	returnAsJSON(addedSong, w, err)
-}
+// USERS
 func (m *Repository) AddUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	// get fields
@@ -100,13 +55,23 @@ func (m *Repository) AddUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// -1 is just to pass the user object to postgres.go, but it will not be used.
-	newUser := models.Users{"-1", username, password, first_name, last_name, gender, boolAdmin}
+	newUser := models.Users{User_id: -1, Username: username, Password: password, First_name: first_name, Last_name: last_name, Gender: gender, Admin: boolAdmin}
 
 	addedUser, err := m.DB.AddUser(newUser)
 
 	returnAsJSON(addedUser, w, err)
 }
 
+func (m *Repository) GetUser(w http.ResponseWriter, r *http.Request) {
+
+	id := chi.URLParam(r, "id")
+
+	user, err := m.DB.GetUser(id)
+
+	returnAsJSON(user, w, err)
+}
+
+// ARTISTS
 func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	// get fields
@@ -114,35 +79,80 @@ func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
 	artist_id := r.Form.Get("artist_id")
 	location := r.Form.Get("location")
 	join_date := r.Form.Get("join_date")
-	stringAdmin := r.Form.Get("admin")
 	var songs []int
-	// make sure admin is a boolean
-	boolAdmin, err := strconv.ParseBool(stringAdmin)
-	if err != nil {
-		log.Println(err)
-	}
 
 	int_artist_id, err := strconv.Atoi(artist_id)
 	if err != nil {
 		log.Println(err)
 	}
 	// joindate and songs[] should be empty to start.
-	artistToAdd := models.Artist{name, int_artist_id, location, join_date, songs, boolAdmin}
+	artistToAdd := models.Artist{Name: name, Artist_id: int_artist_id, Location: location, Join_date: join_date, Songs: songs}
 
 	addedArtist, err := m.DB.AddArtist(artistToAdd)
 
 	returnAsJSON(addedArtist, w, err)
 
 }
+func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
+	artists, err := m.DB.GetArtists()
 
-func (m *Repository) AddSongToPlaylist(w http.ResponseWriter, r *http.Request) {
-
+	returnAsJSON(artists, w, err)
 }
+
+// SONGS
+func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	// get fields
+	title := r.Form.Get("title")
+	release_date := r.Form.Get("release_date")
+	duration := r.Form.Get("duration")
+	artist_id_string := r.Form.Get("artist_id")
+	album_id_string := r.Form.Get("album_id")
+
+	artist_id, err := strconv.Atoi(artist_id_string)
+	if err != nil {
+
+	}
+	album_id, err := strconv.Atoi(album_id_string)
+	if err != nil {
+
+	}
+	songToAdd := models.Song{
+		Title:        title,
+		Release_date: release_date,
+		Duration:     duration,
+		Album_id:     album_id,
+		Artist_id:    artist_id,
+	}
+
+	addedSong, err := m.DB.AddSong(songToAdd)
+	if err != nil {
+		log.Println(err)
+	}
+
+	addedSong.Artist_name, err = m.DB.GetArtistName(artist_id)
+	if err != nil {
+		log.Println(err)
+	}
+	returnAsJSON(addedSong, w, err)
+}
+
+func (m *Repository) GetSongs(w http.ResponseWriter, r *http.Request) {
+	songs, err := m.DB.GetSongs()
+
+	returnAsJSON(songs, w, err)
+}
+
 func (m *Repository) GetSong(w http.ResponseWriter, r *http.Request) {
 	x := chi.URLParam(r, "id")
 	song, err := m.DB.GetSong(x)
 	returnAsJSON(song, w, err)
 }
+
+func (m *Repository) AddSongToPlaylist(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func (m *Repository) AddSongToAlbum(w http.ResponseWriter, r *http.Request) {
 
 }

@@ -16,7 +16,6 @@ CREATE TABLE Artist (
                            artist_id int UNIQUE,
                            location varchar,
                            join_date date DEFAULT 'now()',
-                           admin bool,
                            PRIMARY KEY (name, artist_id)
 );
 
@@ -26,7 +25,7 @@ CREATE TABLE Song (
                         artist_id int,
                         release_date date DEFAULT 'now()',
                         duration float NOT NULL,
-                        album varchar,
+                        album_id int,
                         total_plays bigint DEFAULT 0,
                         PRIMARY KEY (song_id, artist_id)
 );
@@ -46,32 +45,35 @@ CREATE TABLE Songplay (
 CREATE TABLE Playlist (
                             user_id integer,
                             name varchar,
-                            playlist_id bigserial UNIQUE PRIMARY KEY,
-                            playlist_length integer,
-                            song_id integer
+                            playlist_id bigserial UNIQUE PRIMARY KEY
 );
 
--- CREATE TABLE SongPlaylist(
---                                song_id integer,
---                                playlist_id integer
--- );
+CREATE TABLE SongPlaylist(
+                            song_id integer,
+                            playlist_id integer,
+                            name varchar,
+                            PRIMARY KEY (playlist_id, song_id)
+
+);
 
 CREATE TABLE Album (
                          name varchar,
                          artist_id integer,
                          album_id bigserial UNIQUE PRIMARY KEY,
-                         date_added date DEFAULT 'now()',
-                         song_id integer
+                         date_added date DEFAULT 'now()'
 );
 
--- CREATE TABLE AlbumSong (
---                              album_id integer,
---                              song_id integer,
---                              name varchar
--- );
+CREATE TABLE AlbumSong (
+                            album_id integer,
+                            song_id integer,
+                            name varchar,
+                           	PRIMARY KEY (album_id, song_id)
+);
 
 
 ALTER TABLE Song ADD FOREIGN KEY (artist_id) REFERENCES ARTIST (artist_id);
+
+ALTER TABLE Song ADD FOREIGN KEY (album_id) REFERENCES Album (album_id);
 
 ALTER TABLE ARTIST ADD FOREIGN KEY (artist_id) REFERENCES Users (user_id);
 
@@ -80,7 +82,6 @@ ALTER TABLE Songplay ADD FOREIGN KEY (song_id) REFERENCES Song (song_id);
 ALTER TABLE Songplay ADD FOREIGN KEY (artist_id) REFERENCES ARTIST (artist_id);
 
 ALTER TABLE Songplay ADD FOREIGN KEY (user_id) REFERENCES Users (user_id);
-
 
 ALTER TABLE Playlist ADD FOREIGN KEY (user_id) REFERENCES Users (user_id);
 
