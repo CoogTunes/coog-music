@@ -68,6 +68,11 @@ CREATE TABLE AlbumSong (
                            	PRIMARY KEY (album_id, song_id)
 );
 
+CREATE TABLE Followers {
+                        user_id integer PRIMARY KEY,
+                        artist_id integer PRIMARY KEY,
+};
+
 
 ALTER TABLE Song ADD FOREIGN KEY (artist_id) REFERENCES ARTIST (artist_id);
 
@@ -85,10 +90,14 @@ ALTER TABLE Playlist ADD FOREIGN KEY (user_id) REFERENCES Users (user_id);
 
 ALTER TABLE Album ADD FOREIGN KEY (artist_id) REFERENCES ARTIST (artist_id);
 
-ALTER TABLE AlbumSong ADD FOREIGN KEY (album_id) REFERENCES Album (album_id);
+ALTER TABLE AlbumSong ADD FOREIGN KEY (album_id) REFERENCES Album (album_id) ON DELETE CASCADE;
 
-ALTER TABLE AlbumSong ADD FOREIGN KEY (song_id) REFERENCES Song (song_id);
+ALTER TABLE AlbumSong ADD FOREIGN KEY (song_id) REFERENCES Song (song_id) ON DELETE CASCADE;
 
-ALTER TABLE SongPlaylist ADD FOREIGN KEY (playlist_id) REFERENCES Playlist (playlist_id);
+ALTER TABLE SongPlaylist ADD FOREIGN KEY (playlist_id) REFERENCES Playlist (playlist_id) ON DELETE CASCADE;
 
-ALTER TABLE SongPlaylist ADD FOREIGN KEY (song_id) REFERENCES Song (song_id);
+ALTER TABLE SongPlaylist ADD FOREIGN KEY (song_id) REFERENCES Song (song_id) ON DELETE CASCADE;
+
+ALTER TABLE Followers ADD FOREIGN KEY (user_id) REFERENCES Users (user_id)ON DELETE CASCADE;
+
+ALTER TABLE Followers ADD FOREIGN KEY (artist_id) REFERENCES Artist (artist_id) ON DELETE CASCADE;
