@@ -19,8 +19,7 @@ type DatabaseRepo interface {
 	AddSongToPlaylist(song models.Song, playlist models.Playlist) error
 	AddSongToAlbum(res models.Song, album models.Album) (models.Album, error)
 
-	GetPlaylists()([]models.Playlist, error)
-	GetAlbums()([]models.Album, error)
-	GetUsers() ([]models.Users, error)
+	GetPlaylists() ([]models.Playlist, error)
+	GetAlbums() ([]models.Album, error)
 	Authenticate(email string, password string) error
 }

@@ -1,22 +1,25 @@
 CREATE TABLE Users (
-                         user_id bigserial UNIQUE NOT NULL,
-                         username varchar UNIQUE,
-                         password varchar,
-                         first_name varchar,
-                         last_name varchar,
-                         gender varchar,
-                         admin bool Default FALSE NOT NULL,
-                         PRIMARY KEY (user_id, username)
+                        user_id bigserial UNIQUE NOT NULL,
+                        username varchar UNIQUE,
+                        password varchar,
+                        first_name varchar,
+                        last_name varchar,
+                        gender varchar,
+                        admin_level int CHECK (admin_level >= 0 AND admin_level <= 2),
+                        -- 0 = basic
+                        -- 1 = artist
+                        -- 2 = admin
+                        PRIMARY KEY (user_id, username)
 );
 
 
 
 CREATE TABLE Artist (
-                           name varchar,
-                           artist_id int UNIQUE,
-                           location varchar,
-                           join_date date DEFAULT 'now()',
-                           PRIMARY KEY (name, artist_id)
+                        name varchar,
+                        artist_id int UNIQUE,
+                        location varchar,
+                        join_date date DEFAULT 'now()',
+                        PRIMARY KEY (name, artist_id)
 );
 
 CREATE TABLE Song (
@@ -57,17 +60,17 @@ CREATE TABLE SongPlaylist(
 );
 
 CREATE TABLE Album (
-                         name varchar,
-                         artist_id integer,
-                         album_id bigserial UNIQUE PRIMARY KEY,
-                         date_added date DEFAULT 'now()'
+                        name varchar,
+                        artist_id integer,
+                        album_id bigserial UNIQUE PRIMARY KEY,
+                        date_added date DEFAULT 'now()'
 );
 
 CREATE TABLE AlbumSong (
                             album_id integer,
                             song_id integer,
                             name varchar,
-                           	PRIMARY KEY (album_id, song_id)
+                            PRIMARY KEY (album_id, song_id)
 );
 
 
