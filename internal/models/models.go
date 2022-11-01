@@ -63,3 +63,8 @@ type AlbumSong struct {
 	Song_id  int
 	Name     string
 }
+
+type Followers struct{
+	User_id		int
+	Artist_id	int
+}

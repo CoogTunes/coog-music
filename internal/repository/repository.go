@@ -27,4 +27,6 @@ type DatabaseRepo interface {
 	UpdateArtist(artist models.Artist) (models.Artist, error)
 	UpdateSong(song models.Song) (models.Song, error)
 
+	Follow(artist models.Artist, user models.Users)(models.Followers, error)
+
 }

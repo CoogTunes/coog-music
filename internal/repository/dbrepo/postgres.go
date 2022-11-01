@@ -356,8 +356,38 @@ func(m* postgresDBRepo) UpdateSong(song models.Song) (models.Song, error){
 
 }
 
+func(m* postgresDBRepo) Follow(artist models.Artist, user models.Users) (models.Followers, error){
 
-//delete from playlist/album - jonathan's job 
+	var followers models.Followers
+
+	query := `INSERT INTO FOLLOWERS (artist_id, user_id) values($1, $2) RETURNING *`
+
+	row := m.DB.QueryRow(query, artist.Artist_id, user.User_id)
+
+	err := row.Scan(&followers.Artist_id, &followers.User_id)
+
+	if err != nil{
+		log.Println(err)
+	}
+
+	return followers, nil
+}
+
+func(m* postgresDBRepo) RemoveUser(user_id int) (error){
+
+	query := `DELETE FROM USERS WHERE user_id = $1`
+
+	_, err := m.DB.Exec(query, user_id)
+
+	if err != nil{
+		log.Println(err)
+	}
+
+	return nil
+}
+
+
+//delete from playlist/album
 //delete artist, user, song
 //functions to add song to album/playlist and merge them together
 
