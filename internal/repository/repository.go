@@ -14,6 +14,7 @@ type DatabaseRepo interface {
 	AddSong(res models.Song) (models.Song, error)
 	GetArtistName(artist_id int) (string, error)
 	GetSongs() ([]models.Song, error)
+	UpdateSongCount(song models.Song)(models.Song, error)
 
 	//These' don't work
 	AddSongToPlaylist(song models.Song, playlist models.Playlist) (models.SongPlaylist, error)

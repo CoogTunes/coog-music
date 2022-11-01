@@ -151,7 +151,21 @@ func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
 	log.Println("row", row)
 	log.Println(row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays))
 
+	//maybe call update playcount
 	return song, nil
+
+}
+
+func (m *postgresDBRepo) UpdateSongCount(song models.Song) (models.Song, error){
+	var songs models.Song
+
+	query := "UPDATE SONG SET total_plays = total_plays + 1"
+	
+	row := m.DB.QueryRow(query)
+	log.Println("row", row)
+	log.Println(row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays))
+
+	return songs, nil
 
 }
 
@@ -321,21 +335,6 @@ func(m* postgresDBRepo) UpdateSong(song models.Song) (models.Song, error){
 }
 
 
-
-// func(m *postgresDBRepo) SelectSongInPlaylist(songplaylist models.SongPlaylist, playlist models.Playlist) (models.Song, error){
-	
-// 	var song models.Song
-
-// 	query := `SELECT SONG FROM SONG, SONGPLAYLIST, PLAYLIST 
-// 	WHERE SONG.song_id = SONGPLAYLIST.song_id and PLAYLIST.playlist_id = SONGPLAYLIST.playlist_id RETURNING *`
-
-
-
-
-// }
-
-//update total plays when selected
-//update for users, artists, and song
-//delete from playlist/album
+//delete from playlist/album - jonathan's job
 //functions to add song to album/playlist and merge them together
 
