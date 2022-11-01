@@ -51,13 +51,6 @@ CREATE TABLE Playlist (
                             playlist_id bigserial UNIQUE PRIMARY KEY
 );
 
-CREATE TABLE SongPlaylist(
-                            song_id integer,
-                            playlist_id integer,
-                            PRIMARY KEY (playlist_id, song_id)
-
-);
-
 CREATE TABLE Album (
                         name varchar,
                         artist_id integer,
@@ -65,28 +58,22 @@ CREATE TABLE Album (
                         date_added date DEFAULT 'now()'
 );
 
-CREATE TABLE AlbumSong (
-                            album_id integer,
-                            song_id integer,
-                           	PRIMARY KEY (album_id, song_id)
-);
 
+ALTER TABLE Song ADD FOREIGN KEY (artist_id) REFERENCES ARTIST (artist_id) ON DELETE CASCADE;
 
-ALTER TABLE Song ADD FOREIGN KEY (artist_id) REFERENCES ARTIST (artist_id);
+ALTER TABLE Song ADD FOREIGN KEY (album_id) REFERENCES Album (album_id) ON DELETE CASCADE;
 
-ALTER TABLE Song ADD FOREIGN KEY (album_id) REFERENCES Album (album_id);
+ALTER TABLE ARTIST ADD FOREIGN KEY (artist_id) REFERENCES Users (user_id) ON DELETE CASCADE;
 
-ALTER TABLE ARTIST ADD FOREIGN KEY (artist_id) REFERENCES Users (user_id);
+ALTER TABLE Songplay ADD FOREIGN KEY (song_id) REFERENCES Song (song_id) ON DELETE CASCADE;
 
-ALTER TABLE Songplay ADD FOREIGN KEY (song_id) REFERENCES Song (song_id);
+ALTER TABLE Songplay ADD FOREIGN KEY (artist_id) REFERENCES ARTIST (artist_id) ON DELETE CASCADE;
 
-ALTER TABLE Songplay ADD FOREIGN KEY (artist_id) REFERENCES ARTIST (artist_id);
+ALTER TABLE Songplay ADD FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE;
 
-ALTER TABLE Songplay ADD FOREIGN KEY (user_id) REFERENCES Users (user_id);
+ALTER TABLE Playlist ADD FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE;
 
-ALTER TABLE Playlist ADD FOREIGN KEY (user_id) REFERENCES Users (user_id);
-
-ALTER TABLE Album ADD FOREIGN KEY (artist_id) REFERENCES ARTIST (artist_id);
+ALTER TABLE Album ADD FOREIGN KEY (artist_id) REFERENCES ARTIST (artist_id) ON DELETE CASCADE;
 
 ALTER TABLE AlbumSong ADD FOREIGN KEY (album_id) REFERENCES Album (album_id);
 

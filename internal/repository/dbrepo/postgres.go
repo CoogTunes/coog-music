@@ -357,6 +357,7 @@ func(m* postgresDBRepo) UpdateSong(song models.Song) (models.Song, error){
 }
 
 
-//delete from playlist/album - jonathan's job
+//delete from playlist/album - jonathan's job 
+//delete artist, user, song
 //functions to add song to album/playlist and merge them together
 
