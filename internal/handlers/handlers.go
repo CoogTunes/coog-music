@@ -248,6 +248,33 @@ func (m *Repository) GetAlbums(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(albums, w, err)
 }
 
+func (m *Repository) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	// get fields
+	userIdString := r.Form.Get("user_id")
+	username := r.Form.Get("username")
+	password := r.Form.Get("password")
+	first_name := r.Form.Get("first_name")
+	last_name := r.Form.Get("last_name")
+	stringAdmin := r.Form.Get("admin_level")
+
+	userId, err := strconv.Atoi(userIdString)
+	if err != nil {
+		log.Println(err)
+	}
+
+	admin, err := strconv.Atoi(stringAdmin)
+	if err != nil {
+		log.Println(err)
+	}
+
+	newUser := models.Users{User_id: userId, Username: username, Password: password, First_name: first_name, Last_name: last_name, Admin_level: admin}
+
+	addedUser, err := m.DB.UpdateUser(newUser)
+
+	returnAsJSON(addedUser, w, err)
+}
+
 // i is the models.XYZ property
 func returnAsJSON(i interface{}, w http.ResponseWriter, err error) {
 	if err != nil {

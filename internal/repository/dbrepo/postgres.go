@@ -298,16 +298,16 @@ func (m *postgresDBRepo) GetAlbums() ([]models.Album, error) {
 func (m *postgresDBRepo) UpdateUser(user models.Users) (models.Users, error) {
 
 	var users models.Users
-
+	log.Println("user", user)
 	query :=
 		`UPDATE Users
 	SET (username, password, first_name, last_name, admin_level) = ($1,$2,$3,$4,$5)
-    WHERE user_id = $7
+    WHERE user_id = $6
 			RETURNING *`
 
 	row := m.DB.QueryRow(query, user.Username, user.Password, user.First_name, user.Last_name, user.Admin_level, user.User_id)
 
-	err := row.Scan(&users.User_id, &users.Username, &user.Password, &user.First_name, &user.Last_name, &user.Admin_level)
+	err := row.Scan(&users.User_id, &users.Username, &users.Password, &users.First_name, &users.Last_name, &users.Admin_level)
 
 	if err != nil {
 		log.Println(err)
