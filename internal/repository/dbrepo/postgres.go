@@ -14,11 +14,11 @@ import (
 func (m *postgresDBRepo) AddUser(res models.Users) (models.Users, error) {
 	var user models.Users
 
-	query := "insert into Users (username, password, first_name, last_name, admin) values ($1, $2, $3, $4, $5, $6) RETURNING *"
+	query := "insert into Users (username, password, first_name, last_name, admin_level) values ($1, $2, $3, $4, $5) RETURNING *"
 
-	row := m.DB.QueryRow(query, res.Username, res.Password, res.First_name, res.Last_name, res.Gender, res.Admin)
+	row := m.DB.QueryRow(query, res.Username, res.Password, res.First_name, res.Last_name, res.Admin_level)
 
-	err := row.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Password, &user.Admin)
+	err := row.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Password, &user.Admin_level)
 	if err != nil {
 		log.Println(err)
 	}
@@ -33,7 +33,7 @@ func (m *postgresDBRepo) GetUser(User_id string) (models.Users, error) {
 	query := "SELECT * FROM Users WHERE user_id = $1"
 	rows := m.DB.QueryRow(query, User_id)
 
-	err := rows.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Password, &user.Admin)
+	err := rows.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Password, &user.Admin_level)
 	if err != nil {
 		log.Println(err)
 	}
@@ -179,11 +179,11 @@ func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
 
 }
 
-func (m *postgresDBRepo) UpdateSongCount(song models.Song) (models.Song, error){
+func (m *postgresDBRepo) UpdateSongCount(song models.Song) (models.Song, error) {
 	var songs models.Song
 
 	query := "UPDATE SONG SET total_plays = total_plays + 1"
-	
+
 	row := m.DB.QueryRow(query)
 	log.Println("row", row)
 	log.Println(row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays))
@@ -194,7 +194,7 @@ func (m *postgresDBRepo) UpdateSongCount(song models.Song) (models.Song, error){
 
 //TODO: ADD LINKING TABLES AND USE THEM TO GRAB THE OTHER STUFF
 
-//somehow join them together
+// somehow join them together
 func (m *postgresDBRepo) AddSongToPlaylist(song models.Song, playlist models.Playlist) (models.SongPlaylist, error) {
 	query := "insert into songplaylist (playlist_id, song_id) values($1, $2, $3) returning *"
 	var songplaylists models.SongPlaylist
@@ -209,7 +209,7 @@ func (m *postgresDBRepo) AddSongToPlaylist(song models.Song, playlist models.Pla
 	return songplaylists, nil
 }
 
-//join song to album based on this
+// join song to album based on this
 func (m *postgresDBRepo) AddSongToAlbum(res models.Song, album models.Album) (models.AlbumSong, error) {
 	// query := "select song from song where title == $1"
 	// add_query := "insert into song(album) values ($1)"
@@ -221,7 +221,7 @@ func (m *postgresDBRepo) AddSongToAlbum(res models.Song, album models.Album) (mo
 
 	row := m.DB.QueryRow(query, album.Album_id, res.Song_id)
 
-	err := row.Scan(&albumsong.Name, &albumsong.Album_id, &albumsong.Song_id)//check for emptpy vals or errors in row
+	err := row.Scan(&albumsong.Name, &albumsong.Album_id, &albumsong.Song_id) //check for emptpy vals or errors in row
 	if err != nil {
 		log.Println(err)
 	}
@@ -295,49 +295,48 @@ func (m *postgresDBRepo) GetAlbums() ([]models.Album, error) {
 	return albums, nil
 }
 
-func(m *postgresDBRepo) UpdateUser(user models.Users) (models.Users, error){
+func (m *postgresDBRepo) UpdateUser(user models.Users) (models.Users, error) {
 
 	var users models.Users
 
-	query := 
-	`UPDATE Users
-	SET (username, password, first_name, last_name, gender, admin) = ($1,$2,$3,$4,$5,$6)
+	query :=
+		`UPDATE Users
+	SET (username, password, first_name, last_name, admin_level) = ($1,$2,$3,$4,$5)
     WHERE user_id = $7
 			RETURNING *`
 
-	row := m.DB.QueryRow(query, user.Username, user.Password, user.First_name, user.Last_name, user.Gender, user.Admin, user.User_id)
+	row := m.DB.QueryRow(query, user.Username, user.Password, user.First_name, user.Last_name, user.Admin_level, user.User_id)
 
-	err := row.Scan(&users.User_id, &users.Username, &user.Password, &user.First_name, &user.Last_name, &user.Gender, &user.Admin)
+	err := row.Scan(&users.User_id, &users.Username, &user.Password, &user.First_name, &user.Last_name, &user.Admin_level)
 
-	if err != nil{
+	if err != nil {
 		log.Println(err)
 	}
 
 	return users, nil
 
-
 }
 
-func(m* postgresDBRepo) UpdateArtist(artist models.Artist) (models.Artist, error){
+func (m *postgresDBRepo) UpdateArtist(artist models.Artist) (models.Artist, error) {
 
 	var artists models.Artist
 
-	query := 
-	`UPDATE Artist
+	query :=
+		`UPDATE Artist
 	SET (name, location) = ($1, $2)`
 
 	row := m.DB.QueryRow(query, artist.Name, artist.Location)
 
-	err := row.Scan(&artist.Name, & artist.Artist_id, &artist.Location, &artist.Join_date)
+	err := row.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date)
 
-	if err != nil{
+	if err != nil {
 		log.Println(err)
 	}
 
 	return artists, nil
 }
 
-func(m* postgresDBRepo) UpdateSong(song models.Song) (models.Song, error){
+func (m *postgresDBRepo) UpdateSong(song models.Song) (models.Song, error) {
 
 	var songs models.Song
 
@@ -349,7 +348,7 @@ func(m* postgresDBRepo) UpdateSong(song models.Song) (models.Song, error){
 
 	err := row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays)
 
-	if err != nil{
+	if err != nil {
 		log.Println(err)
 	}
 
@@ -357,7 +356,7 @@ func(m* postgresDBRepo) UpdateSong(song models.Song) (models.Song, error){
 
 }
 
-func(m* postgresDBRepo) Follow(artist models.Artist, user models.Users) (models.Followers, error){
+func (m *postgresDBRepo) Follow(artist models.Artist, user models.Users) (models.Followers, error) {
 
 	var followers models.Followers
 
@@ -367,28 +366,26 @@ func(m* postgresDBRepo) Follow(artist models.Artist, user models.Users) (models.
 
 	err := row.Scan(&followers.Artist_id, &followers.User_id)
 
-	if err != nil{
+	if err != nil {
 		log.Println(err)
 	}
 
 	return followers, nil
 }
 
-func(m* postgresDBRepo) RemoveUser(user_id int) (error){
+func (m *postgresDBRepo) RemoveUser(user_id int) error {
 
 	query := `DELETE FROM USERS WHERE user_id = $1`
 
 	_, err := m.DB.Exec(query, user_id)
 
-	if err != nil{
+	if err != nil {
 		log.Println(err)
 	}
 
 	return nil
 }
 
-
 //delete from playlist/album
 //delete artist, user, song
 //functions to add song to album/playlist and merge them together
-

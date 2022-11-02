@@ -95,7 +95,6 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 		Last_name:  r.Form.Get("last_name"),
 		Username:   r.Form.Get("email"),
 		Password:   string(hashedPwd),
-		Gender:     "Male",
 	}
 	users, err := m.DB.AddUser(registrationModel)
 	if false {
@@ -118,14 +117,12 @@ func (m *Repository) AddUser(w http.ResponseWriter, r *http.Request) {
 	last_name := r.Form.Get("last_name")
 	stringAdmin := r.Form.Get("admin")
 
-	// make sure admin is a boolean
 	admin, err := strconv.Atoi(stringAdmin)
 	if err != nil {
 		log.Println(err)
 	}
 
-	// -1 is just to pass the user object to postgres.go, but it will not be used.
-	newUser := models.Users{User_id: -1, Username: username, Password: password, First_name: first_name, Last_name: last_name, Admin: admin}
+	newUser := models.Users{Username: username, Password: password, First_name: first_name, Last_name: last_name, Admin_level: admin}
 
 	addedUser, err := m.DB.AddUser(newUser)
 
