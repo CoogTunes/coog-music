@@ -1,13 +1,12 @@
 package models
 
 type Users struct {
-	User_id    int
-	Username   string
-	Password   string
-	First_name string
-	Last_name  string
-	Gender     string
-	Admin      int
+	User_id     int
+	Username    string
+	Password    string
+	First_name  string
+	Last_name   string
+	Admin_level int
 }
 
 type Song struct {
@@ -34,7 +33,7 @@ type Playlist struct {
 	User_id     int
 	Song_names  []int
 	Playlist_id int
-	Name 		string
+	Name        string
 }
 
 type Album struct {
@@ -64,7 +63,7 @@ type AlbumSong struct {
 	Name     string
 }
 
-type Followers struct{
-	User_id		int
-	Artist_id	int
+type Followers struct {
+	User_id   int
+	Artist_id int
 }
