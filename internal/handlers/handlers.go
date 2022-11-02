@@ -217,12 +217,62 @@ func (m *Repository) GetSong(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(song, w, err)
 }
 
+func (m *Repository) UpdateSongCount(w http.ResponseWriter, r *http.Request) {
+	idString := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		log.Println(err)
+	}
+	var songWithId models.Song = models.Song{Song_id: id}
+	song, err := m.DB.UpdateSongCount(songWithId)
+	returnAsJSON(song, w, err)
+}
+
 func (m *Repository) AddSongToPlaylist(w http.ResponseWriter, r *http.Request) {
 
 }
 
 func (m *Repository) AddSongToAlbum(w http.ResponseWriter, r *http.Request) {
 
+}
+
+func (m *Repository) GetPlaylists(w http.ResponseWriter, r *http.Request) {
+	playlists, err := m.DB.GetPlaylists()
+
+	returnAsJSON(playlists, w, err)
+}
+
+func (m *Repository) GetAlbums(w http.ResponseWriter, r *http.Request) {
+	albums, err := m.DB.GetAlbums()
+
+	returnAsJSON(albums, w, err)
+}
+
+func (m *Repository) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	// get fields
+	userIdString := r.Form.Get("user_id")
+	username := r.Form.Get("username")
+	password := r.Form.Get("password")
+	first_name := r.Form.Get("first_name")
+	last_name := r.Form.Get("last_name")
+	stringAdmin := r.Form.Get("admin_level")
+
+	userId, err := strconv.Atoi(userIdString)
+	if err != nil {
+		log.Println(err)
+	}
+
+	admin, err := strconv.Atoi(stringAdmin)
+	if err != nil {
+		log.Println(err)
+	}
+
+	newUser := models.Users{User_id: userId, Username: username, Password: password, First_name: first_name, Last_name: last_name, Admin_level: admin}
+
+	addedUser, err := m.DB.UpdateUser(newUser)
+
+	returnAsJSON(addedUser, w, err)
 }
 
 // i is the models.XYZ property

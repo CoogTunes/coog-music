@@ -12,7 +12,6 @@ import (
 func routes() http.Handler {
 	mux := chi.NewRouter()
 
-
 	// Commenting out to get POST requests to work.
 	// mux.Use(NoSurf)
 	// mux.Use(SessionLoad)
@@ -24,11 +23,20 @@ func routes() http.Handler {
 	// These work
 	mux.Post("/user", handlers.Repo.AddUser)
 	mux.Get("/user/{id}", handlers.Repo.GetUser)
+	mux.Put("/user", handlers.Repo.UpdateUser)
+
 	mux.Post("/artist", handlers.Repo.AddArtist)
 	mux.Get("/artists", handlers.Repo.GetArtists)
+
 	mux.Get("/song/{id}", handlers.Repo.GetSong)
 	mux.Post("/song", handlers.Repo.AddSong)
 	mux.Get("/songs", handlers.Repo.GetSongs)
+
+	mux.Put("/songCount/{id}", handlers.Repo.UpdateSongCount)
+
+	mux.Get("/playlists", handlers.Repo.GetPlaylists)
+
+	mux.Get("/albums", handlers.Repo.GetAlbums)
 
 	mux.Get("/login", handlers.Repo.GetLogin)
 	mux.Post("/login", handlers.Repo.PostLogin)
@@ -39,6 +47,6 @@ func routes() http.Handler {
 	fileServer := http.FileServer(http.Dir("./static/"))
 
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer)) // helps use css/js
-	
+
 	return mux
 }

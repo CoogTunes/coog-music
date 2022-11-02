@@ -179,16 +179,16 @@ func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
 
 }
 
-func (m *postgresDBRepo) UpdateSongCount(song models.Song) (models.Song, error) {
-	var songs models.Song
+func (m *postgresDBRepo) UpdateSongCount(songWithId models.Song) (models.Song, error) {
+	var song models.Song
 
-	query := "UPDATE SONG SET total_plays = total_plays + 1"
+	query := "UPDATE Song SET total_plays = total_plays + 1 where song_id = $1 returning *"
 
-	row := m.DB.QueryRow(query)
-	log.Println("row", row)
-	log.Println(row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays))
+	row := m.DB.QueryRow(query, songWithId.Song_id)
 
-	return songs, nil
+	row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays)
+
+	return song, nil
 
 }
 
@@ -298,16 +298,16 @@ func (m *postgresDBRepo) GetAlbums() ([]models.Album, error) {
 func (m *postgresDBRepo) UpdateUser(user models.Users) (models.Users, error) {
 
 	var users models.Users
-
+	log.Println("user", user)
 	query :=
 		`UPDATE Users
 	SET (username, password, first_name, last_name, admin_level) = ($1,$2,$3,$4,$5)
-    WHERE user_id = $7
+    WHERE user_id = $6
 			RETURNING *`
 
 	row := m.DB.QueryRow(query, user.Username, user.Password, user.First_name, user.Last_name, user.Admin_level, user.User_id)
 
-	err := row.Scan(&users.User_id, &users.Username, &user.Password, &user.First_name, &user.Last_name, &user.Admin_level)
+	err := row.Scan(&users.User_id, &users.Username, &users.Password, &users.First_name, &users.Last_name, &users.Admin_level)
 
 	if err != nil {
 		log.Println(err)
