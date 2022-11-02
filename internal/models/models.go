@@ -7,7 +7,7 @@ type Users struct {
 	First_name string
 	Last_name  string
 	Gender     string
-	Admin      bool
+	Admin      int
 }
 
 type Song struct {

@@ -3,21 +3,22 @@ package dbrepo
 import (
 	"context"
 	"database/sql"
-	"github.com/DeLuci/coog-music/internal/models"
-	"golang.org/x/crypto/bcrypt"
 	"log"
 	"time"
+
+	"github.com/DeLuci/coog-music/internal/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // USERS
 func (m *postgresDBRepo) AddUser(res models.Users) (models.Users, error) {
 	var user models.Users
 
-	query := "insert into Users (username, password, first_name, last_name, gender, admin) values ($1, $2, $3, $4, $5, $6) RETURNING *"
+	query := "insert into Users (username, password, first_name, last_name, admin) values ($1, $2, $3, $4, $5, $6) RETURNING *"
 
 	row := m.DB.QueryRow(query, res.Username, res.Password, res.First_name, res.Last_name, res.Gender, res.Admin)
 
-	err := row.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Gender, &user.Password, &user.Admin)
+	err := row.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Password, &user.Admin)
 	if err != nil {
 		log.Println(err)
 	}
@@ -32,7 +33,7 @@ func (m *postgresDBRepo) GetUser(User_id string) (models.Users, error) {
 	query := "SELECT * FROM Users WHERE user_id = $1"
 	rows := m.DB.QueryRow(query, User_id)
 
-	err := rows.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Gender, &user.Password, &user.Admin)
+	err := rows.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Password, &user.Admin)
 	if err != nil {
 		log.Println(err)
 	}
