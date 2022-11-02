@@ -179,16 +179,16 @@ func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
 
 }
 
-func (m *postgresDBRepo) UpdateSongCount(song models.Song) (models.Song, error) {
-	var songs models.Song
+func (m *postgresDBRepo) UpdateSongCount(songWithId models.Song) (models.Song, error) {
+	var song models.Song
 
-	query := "UPDATE SONG SET total_plays = total_plays + 1"
+	query := "UPDATE Song SET total_plays = total_plays + 1 where song_id = $1 returning *"
 
-	row := m.DB.QueryRow(query)
-	log.Println("row", row)
-	log.Println(row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays))
+	row := m.DB.QueryRow(query, songWithId.Song_id)
 
-	return songs, nil
+	row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays)
+
+	return song, nil
 
 }
 

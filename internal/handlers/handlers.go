@@ -217,6 +217,17 @@ func (m *Repository) GetSong(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(song, w, err)
 }
 
+func (m *Repository) UpdateSongCount(w http.ResponseWriter, r *http.Request) {
+	idString := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		log.Println(err)
+	}
+	var songWithId models.Song = models.Song{Song_id: id}
+	song, err := m.DB.UpdateSongCount(songWithId)
+	returnAsJSON(song, w, err)
+}
+
 func (m *Repository) AddSongToPlaylist(w http.ResponseWriter, r *http.Request) {
 
 }
