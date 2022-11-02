@@ -3,12 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/DeLuci/coog-music/internal/forms"
-	"github.com/DeLuci/coog-music/internal/render"
-	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/DeLuci/coog-music/internal/forms"
+	"github.com/DeLuci/coog-music/internal/render"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/DeLuci/coog-music/internal/config"
 	"github.com/DeLuci/coog-music/internal/driver"
@@ -41,69 +42,8 @@ func NewHandlers(r *Repository) {
 	Repo = r
 }
 
-// USERS
-func (m *Repository) AddUser(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	// get fields
-	username := r.Form.Get("username")
-	password := r.Form.Get("password")
-	first_name := r.Form.Get("first_name")
-	last_name := r.Form.Get("last_name")
-	gender := r.Form.Get("gender")
-	stringAdmin := r.Form.Get("admin")
+// LOGIN/SIGNUP
 
-	// make sure admin is a boolean
-	boolAdmin, err := strconv.ParseBool(stringAdmin)
-	if err != nil {
-		log.Println(err)
-	}
-
-	// -1 is just to pass the user object to postgres.go, but it will not be used.
-	newUser := models.Users{User_id: -1, Username: username, Password: password, First_name: first_name, Last_name: last_name, Gender: gender, Admin: boolAdmin}
-
-	addedUser, err := m.DB.AddUser(newUser)
-
-	returnAsJSON(addedUser, w, err)
-}
-
-func (m *Repository) GetUser(w http.ResponseWriter, r *http.Request) {
-
-	id := chi.URLParam(r, "id")
-
-	user, err := m.DB.GetUser(id)
-
-	returnAsJSON(user, w, err)
-}
-
-// ARTISTS
-func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	// get fields
-	name := r.Form.Get("name")
-	artist_id := r.Form.Get("artist_id")
-	location := r.Form.Get("location")
-	join_date := r.Form.Get("join_date")
-	var songs []int
-
-	int_artist_id, err := strconv.Atoi(artist_id)
-	if err != nil {
-		log.Println(err)
-	}
-	// joindate and songs[] should be empty to start.
-	artistToAdd := models.Artist{Name: name, Artist_id: int_artist_id, Location: location, Join_date: join_date, Songs: songs}
-
-	addedArtist, err := m.DB.AddArtist(artistToAdd)
-
-	returnAsJSON(addedArtist, w, err)
-
-}
-func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
-	artists, err := m.DB.GetArtists()
-
-	returnAsJSON(artists, w, err)
-}
-
-// SONGS
 func (m *Repository) GetLogin(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "login.page.gohtml", &models.TemplateData{
 		Form: forms.New(nil),
@@ -158,12 +98,78 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 		Gender:     "Male",
 	}
 	users, err := m.DB.AddUser(registrationModel)
+	if false {
+		log.Println(users)
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+// USERS
+func (m *Repository) AddUser(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	// get fields
+	username := r.Form.Get("username")
+	password := r.Form.Get("password")
+	first_name := r.Form.Get("first_name")
+	last_name := r.Form.Get("last_name")
+	stringAdmin := r.Form.Get("admin")
+
+	// make sure admin is a boolean
+	admin, err := strconv.Atoi(stringAdmin)
+	if err != nil {
+		log.Println(err)
+	}
+
+	// -1 is just to pass the user object to postgres.go, but it will not be used.
+	newUser := models.Users{User_id: -1, Username: username, Password: password, First_name: first_name, Last_name: last_name, Admin: admin}
+
+	addedUser, err := m.DB.AddUser(newUser)
+
+	returnAsJSON(addedUser, w, err)
+}
+
+func (m *Repository) GetUser(w http.ResponseWriter, r *http.Request) {
+
+	id := chi.URLParam(r, "id")
+
+	user, err := m.DB.GetUser(id)
+
+	returnAsJSON(user, w, err)
+}
+
+// ARTISTS
+func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	// get fields
+	name := r.Form.Get("name")
+	artist_id := r.Form.Get("artist_id")
+	location := r.Form.Get("location")
+	join_date := r.Form.Get("join_date")
+	var songs []int
+
+	int_artist_id, err := strconv.Atoi(artist_id)
+	if err != nil {
+		log.Println(err)
+	}
+	// joindate and songs[] should be empty to start.
+	artistToAdd := models.Artist{Name: name, Artist_id: int_artist_id, Location: location, Join_date: join_date, Songs: songs}
+
+	addedArtist, err := m.DB.AddArtist(artistToAdd)
+
+	returnAsJSON(addedArtist, w, err)
+
+}
+func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
+	artists, err := m.DB.GetArtists()
+
+	returnAsJSON(artists, w, err)
+}
+
+// SONGS
 
 func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
