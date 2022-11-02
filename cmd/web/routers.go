@@ -33,6 +33,10 @@ func routes() http.Handler {
 
 	mux.Put("/songCount/{id}", handlers.Repo.UpdateSongCount)
 
+	mux.Get("/playlists", handlers.Repo.GetPlaylists)
+
+	mux.Get("/albums", handlers.Repo.GetAlbums)
+
 	mux.Get("/login", handlers.Repo.GetLogin)
 	mux.Post("/login", handlers.Repo.PostLogin)
 	// Need to finish handlers and maybe adjust routing

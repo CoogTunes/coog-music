@@ -236,6 +236,18 @@ func (m *Repository) AddSongToAlbum(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (m *Repository) GetPlaylists(w http.ResponseWriter, r *http.Request) {
+	playlists, err := m.DB.GetPlaylists()
+
+	returnAsJSON(playlists, w, err)
+}
+
+func (m *Repository) GetAlbums(w http.ResponseWriter, r *http.Request) {
+	albums, err := m.DB.GetAlbums()
+
+	returnAsJSON(albums, w, err)
+}
+
 // i is the models.XYZ property
 func returnAsJSON(i interface{}, w http.ResponseWriter, err error) {
 	if err != nil {
