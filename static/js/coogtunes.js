@@ -5,7 +5,7 @@ function toggleMenu() {
 
 const music = new Audio('/MusicLibrary/audio/adele.mp3');
 let masterPlay = document.getElementById("masterPLay");
-window.onload=function() {
+if (masterPlay) {
     masterPlay.addEventListener('click', () => {
         if (music.paused || music.currentTime <= 0) {
             music.play();
