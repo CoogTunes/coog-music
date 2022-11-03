@@ -104,3 +104,19 @@ ALTER TABLE SongPlaylist ADD FOREIGN KEY (song_id) REFERENCES Song (song_id) ON 
 ALTER TABLE Followers ADD FOREIGN KEY (user_id) REFERENCES Users (user_id)ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE Followers ADD FOREIGN KEY (artist_id) REFERENCES Artist (artist_id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+CREATE or replace FUNCTION checkAlbumDate() RETURNS trigger AS $$
+	DECLARE
+		artist_date date;
+    BEGIN
+		select ar.join_date into artist_date from artist as ar where new.artist_id = ar.artist_id;
+		
+		if artist_date > new.date_added THEN
+			new.date_added = artist_date;
+		END if;
+		return new;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE or replace TRIGGER changepass BEFORE INSERT OR UPDATE ON Album
+    FOR EACH ROW EXECUTE FUNCTION checkAlbumDate();

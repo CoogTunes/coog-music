@@ -18,7 +18,7 @@ func (m *postgresDBRepo) AddUser(res models.Users) (models.Users, error) {
 
 	row := m.DB.QueryRow(query, res.Username, res.Password, res.First_name, res.Last_name, res.Admin_level)
 
-	err := row.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Password, &user.Admin_level)
+	err := row.Scan(&user.User_id, &user.Username, &user.Password, &user.First_name, &user.Last_name, &user.Admin_level)
 	if err != nil {
 		log.Println(err)
 	}
@@ -33,7 +33,7 @@ func (m *postgresDBRepo) GetUser(User_id string) (models.Users, error) {
 	query := "SELECT * FROM Users WHERE user_id = $1"
 	rows := m.DB.QueryRow(query, User_id)
 
-	err := rows.Scan(&user.User_id, &user.Username, &user.First_name, &user.Last_name, &user.Password, &user.Admin_level)
+	err := rows.Scan(&user.User_id, &user.Username, &user.Password, &user.First_name, &user.Last_name, &user.Admin_level)
 	if err != nil {
 		log.Println(err)
 	}
