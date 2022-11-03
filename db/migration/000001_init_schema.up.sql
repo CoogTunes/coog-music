@@ -105,7 +105,7 @@ ALTER TABLE Followers ADD FOREIGN KEY (user_id) REFERENCES Users (user_id)ON DEL
 
 ALTER TABLE Followers ADD FOREIGN KEY (artist_id) REFERENCES Artist (artist_id) ON DELETE CASCADE ON UPDATE CASCADE;
 
-CREATE or replace FUNCTION checkAlbumDate() RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION checkAlbumDate() RETURNS trigger AS $$
 	DECLARE
 		artist_date date;
     BEGIN
@@ -114,9 +114,28 @@ CREATE or replace FUNCTION checkAlbumDate() RETURNS trigger AS $$
 		if artist_date > new.date_added THEN
 			new.date_added = artist_date;
 		END if;
+		
 		return new;
     END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE TRIGGER checkAlbumDate BEFORE INSERT OR UPDATE ON Album
     FOR EACH ROW EXECUTE FUNCTION checkAlbumDate();
+	
+	
+CREATE OR REPLACE FUNCTION checkSongDate() RETURNS trigger AS $$
+	DECLARE
+		album_date date;
+    BEGIN
+		select al.date_added into album_date from album as al where new.album_id = al.album_id;
+		
+		if album_date > new.release_date THEN
+			new.release_date = album_date;
+		END if;
+		
+		return new;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER checkSongDate BEFORE INSERT OR UPDATE ON Song
+    FOR EACH ROW EXECUTE FUNCTION checkSongDate();
