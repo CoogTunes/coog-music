@@ -104,8 +104,27 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, "/home", http.StatusSeeOther)
 }
+
+// HOME PAGE
+
+func (m *Repository) GetHome(w http.ResponseWriter, r *http.Request) {
+	render.Template(w, r, "coogtunes.page.gohtml", &models.TemplateData{
+		Form: forms.New(nil),
+	})
+}
+
+// END OF HOME PAGE
+
+// PROFILE PAGE
+func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
+	render.Template(w, r, "profilepage.page.gohtml", &models.TemplateData{
+		Form: forms.New(nil),
+	})
+}
+
+//  END OF PROFILE PAGE
 
 // USERS
 func (m *Repository) AddUser(w http.ResponseWriter, r *http.Request) {

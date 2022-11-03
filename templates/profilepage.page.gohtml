@@ -1,0 +1,183 @@
+{{template "base" .}}
+
+    {{define "title"}}
+        <title>Coog Tunes</title>
+    {{end}}
+
+    {{define "css"}}
+        <link rel="stylesheet" href="/static/css/profilepage.css">
+    {{end}}
+
+    {{define "content"}}
+        <header>
+            <div class="menu_side">
+                <h1>Coog Tunes</h1>
+                <div class="playlist">
+                    <h4 class="active"><span></span><i class="bi bi-house-door-fill"></i>Home</h4>
+                    <h4 class="active"><span></span><i class="bi bi-vinyl"></i>Discover</h4>
+                    <h4 class="active"><span></span><i class="bi bi-music-note-beamed"></i>My Playlist</h4>
+                </div>
+                <div class="menu_song">
+                    <li class="songItem">
+                        <span>01</span>
+                        <img src="/static/img/adele.jpg" alt="Adele">
+                        <h5>
+                            Hello
+                            <div class="subtitle">Adele</div>
+                        </h5>
+                        <i class="bi playListPlay bi-play-circle-fill" id="1"></i>
+
+                    </li>
+                    <li class="songItem">
+                        <span>02</span>
+                        <img src="/static/img/adele.jpg" alt="Adele">
+                        <h5>
+                            I Miss You
+                            <div class="subtitle">Adele</div>
+                        </h5>
+                        <i class="bi playListPlay bi-play-circle-fill" id="2"></i>
+
+                    </li>
+                    <li class="songItem">
+                        <span>03</span>
+                        <img src="/static/img/adele.jpg" alt="Adele">
+                        <h5>
+                            Remedy
+                            <div class="subtitle">Adele</div>
+                        </h5>
+                        <i class="bi playListPlay bi-play-circle-fill" id="3"></i>
+
+                    </li>
+                    <li class="songItem">
+                        <span>04</span>
+                        <img src="/static/img/adele.jpg" alt="Adele">
+                        <h5>
+                            River Lea
+                            <div class="subtitle">Adele</div>
+                        </h5>
+                        <i class="bi playListPlay bi-play-circle-fill" id="4"></i>
+                    </li>
+                    <li class="songItem">
+                        <span>05</span>
+                        <img src="/static/img/adele.jpg" alt="Adele">
+                        <h5>
+                            Send My Love
+                            <div class="subtitle">Adele</div>
+                        </h5>
+                        <i class="bi playListPlay bi-play-circle-fill" id="5"></i>
+                    </li>
+                    <li class="songItem">
+                        <span>06</span>
+                        <img src="/static/img/adele.jpg" alt="Adele">
+                        <h5>
+                            Love in the Dark
+                            <div class="subtitle">Adele</div>
+                        </h5>
+                        <i class="bi playListPlay bi-play-circle-fill" id="6"></i>
+                    </li>
+                </div>
+            </div>
+
+
+            <div class="song_side">
+                <nav>
+                    <ul>
+                        <li>DISCOVER <span></span></li>
+                        <li>MY LIBRARY</li>
+                        <li>RADIO</li>
+                    </ul>
+                    <div class="search">
+                        <i class="bi bi-search"></i>
+                        <input type="text" placeholder="Search Music...">
+                    </div>
+                    <div class="user" id="subMenu">
+                        <div class="sub-menu">
+                            <div class="user-info">
+                                <img src="/static/img/account.png">
+                                Fardad Sadeghi
+                            </div>
+                            <hr>
+                            <a href="#Account" class="sub-menu-link">Account</a>
+                            <a href="#Profile" class="sub-menu-link">Profile</a>
+                            <a href="#Settings" class="sub-menu-link">Settings</a>
+                            <a href="/login" class="sub-menu-link">Log In</a>
+                        </div>
+                    </div>
+                </nav>
+                <div class="content">
+                    <h1>Profile Page</h1>
+                    <img class="profile-pic" src= "/static/img/account.png">
+                    <div class="buttons">
+                        <button>EDIT</button>
+                    </div>
+                    <input class="search-bar" type="text" placeholder="Tell us about yourself" >
+
+
+                </div>
+
+                <div class="profile-playlist">
+                    <p>
+                        Playlists
+                    </p>
+
+                    <img class="playlist-cover" src="https://static.vecteezy.com/system/resources/thumbnails/001/200/758/small/music-note.png">
+
+                    <img class="playlist-cover" src="https://static.vecteezy.com/system/resources/thumbnails/001/200/758/small/music-note.png">
+
+                </div>
+            </div>
+
+
+
+            <div class="master_play">
+                <div class="wave">
+                    <div class="wave1"></div>
+                    <div class="wave1"></div>
+                    <div class="wave1"></div>
+                </div>
+                <img src="/static/img/adele.jpg" alt="Adele">
+                <h5>Love in the Dark <br>
+                    <div class="subtitle">Adele</div>
+                </h5>
+                <div class="icon">
+                    <i class="bi bi-skip-start-fill"></i>
+                    <i class="bi bi-play-fill"></i>
+                    <i class="bi bi-skip-end-fill"></i>
+                </div>
+                <span id="currentStart">0:00</span>
+                <div class="bar">
+                    <input type="range" class="seek" min="0" value="0" max="100">
+                    <div class="bar2" id="bar2"></div>
+                    <div class="dot"></div>
+                </div>
+                <span id="currentEnd">0:00</span>
+
+                <div class="volume">
+                    <i class="bi bi-volume-down-fill"></i>
+                    <input type="range" class="vol" min="0" value="30" max="100">
+                    <div class="vol_bar"></div>
+                    <div class="dot" id="vol_dot"></div>
+                </div>
+            </div>
+            <!--
+            <nav>
+                <a href="coogtunes.html"></a>
+                <div class="nav-links" id="navLinks">
+                    <ul>
+                        <li><a href="">HOME</a> </li>
+                        <li><a href="">LIBRARY</a></li>
+                        <li><a href="">DISCOVER</a></li>
+                        <li><a href="">ACCOUNT</a></li>
+                    </ul>
+                </div>
+            </nav>
+            -->
+        </header>
+    {{end}}
+
+    {{define "js"}}
+        <script src="/static/js/profilepage.js"></script>
+    {{end}}
+
+
+
