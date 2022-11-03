@@ -26,7 +26,7 @@ type Artist struct {
 	Artist_id int
 	Location  string
 	Join_date string
-	Songs     []int
+	Songs     []Song
 }
 
 type Playlist struct {

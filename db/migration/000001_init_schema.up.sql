@@ -57,6 +57,19 @@ CREATE TABLE Album (
                         date_added date DEFAULT 'now()'
 );
 
+CREATE TABLE AlbumSong (
+                            album_id integer,
+                            song_id integer,
+                           	PRIMARY KEY (album_id, song_id)
+);
+
+CREATE TABLE SongPlaylist(
+                            song_id integer,
+                            playlist_id integer,
+                            PRIMARY KEY (playlist_id, song_id)
+
+);
+
 CREATE TABLE Followers (
                         user_id integer,
                         artist_id integer,

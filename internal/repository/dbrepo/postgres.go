@@ -86,6 +86,53 @@ func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 	return artists, nil
 }
 
+func (m *postgresDBRepo) GetArtistsAndSongs() ([]models.Artist, error) {
+	var artists []models.Artist
+
+	query := `SELECT a.name, a.artist_id, a.location, a.join_date, s.song_id, s.title, 
+				s.release_date, s.duration, s.album_id, s.total_plays, s.album_id, al.name
+				FROM Artist as a, Song as s, Album as al
+				WHERE a.artist_id = s.artist_id AND al.album_id = s.album_id
+				ORDER BY lower(a.name), a.artist_id, s.title`
+
+	rows, err := m.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		var artist models.Artist
+		var song models.Song
+
+		rows.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &song.Song_id, &song.Title,
+			&song.Release_date, &song.Duration, &song.Album_id, &song.Total_plays, &song.Album_id, &song.Album)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if len(artists) > 0 {
+			if artist.Artist_id != artists[len(artists)-1].Artist_id {
+				artists = append(artists, artist)
+			}
+		} else if len(artists) == 0 {
+			artists = append(artists, artist)
+		}
+
+		song.Artist_id = artists[len(artists)-1].Artist_id
+		song.Artist_name = artists[len(artists)-1].Name
+		artists[len(artists)-1].Songs = append(artists[len(artists)-1].Songs, song)
+	}
+	return artists, nil
+}
+
 func (m *postgresDBRepo) GetArtistName(artist_id int) (str string, err error) {
 	var song models.Song
 	query := `SELECT name FROM Artist as A, Song as S WHERE A.artist_id = S.artist_id AND A.artist_id = $1`

@@ -146,7 +146,7 @@ func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
 	artist_id := r.Form.Get("artist_id")
 	location := r.Form.Get("location")
 	join_date := r.Form.Get("join_date")
-	var songs []int
+	var songs []models.Song
 
 	int_artist_id, err := strconv.Atoi(artist_id)
 	if err != nil {
@@ -163,6 +163,11 @@ func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
 func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
 	artists, err := m.DB.GetArtists()
 
+	returnAsJSON(artists, w, err)
+}
+
+func (m *Repository) GetArtistsAndSongs(w http.ResponseWriter, r *http.Request) {
+	artists, err := m.DB.GetArtistsAndSongs()
 	returnAsJSON(artists, w, err)
 }
 
