@@ -3,6 +3,25 @@ function toggleMenu() {
     subMenu.classList.toggle("open-menu")
 }
 
+const music = new Audio('/MusicLibrary/audio/adele.mp3');
+
+window.onload=function() {
+    let masterPlay = document.getElementById("masterPLay");
+
+    masterPlay.addEventListener('click', () => {
+        if (music.paused || music.currentTime <= 0) {
+            music.play();
+            masterPlay.classList.remove('bi-play-fill')
+            masterPlay.classList.add('bi-pause-fill')
+        } else {
+            music.pause();
+            masterPlay.classList.add('bi-play-fill')
+            masterPlay.classList.remove('bi-pause-fill')
+        }
+    });
+}
+
+//login
 let x = document.getElementById("login");
 let y = document.getElementById("register");
 let z = document.getElementById("btn");
