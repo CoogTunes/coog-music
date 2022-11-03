@@ -7,6 +7,7 @@ import (
 	"github.com/DeLuci/coog-music/internal/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 )
 
 func routes() http.Handler {
@@ -19,7 +20,9 @@ func routes() http.Handler {
 	mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
 	mux.Use(middleware.AllowContentType("application/json", "application/x-www-form-urlencoded", "multipart/form-data"))
-
+	mux.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{"https://*", "http://*"},
+	}))
 	// These work
 	mux.Post("/user", handlers.Repo.AddUser)
 	mux.Get("/user/{id}", handlers.Repo.GetUser)
