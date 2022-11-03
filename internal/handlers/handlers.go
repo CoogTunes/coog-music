@@ -74,7 +74,7 @@ func (m *Repository) PostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, "/home", http.StatusSeeOther)
 }
 
 func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {

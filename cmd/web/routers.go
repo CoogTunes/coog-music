@@ -40,8 +40,8 @@ func routes() http.Handler {
 	mux.Get("/albums", handlers.Repo.GetAlbums)
 
 	// Register and Login Handlers
-	mux.Get("/login", handlers.Repo.GetLogin)
-	mux.Post("/login", handlers.Repo.PostLogin)
+	mux.Get("/", handlers.Repo.GetLogin)
+	mux.Post("/", handlers.Repo.PostLogin)
 
 	// Home page handlers
 	mux.Get("/home", handlers.Repo.GetHome)
