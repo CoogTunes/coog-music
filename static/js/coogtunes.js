@@ -4,10 +4,8 @@ function toggleMenu() {
 }
 
 const music = new Audio('/MusicLibrary/audio/adele.mp3');
-
+let masterPlay = document.getElementById("masterPLay");
 window.onload=function() {
-    let masterPlay = document.getElementById("masterPLay");
-
     masterPlay.addEventListener('click', () => {
         if (music.paused || music.currentTime <= 0) {
             music.play();
@@ -20,7 +18,6 @@ window.onload=function() {
         }
     });
 }
-
 //login
 let x = document.getElementById("login");
 let y = document.getElementById("register");
