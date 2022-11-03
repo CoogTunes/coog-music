@@ -118,5 +118,5 @@ CREATE or replace FUNCTION checkAlbumDate() RETURNS trigger AS $$
     END;
 $$ LANGUAGE plpgsql;
 
-CREATE or replace TRIGGER changepass BEFORE INSERT OR UPDATE ON Album
+CREATE OR REPLACE TRIGGER checkAlbumDate BEFORE INSERT OR UPDATE ON Album
     FOR EACH ROW EXECUTE FUNCTION checkAlbumDate();
