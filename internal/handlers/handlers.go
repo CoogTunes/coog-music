@@ -70,7 +70,7 @@ func (m *Repository) PostLogin(w http.ResponseWriter, r *http.Request) {
 	err = m.DB.Authenticate(email, pwd)
 	if err != nil {
 		log.Println(err)
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 

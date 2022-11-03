@@ -16,14 +16,14 @@
                     <button type="button" class="toggle_btn" onclick="login()">Log In</button>
                     <button type="button" class="toggle_btn" onclick="register()">Register</button>
                 </div>
-                <form id="login" method="post" action="/login" class="input_group">
+                <form id="login" method="post" action="/" class="input_group">
                     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
                     <input type="text" name="email" class="input_field" placeholder="Email" required>
                     <input type="password" name="password" class="input_field" placeholder="Password" required>
                     <input type="checkbox" class="check_box"><span>Remember Password</span>
                     <button type="submit" name="submit_button" class="submit_btn" value="login">Log In</button>
                 </form>
-                <form id="register" method="post" action="/login" class="input_group">
+                <form id="register" method="post" action="/" class="input_group">
                     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
                     <input type="text" name = "first_name" class="input_field" placeholder="First Name" required>
                     <input type="text" name = "last_name" class="input_field" placeholder="Last Name" required>
