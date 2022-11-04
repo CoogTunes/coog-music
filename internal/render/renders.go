@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/DeLuci/coog-music/internal/config"
-	"github.com/DeLuci/coog-music/internal/models"
-	"github.com/justinas/nosurf"
 	"html/template"
 	"net/http"
 	"path/filepath"
+
+	"github.com/CoogTunes/coog-music/internal/config"
+	"github.com/CoogTunes/coog-music/internal/models"
+	"github.com/justinas/nosurf"
 )
 
 var app *config.AppConfig
