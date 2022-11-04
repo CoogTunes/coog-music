@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/DeLuci/coog-music/internal/models"
+	"github.com/CoogTunes/coog-music/internal/models"
 	"golang.org/x/crypto/bcrypt"
 )
 

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/DeLuci/coog-music/internal/models"
+	"github.com/CoogTunes/coog-music/internal/models"
 )
 
 type DatabaseRepo interface {

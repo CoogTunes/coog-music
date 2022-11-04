@@ -3,8 +3,9 @@
 package helpers
 
 import (
-	"github.com/DeLuci/coog-music/internal/config"
 	"net/http"
+
+	"github.com/CoogTunes/coog-music/internal/config"
 )
 
 var app *config.AppConfig

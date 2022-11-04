@@ -3,11 +3,12 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"github.com/DeLuci/coog-music/internal/render"
 
-	"github.com/DeLuci/coog-music/internal/config"
-	"github.com/DeLuci/coog-music/internal/driver"
-	"github.com/DeLuci/coog-music/internal/handlers"
+	"github.com/CoogTunes/coog-music/internal/render"
+
+	"github.com/CoogTunes/coog-music/internal/config"
+	"github.com/CoogTunes/coog-music/internal/driver"
+	"github.com/CoogTunes/coog-music/internal/handlers"
 
 	// "github.com/DeLuci/coog-music/internal"
 	// "github.com/DeLuci/coog-music/cmd/web/routers"
@@ -60,7 +61,7 @@ func run() (*driver.DB, error) {
 	session.Cookie.Secure = app.InProduction
 
 	app.Session = session
-	
+
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("cannot create template cache")

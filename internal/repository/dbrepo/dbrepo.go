@@ -2,8 +2,9 @@ package dbrepo
 
 import (
 	"database/sql"
-	"github.com/DeLuci/coog-music/internal/config"
-	"github.com/DeLuci/coog-music/internal/repository"
+
+	"github.com/CoogTunes/coog-music/internal/config"
+	"github.com/CoogTunes/coog-music/internal/repository"
 )
 
 type postgresDBRepo struct {

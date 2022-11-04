@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/DeLuci/coog-music/internal/helpers"
-	"github.com/justinas/nosurf"
 	"net/http"
+
+	"github.com/CoogTunes/coog-music/internal/helpers"
+	"github.com/justinas/nosurf"
 )
 
 // NoSurf adds CSRF protection to all POST requests

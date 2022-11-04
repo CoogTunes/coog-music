@@ -1,6 +1,6 @@
 package models
 
-import "github.com/DeLuci/coog-music/internal/forms"
+import "github.com/CoogTunes/coog-music/internal/forms"
 
 type TemplateData struct {
 	StringMap       map[string]string

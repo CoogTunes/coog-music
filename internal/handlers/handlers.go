@@ -7,17 +7,17 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/DeLuci/coog-music/internal/forms"
-	"github.com/DeLuci/coog-music/internal/render"
+	"github.com/CoogTunes/coog-music/internal/forms"
+	"github.com/CoogTunes/coog-music/internal/render"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/DeLuci/coog-music/internal/config"
-	"github.com/DeLuci/coog-music/internal/driver"
-	"github.com/DeLuci/coog-music/internal/models"
+	"github.com/CoogTunes/coog-music/internal/config"
+	"github.com/CoogTunes/coog-music/internal/driver"
+	"github.com/CoogTunes/coog-music/internal/models"
 	"github.com/go-chi/chi/v5"
 
-	"github.com/DeLuci/coog-music/internal/repository"
-	"github.com/DeLuci/coog-music/internal/repository/dbrepo"
+	"github.com/CoogTunes/coog-music/internal/repository"
+	"github.com/CoogTunes/coog-music/internal/repository/dbrepo"
 )
 
 // Repo the repository used by the handlers

@@ -1,4 +1,4 @@
-module github.com/DeLuci/coog-music
+module github.com/CoogTunes/coog-music
 
 go 1.19
 

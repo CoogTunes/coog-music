@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	// "github.com/DeLuci/coog-music/internal/config"
-	"github.com/DeLuci/coog-music/internal/handlers"
+	"github.com/CoogTunes/coog-music/internal/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
