@@ -145,6 +145,19 @@ func (m *postgresDBRepo) GetArtistName(artist_id int) (str string, err error) {
 	return song.Artist_name, err
 }
 
+func (m *postgresDBRepo) AddAlbum(album models.Album) (models.Album, error) {
+	var addedAlbum models.Album
+
+	query := "insert into Album (name, artist_id, date_added) values ($1, $2, to_date($3, 'YYYY-MM-DD')) RETURNING *"
+	row := m.DB.QueryRow(query, album.Name, album.Artist_id, album.Date_added)
+
+	err := row.Scan(&addedAlbum.Name, &addedAlbum.Artist_id, &addedAlbum.Album_id, &addedAlbum.Date_added)
+	if err != nil {
+		log.Println(err)
+	}
+	return addedAlbum, nil
+}
+
 func (m *postgresDBRepo) Authenticate(email string, password string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()

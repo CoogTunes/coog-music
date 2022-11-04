@@ -190,6 +190,24 @@ func (m *Repository) GetArtistsAndSongs(w http.ResponseWriter, r *http.Request) 
 	returnAsJSON(artists, w, err)
 }
 
+// ALBUMS
+
+func (m *Repository) AddAlbum(w http.ResponseWriter, r *http.Request) {
+	var album models.Album
+	var err error
+	r.ParseForm()
+	// get fields
+	album.Artist_id, err = strconv.Atoi(r.Form.Get("artist_id"))
+	if err != nil {
+		log.Println(err)
+	}
+	album.Name = r.Form.Get("album_name")
+	album.Date_added = r.Form.Get("album_date")
+	addedAlbum, err := m.DB.AddAlbum(album)
+
+	returnAsJSON(addedAlbum, w, err)
+}
+
 // SONGS
 
 func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
