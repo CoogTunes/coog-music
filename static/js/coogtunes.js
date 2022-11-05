@@ -3,7 +3,7 @@ function toggleMenu() {
     subMenu.classList.toggle("open-menu")
 }
 
-const music = new Audio('/MusicLibrary/audio/adele.mp3');
+const music = new Audio('/static/audio/adele.mp3');
 let masterPlay = document.getElementById("masterPLay");
 if (masterPlay) {
     masterPlay.addEventListener('click', () => {
