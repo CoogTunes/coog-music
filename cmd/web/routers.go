@@ -30,6 +30,7 @@ func routes() http.Handler {
 
 	mux.Post("/artist", handlers.Repo.AddArtist)
 	mux.Get("/artists", handlers.Repo.GetArtists)
+	mux.Put("/artist", handlers.Repo.UpdateArtist)
 	mux.Get("/artists-songs", handlers.Repo.GetArtistsAndSongs)
 
 	mux.Post("/album", handlers.Repo.AddAlbum)
@@ -38,6 +39,7 @@ func routes() http.Handler {
 	mux.Post("/song", handlers.Repo.AddSong)
 	mux.Get("/song/{id}", handlers.Repo.GetSong)
 	mux.Get("/songs", handlers.Repo.GetSongs)
+	mux.Put("/song", handlers.Repo.UpdateSong)
 
 	mux.Put("/songCount/{id}", handlers.Repo.UpdateSongCount)
 
@@ -45,6 +47,8 @@ func routes() http.Handler {
 
 	mux.Post("/album/{songid}", handlers.Repo.AddSongToAlbum)
 	mux.Post("/song/{playlistId}", handlers.Repo.AddSongToPlaylist)
+
+	mux.Post("/follow", handlers.Repo.Follow)
 
 	// Register and Login Handlers
 	mux.Get("/", handlers.Repo.GetLogin)

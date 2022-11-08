@@ -190,6 +190,26 @@ func (m *Repository) GetArtistsAndSongs(w http.ResponseWriter, r *http.Request) 
 	returnAsJSON(artists, w, err)
 }
 
+func (m *Repository) UpdateArtist(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	// get fields
+	name := r.Form.Get("name")
+	// artist_idString := r.Form.Get("artist_id")
+	location := r.Form.Get("location")
+	// join_date := r.Form.Get("join_date")
+
+	// artist_id, err := strconv.Atoi(artist_idString)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+
+	artistToUpdate := models.Artist{Name: name, Location: location}
+
+	addedUser, err := m.DB.UpdateArtist(artistToUpdate)
+
+	returnAsJSON(addedUser, w, err)
+}
+
 // ALBUMS
 
 func (m *Repository) AddAlbum(w http.ResponseWriter, r *http.Request) {
@@ -259,6 +279,32 @@ func (m *Repository) GetSong(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(song, w, err)
 }
 
+func (m *Repository) UpdateSong(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	// get fields
+	title := r.Form.Get("title")
+	duration := r.Form.Get("duration")
+	song_id_string := r.Form.Get("song_id")
+
+	song_id, err := strconv.Atoi(song_id_string)
+	if err != nil {
+		log.Println(err)
+	}
+
+	songToUpdate := models.Song{
+		Title:    title,
+		Duration: duration,
+		Song_id:  song_id,
+	}
+
+	updatedSong, err := m.DB.UpdateSong(songToUpdate)
+	if err != nil {
+		log.Println(err)
+	}
+
+	returnAsJSON(updatedSong, w, err)
+}
+
 func (m *Repository) UpdateSongCount(w http.ResponseWriter, r *http.Request) {
 	idString := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idString)
@@ -315,6 +361,25 @@ func (m *Repository) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	addedUser, err := m.DB.UpdateUser(newUser)
 
 	returnAsJSON(addedUser, w, err)
+}
+
+func (m *Repository) Follow(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	// get fields
+	artist_idString := r.Form.Get("artist_id")
+	user_idString := r.Form.Get("user_id")
+
+	artistId, err := strconv.Atoi(artist_idString)
+	if err != nil {
+		log.Println(err)
+	}
+	userId, err := strconv.Atoi(user_idString)
+	if err != nil {
+		log.Println(err)
+	}
+
+	follower, err := m.DB.Follow(artistId, userId)
+	returnAsJSON(follower, w, err)
 }
 
 // i is the models.XYZ property

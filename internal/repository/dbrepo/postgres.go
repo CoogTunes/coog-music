@@ -379,50 +379,52 @@ func (m *postgresDBRepo) UpdateUser(user models.Users) (models.Users, error) {
 
 func (m *postgresDBRepo) UpdateArtist(artist models.Artist) (models.Artist, error) {
 
-	var artists models.Artist
+	var artistToReturn models.Artist
 
 	query :=
 		`UPDATE Artist
-	SET (name, location) = ($1, $2)`
+	SET (name, location) = ($1, $2)
+	WHERE name = $3 RETURNING *`
 
-	row := m.DB.QueryRow(query, artist.Name, artist.Location)
+	row := m.DB.QueryRow(query, artist.Name, artist.Location, artist.Name)
 
-	err := row.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date)
+	err := row.Scan(&artistToReturn.Name, &artistToReturn.Artist_id, &artistToReturn.Location, &artistToReturn.Join_date)
 
 	if err != nil {
 		log.Println(err)
 	}
 
-	return artists, nil
+	return artistToReturn, nil
 }
 
 func (m *postgresDBRepo) UpdateSong(song models.Song) (models.Song, error) {
 
-	var songs models.Song
+	var songToReturn models.Song
 
 	query := `
 	UPDATE SONG
-	SET (title, duration, total_plays) = ($1, $2, 0)`
+	SET (title, duration) = ($1, $2) 
+	WHERE song_id = $3 RETURNING *`
 
-	row := m.DB.QueryRow(query, song.Title, song.Duration, song.Total_plays)
+	row := m.DB.QueryRow(query, song.Title, song.Duration, song.Song_id)
 
-	err := row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays)
+	err := row.Scan(&songToReturn.Song_id, &songToReturn.Title, &songToReturn.Artist_id, &songToReturn.Release_date, &songToReturn.Duration, &songToReturn.Album_id, &songToReturn.Total_plays)
 
 	if err != nil {
 		log.Println(err)
 	}
 
-	return songs, nil
+	return songToReturn, nil
 
 }
 
-func (m *postgresDBRepo) Follow(artist models.Artist, user models.Users) (models.Followers, error) {
+func (m *postgresDBRepo) Follow(artistId int, userId int) (models.Followers, error) {
 
 	var followers models.Followers
 
 	query := `INSERT INTO FOLLOWERS (artist_id, user_id) values($1, $2) RETURNING *`
 
-	row := m.DB.QueryRow(query, artist.Artist_id, user.User_id)
+	row := m.DB.QueryRow(query, artistId, userId)
 
 	err := row.Scan(&followers.Artist_id, &followers.User_id)
 
