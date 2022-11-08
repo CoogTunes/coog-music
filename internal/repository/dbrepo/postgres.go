@@ -448,6 +448,84 @@ func (m *postgresDBRepo) RemoveUser(user_id int) error {
 	return nil
 }
 
+func (m *postgresDBRepo) RemoveSong(song_id int) error {
+
+	query := `DELETE FROM SONG WHERE song_id = $1`
+
+	_, err := m.DB.Exec(query, song_id)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return nil
+}
+
+func (m *postgresDBRepo) RemovePlaylist(playlist_id int) error {
+
+	query := `DELETE FROM PLAYLIST WHERE playlist_id = $1`
+
+	_, err := m.DB.Exec(query, playlist_id)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return nil
+}
+
+func (m *postgresDBRepo) RemoveAlbum(album_id int) error {
+
+	query := `DELETE FROM ALBUM WHERE album_id = $1`
+
+	_, err := m.DB.Exec(query, album_id)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return nil
+}
+
+func (m *postgresDBRepo) RemoveArtist(artist_id int) error {
+
+	query := `DELETE FROM ARTIST WHERE artist_id = $1`
+
+	_, err := m.DB.Exec(query, artist_id)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return nil
+}
+
+func(m *postgresDBRepo) RemoveSongFromAlbum(song_id int, album_id int) error{
+
+	query := "DELETE FROM ALBUMSONG WHERE song_id = $1 AND album_id = $2"
+
+	_, err := m.DB.Exec(query, song_id, album_id)
+
+	if err != nil{
+		log.Println(err)
+	}
+
+	return nil
+
+}
+
+func(m *postgresDBRepo) RemoveSongFromPlaylist(song_id int, playlist_id int) error{
+
+	query := "DELETE FROM SONGPLAYLIST WHERE song_id = $1 AND playlist_id = $2"
+
+	_, err := m.DB.Exec(query, song_id, playlist_id)
+
+	if err != nil{
+		log.Println(err)
+	}
+
+	return nil
+}
 //delete from playlist/album
 //delete artist, user, song
 //functions to add song to album/playlist and merge them together

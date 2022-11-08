@@ -34,4 +34,13 @@ type DatabaseRepo interface {
 	Follow(artistId int, userId int) (models.Followers, error) //add
 
 	Authenticate(email string, password string) error
+
+	RemoveUser(user_id int) error
+	RemoveSong(song_id int) error
+	RemoveAlbum(album_id int) error
+	RemovePlaylist(playlist_id int) error
+	RemoveArtist(artist_id int) error
+
+	RemoveSongFromAlbum(song_id int, album_id int) error
+	RemoveSongFromPlaylist(song_id int, playlist_id int) error
 }
