@@ -33,15 +33,18 @@ func routes() http.Handler {
 	mux.Get("/artists-songs", handlers.Repo.GetArtistsAndSongs)
 
 	mux.Post("/album", handlers.Repo.AddAlbum)
-	mux.Get("/song/{id}", handlers.Repo.GetSong)
+	mux.Get("/albums", handlers.Repo.GetAlbums)
+
 	mux.Post("/song", handlers.Repo.AddSong)
+	mux.Get("/song/{id}", handlers.Repo.GetSong)
 	mux.Get("/songs", handlers.Repo.GetSongs)
 
 	mux.Put("/songCount/{id}", handlers.Repo.UpdateSongCount)
 
 	mux.Get("/playlists", handlers.Repo.GetPlaylists)
 
-	mux.Get("/albums", handlers.Repo.GetAlbums)
+	mux.Post("/album/{songid}", handlers.Repo.AddSongToAlbum)
+	mux.Post("/song/{playlistId}", handlers.Repo.AddSongToPlaylist)
 
 	// Register and Login Handlers
 	mux.Get("/", handlers.Repo.GetLogin)
@@ -53,8 +56,6 @@ func routes() http.Handler {
 	// Profile page handlers
 	mux.Get("/profile", handlers.Repo.GetProfile)
 	// Need to finish handlers and maybe adjust routing
-	mux.Post("/song/{playlistId}", handlers.Repo.AddSongToPlaylist)
-	mux.Post("/album/{songid}", handlers.Repo.AddSongToAlbum)
 
 	fileServer := http.FileServer(http.Dir("./static/"))
 
