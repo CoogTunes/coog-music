@@ -1,29 +1,41 @@
+@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
 * {
     margin: 0;
     padding: 0;
-    font-family: sans-serif;
+    font-family: "Heebo", sans-serif;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+    transition: background-color 600000s 0s, color 600000s 0s;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
 }
 .hero {
     height: 100%;
     width: 100%;
-    background-image: linear-gradient(rgba(0,0,0,.4), rgba(0,0,0,.4)), url("/static/img/cullen.jpg");
-    background-size: cover;
-    position: absolute;
+    max-width: 350px;
+    margin: auto;
 }
 #form_box {
     width: 350px;
-    height: 400px;
+    min-height: 400px;
     position: relative;
-    margin: 6% auto;
-    background: #eeecec;
-    padding: 5px;
+    background: #151515;
+    padding: 30px 15px;
     overflow: hidden;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 .button_box{
     width: 220px;
     margin: 40px auto;
     position: relative;
-    box-shadow: 0 0 20px 9px #ff61231f;
     border-radius: 30px;
 }
 .toggle_btn {
@@ -33,6 +45,10 @@
     border: 0;
     outline: none;
     position: relative;
+    color: white;
+}
+.toggle_btn.active {
+    color: black;
 }
 #btn {
     top: 0;
@@ -40,23 +56,24 @@
     position: absolute;
     width: 110px;
     height: 100%;
-    background: linear-gradient(to right, red, white);
+    background: white;
     border-radius: 30px;
     transition: .5s;
 }
 #register{
-    top: 110px;
+    top: 180px;
     position: absolute;
     width: 280px;
+    transform: translateX(-200%);
     transition: .5s;
-    right: 450px;
 }
 #login {
-    top: 150px;
-    position: absolute;
+    /* top: 150px; */
+    /* position: absolute; */
     width: 280px;
     transition: .5s;
-    left: 50px;
+    /* left: 50px; */
+
 }
 .input_field {
     width: 100%;
@@ -68,6 +85,7 @@
     border-bottom: 1px solid #999;
     outline: none;
     background: transparent;
+    color: white;
 }
 #password {
     width: 100%;
@@ -79,6 +97,7 @@
     border-bottom: 1px solid #999;
     outline: none;
     background: transparent;
+    color:white;
 }
 #confirm_password {
     width: 100%;
@@ -90,6 +109,7 @@
     border-bottom: 1px solid #999;
     outline: none;
     background: transparent;
+    color: white;
 }
 .submit_btn {
     width: 85%;
@@ -97,34 +117,92 @@
     cursor: pointer;
     display: block;
     margin: auto;
-    background: linear-gradient(to right, red, white);
+    background: white;
     border: 0;
     outline: none;
     border-radius: 30px;
+    margin-top: 40px;
 }
 .check_box {
     margin: 30px 10px 30px 0;
 }
-span {
+.checkbox-label {
     color: #777;
     font-size: 12px;
-    bottom: 64px;
-    position: absolute;
 }
-/*#login {*/
-/*    left: 50px;*/
-/*}*/
-/*#register {*/
-/*    left: 450px;*/
-/*}*/
-/*.user_role {*/
-/*    width: 100%;*/
-/*    padding: 10px 0;*/
-/*    margin: 5px 0;*/
-/*    border-left: 0;*/
-/*    border-top: 0;*/
-/*    border-right: 0;*/
-/*    border-bottom: 1px solid #999;*/
-/*    outline: none;*/
-/*    background: transparent;*/
-/*}*/
+
+form#register span {
+    color: #686868;
+}
+
+.bg-0 {
+    background: url(/static/img/cougar4k.jpg) no-repeat 50% 50%/cover;
+    min-height: 100vh;
+}
+
+.user-level-wrapper {
+    background: #353535;
+    width: 100%;
+    margin: 15px 0px;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    border-radius: 5px;
+}
+
+.user-level {
+    width: 100%;
+    background: #353535;
+    color: #999999;
+    border-radius: 5px;
+    border: none;
+    outline-color: transparent;
+    outline: none !important;
+}
+
+.reg-log-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.overlay-bg {
+    position: fixed;
+    width: 100%;
+    height: 100vh;
+    /* background: rgba(0,0,0,0.8); */
+    /* background: #ff9966; */
+    background: -webkit-linear-gradient(to right, #ff5e62, #ff9966);
+    background: linear-gradient(to right, #ff5e62, #ff996675);
+    /* background: #ff9966; */
+    background: -webkit-linear-gradient(to right, #ff5e62, #ff9966);
+    background: linear-gradient(to right, #ff5e62, #ff99662e);
+    /* background: #EB5757; */
+    background: -webkit-linear-gradient(to right, #000000, #EB5757);
+    background: linear-gradient(to right, #6f6a2a, #DB0826B5);
+    background-color: #FA8BFF00;
+    background-image: linear-gradient(45deg, #FA8BFF70 0%, #2BD2FF 52%, #2bff872a 90%);
+}
+
+.overlay-bg::after{
+    position: absolute;
+    content: "";
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 0%, black);
+}
+
+.footer-container {
+    position: relative;
+}
+
+.created-by {
+    color: rgba(211, 211, 211, 0.9);
+    padding: 20px;
+    display: flex;
+    justify-content: flex-end;
+    font-size: 12px;
+    font-weight: 400;
+}

@@ -51,11 +51,14 @@ func routes() http.Handler {
 	mux.Post("/follow", handlers.Repo.Follow)
 
 	// Register and Login Handlers
-	mux.Get("/", handlers.Repo.GetLogin)
-	mux.Post("/", handlers.Repo.PostLogin)
+	mux.Get("/login", handlers.Repo.GetLogin)
+	mux.Post("/login", handlers.Repo.PostLogin)
+
+	// Logout Handler
+	mux.Get("/logout", handlers.Repo.LogOut)
 
 	// Home page handlers
-	mux.Get("/home", handlers.Repo.GetHome)
+	mux.Get("/", handlers.Repo.GetHome)
 
 	// Profile page handlers
 	mux.Get("/profile", handlers.Repo.GetProfile)

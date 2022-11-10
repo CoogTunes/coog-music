@@ -158,24 +158,23 @@ func (m *postgresDBRepo) AddAlbum(album models.Album) (models.Album, error) {
 	return addedAlbum, nil
 }
 
-func (m *postgresDBRepo) Authenticate(email string, password string) error {
+func (m *postgresDBRepo) Authenticate(email string, password string) (models.Users, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-
-	var hashedPwd string
-	row := m.DB.QueryRowContext(ctx, "select password from users where username = $1", email)
-	err := row.Scan(&hashedPwd)
+	var userInfo models.Users
+	row := m.DB.QueryRowContext(ctx, "select * from users where username = $1", email)
+	err := row.Scan(&userInfo.User_id, &userInfo.Username, &userInfo.Password, &userInfo.First_name, &userInfo.Last_name, &userInfo.Admin_level)
 	if err != nil {
-		return err
+		return userInfo, err
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(hashedPwd), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(userInfo.Password), []byte(password))
 	if err == bcrypt.ErrMismatchedHashAndPassword {
-		return err
+		return userInfo, err
 	} else if err != nil {
-		return err
+		return userInfo, err
 	}
 
-	return nil
+	return userInfo, nil
 }
 
 // SONGS
@@ -500,13 +499,13 @@ func (m *postgresDBRepo) RemoveArtist(artist_id int) error {
 	return nil
 }
 
-func(m *postgresDBRepo) RemoveSongFromAlbum(song_id int, album_id int) error{
+func (m *postgresDBRepo) RemoveSongFromAlbum(song_id int, album_id int) error {
 
 	query := "DELETE FROM ALBUMSONG WHERE song_id = $1 AND album_id = $2"
 
 	_, err := m.DB.Exec(query, song_id, album_id)
 
-	if err != nil{
+	if err != nil {
 		log.Println(err)
 	}
 
@@ -514,18 +513,19 @@ func(m *postgresDBRepo) RemoveSongFromAlbum(song_id int, album_id int) error{
 
 }
 
-func(m *postgresDBRepo) RemoveSongFromPlaylist(song_id int, playlist_id int) error{
+func (m *postgresDBRepo) RemoveSongFromPlaylist(song_id int, playlist_id int) error {
 
 	query := "DELETE FROM SONGPLAYLIST WHERE song_id = $1 AND playlist_id = $2"
 
 	_, err := m.DB.Exec(query, song_id, playlist_id)
 
-	if err != nil{
+	if err != nil {
 		log.Println(err)
 	}
 
 	return nil
 }
+
 //delete from playlist/album
 //delete artist, user, song
 //functions to add song to album/playlist and merge them together

@@ -3,47 +3,105 @@ function toggleMenu() {
     subMenu.classList.toggle("open-menu")
 }
 
-const music = new Audio('static\audio\adele.mp3');
-let masterPlay = document.getElementById("masterPLay");
-if (masterPlay) {
-    masterPlay.addEventListener('click', () => {
-        if (music.paused || music.currentTime <= 0) {
-            music.play();
-            masterPlay.classList.remove('bi-play-fill')
-            masterPlay.classList.add('bi-pause-fill')
-        } else {
-            music.pause();
-            masterPlay.classList.add('bi-play-fill')
-            masterPlay.classList.remove('bi-pause-fill')
-        }
-    });
-}
-//login
 let x = document.getElementById("login");
 let y = document.getElementById("register");
 let z = document.getElementById("btn");
 let password = document.getElementById("password");
 let confirm_password = document.getElementById("confirm_password");
 let form_box = document.getElementById("form_box")
+let currentTab = document.querySelector('.toggle_btn.active');
 
-function register() {
-    x.style.left = "-400px";
-    y.style.left = "50px";
-    z.style.left = "110px";
-    form_box.style.height = "460px"
+function register(evt) {
+    // x.style.left = "-400px";
+    // y.style.left = "50px";
+    y.style.transform = "translate(" + 0 + "%)";
+    x.style.transform = "translate(" + 200 + "%)";
+    z.style.left = "98px";
+    form_box.style.height = "640px";
+    if(currentTab !== evt.target && currentTab != null)
+        currentTab.classList.remove('active');
+    evt.target.classList.add('active');
+    currentTab = evt.target;
 }
-function login() {
-    x.style.left = "50px";
-    y.style.left = "450px";
+function login(evt) {
+    // x.style.left = "50px";
+    // y.style.left = "450px";
+    y.style.transform = "translate(" + -200 + "%)";
+    x.style.transform = "translate(" + 0 + "%)";
     z.style.left = "0"
-    form_box.style.height = "400px"
+    form_box.style.height = "400px";
+    if(currentTab !== evt.target && currentTab != null)
+        currentTab.classList.remove('active');
+    evt.target.classList.add('active');
+    currentTab = evt.target;
+}
+let textOverflowManager = function(selector, maxLength){
+    let truncateTxt = document.querySelectorAll(selector)
+
+    truncateTxt.forEach(text => {
+        text.innerHTML = truncateText(text.innerHTML, maxLength);
+    });
+}
+
+function truncateText(text, maxLength){
+    let returnTxt = text;
+    if(returnTxt.length > maxLength){
+        return returnTxt.substring(0, maxLength) + "...";
+    }
+    return returnTxt;
 }
 
 function validatePassword() {
-    if (password.value !== confirm_password.value) {
-        return confirm_password.setCustomValidity("Passwords don't match")
+    const isNonWhiteSpace = /^\S*$/;
+    if (!isNonWhiteSpace.test(password.value)) {
+        return "Password must not contain whitespaces."
     }
-    return confirm_password.setCustomValidity("")
+
+    const containsUpper = /^(?=.*[A-Z]).*$/;
+    if (!containsUpper.test(password.value)) {
+        return "Password must contain one uppercase."
+    }
+
+    const containsLower = /^(?=.*[a-z]).*$/;
+    if (!containsLower.test(password.value)) {
+        return "Password must contain one lowercase."
+    }
+
+    const isContainsNumber = /^(?=.*[0-9]).*$/;
+    if (!isContainsNumber.test(password.value)) {
+        return "Password must contain one digit."
+    }
+
+    const containsSpecialCharacter = /^(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_₹]).*$/;
+    if (!containsSpecialCharacter.test(password.value)) {
+        return "Password must contain one special character"
+    }
+
+    const isValidLength = /^.{8,15}$/
+    if (!isValidLength.test(password.value)) {
+        return "Password must be 8-15 characters long"
+    }
+
+    if (password.value !== confirm_password.value) {
+        return "Passwords don't match"
+    }
+
 }
-password.onchange = validatePassword
-confirm_password.onkeyup = validatePassword
+
+function checkPassword() {
+    let message = validatePassword()
+    if (!message) {
+        password.setCustomValidity("")
+    }
+    else {
+        password.setCustomValidity(message)
+    }
+}
+password.onchange = checkPassword
+confirm_password.onkeyup = checkPassword
+
+
+
+window.addEventListener('DOMContentLoaded', function () {
+    textOverflowManager('.truncate-txt', 75);
+});

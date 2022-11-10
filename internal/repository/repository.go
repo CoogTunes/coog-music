@@ -9,6 +9,7 @@ type DatabaseRepo interface {
 	AddUser(res models.Users) (models.Users, error)
 	GetUser(id string) (models.Users, error)
 	UpdateUser(user models.Users) (models.Users, error)
+	Authenticate(email string, password string) (models.Users, error)
 
 	AddArtist(res models.Artist) (models.Artist, error)
 	GetArtists() ([]models.Artist, error)
@@ -32,8 +33,6 @@ type DatabaseRepo interface {
 	AddSongToPlaylist(song models.Song, playlist models.Playlist) (models.SongPlaylist, error)
 
 	Follow(artistId int, userId int) (models.Followers, error) //add
-
-	Authenticate(email string, password string) error
 
 	RemoveUser(user_id int) error
 	RemoveSong(song_id int) error

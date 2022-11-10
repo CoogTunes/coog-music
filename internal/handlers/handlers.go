@@ -23,6 +23,8 @@ import (
 // Repo the repository used by the handlers
 var Repo *Repository
 
+var UserCache models.Users
+
 // Repository is the repository type
 type Repository struct {
 	App *config.AppConfig
@@ -56,7 +58,7 @@ func (m *Repository) PostLogin(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	loginOrRegister := r.Form.Get("submit_button")
-
+	fmt.Println(loginOrRegister)
 	if loginOrRegister == "register" {
 		fmt.Println("Passes to function PostRegistration ")
 		m.PostRegistration(w, r)
@@ -67,14 +69,16 @@ func (m *Repository) PostLogin(w http.ResponseWriter, r *http.Request) {
 	email := r.Form.Get("email")
 	pwd := r.Form.Get("password")
 
-	err = m.DB.Authenticate(email, pwd)
+	userInfo, err := m.DB.Authenticate(email, pwd)
 	if err != nil {
 		log.Println(err)
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
-	http.Redirect(w, r, "/home", http.StatusSeeOther)
+	UserCache = userInfo
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
@@ -84,17 +88,27 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pwd := []byte(r.Form.Get("password"))
+	fmt.Println(r.Form.Get("password"))
 	hashedPwd, err := bcrypt.GenerateFromPassword(pwd, bcrypt.DefaultCost)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
+	adminLevel := r.Form.Get("user-level")
+	lvl := 0
+	if adminLevel == "User" {
+		lvl = 1
+	} else {
+		lvl = 2
+	}
+
 	registrationModel := models.Users{
-		First_name: r.Form.Get("first_name"),
-		Last_name:  r.Form.Get("last_name"),
-		Username:   r.Form.Get("email"),
-		Password:   string(hashedPwd),
+		First_name:  r.Form.Get("first_name"),
+		Last_name:   r.Form.Get("last_name"),
+		Username:    r.Form.Get("email"),
+		Password:    string(hashedPwd),
+		Admin_level: lvl,
 	}
 	users, err := m.DB.AddUser(registrationModel)
 	if false {
@@ -104,15 +118,26 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	http.Redirect(w, r, "/home", http.StatusSeeOther)
+	UserCache = registrationModel
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 // HOME PAGE
 
 func (m *Repository) GetHome(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "coogtunes.page.gohtml", &models.TemplateData{
-		Form: forms.New(nil),
+		Form:     forms.New(nil),
+		UserData: UserCache,
 	})
+}
+
+// LOGOUT
+
+func (m *Repository) LogOut(w http.ResponseWriter, r *http.Request) {
+	noUserData := models.Users{}
+	UserCache = noUserData
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 // END OF HOME PAGE
