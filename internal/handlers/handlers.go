@@ -97,7 +97,7 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 
 	adminLevel := r.Form.Get("user-level")
 	lvl := 0
-	if adminLevel == "User" {
+	if adminLevel == "user" {
 		lvl = 1
 	} else {
 		lvl = 2
