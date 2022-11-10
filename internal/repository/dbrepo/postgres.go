@@ -484,7 +484,7 @@ func (m *postgresDBRepo) RemoveAlbum(album_id int) error {
 	}
 
 	return nil
-}
+	}
 
 func (m *postgresDBRepo) RemoveArtist(artist_id int) error {
 
@@ -525,6 +525,65 @@ func (m *postgresDBRepo) RemoveSongFromPlaylist(song_id int, playlist_id int) er
 
 	return nil
 }
+
+func(m *postgresDBRepo) GetNumberOfUsers()(models.Users, error){
+
+	var user models.Users
+
+	query := "SELECT MAX(user_id) FROM USERS WHERE admin_level = 1 RETURNING user_id"
+	row := m.DB.QueryRow(query)
+
+	err := row.Scan(&user.User_id)
+	if err != nil{
+		log.Println(err)
+	}
+
+	return user, nil
+}
+
+func(m *postgresDBRepo) GetNumberOfArtists()(models.Users, error){
+
+	var user models.Users
+
+	query := "SELECT MAX(user_id) FROM USERS WHERE admin_level = 2 RETURNING user_id"
+	row := m.DB.QueryRow(query)
+
+	err := row.Scan(&user.User_id)
+	if err != nil{
+		log.Println(err)
+	}
+
+	return user, nil
+
+}
+
+func(m *postgresDBRepo) GetNumberOfSongs()(models.Song, error){
+	var song models.Song
+
+	query := "SELECT MAX(song_id) FROM SONG"
+	row := m.DB.QueryRow(query)
+
+	err := row.Scan(&song.Song_id)
+	if err != nil{
+		log.Println(err)
+	}
+	return song, nil
+}
+
+func(m *postgresDBRepo) GetNumberOfPlaylists()(models.Playlist, error){
+	var playlist models.Playlist
+
+	query := "SELECT MAX(playlist_id) FROM PLAYLIST"
+
+	row := m.DB.QueryRow(query)
+
+	err := row.Scan(&playlist.Playlist_id)
+	if err != nil{
+	log.Println(err)
+	}
+	return playlist, nil
+}
+
 
 //delete from playlist/album
 //delete artist, user, song
