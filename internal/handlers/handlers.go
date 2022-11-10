@@ -99,7 +99,7 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 	lvl := 0
 	if adminLevel == "user" {
 		lvl = 1
-	} else {
+	} else if adminLevel == "artist" {
 		lvl = 2
 	}
 
