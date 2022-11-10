@@ -4,7 +4,7 @@ CREATE TABLE Users (
                         password varchar,
                         first_name varchar,
                         last_name varchar,
-                        admin_level int CHECK (admin_level >= 1 AND admin_level <= 3),
+                        admin_level int CHECK (admin_level >= 0 AND admin_level <= 3),
                         -- 1 = basic
                         -- 2 = artist
                         -- 3 = admin
