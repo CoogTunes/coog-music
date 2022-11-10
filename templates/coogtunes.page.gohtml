@@ -19,7 +19,7 @@
                     <h4 class="active">
                         <span></span><i class="bi bi-vinyl"></i>Discover
                     </h4>
-                    {{if (gt .UserData.Admin_level 0)}}
+                    {{if (gt .UserData.Admin_level 1)}}
                     <h4 class="active">
                         <span></span><i class="bi bi-collection"></i>My Playlist
                     </h4>
@@ -70,7 +70,7 @@
                         <input type="text" placeholder="What do you want to listen to?" />
                     </div>
 
-                    {{if (gt .UserData.Admin_level 0)}}
+                    {{if (gt .UserData.Admin_level 1)}}
                     <div class="auth-user-control">
                         <img src="/static/img/account.png" alt="user_pic" onclick="toggleMenu()" />
                         <div class="user" id="subMenu">
