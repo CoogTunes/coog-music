@@ -67,6 +67,18 @@ html, body {
     transform: translateX(-200%);
     transition: .5s;
 }
+#togglePassword {
+    position: relative;
+    color: #777;
+    margin-left: -25px;
+    cursor: pointer;
+}
+#toggleCPassword {
+    position: relative;
+    color: #777;
+    margin-left: -25px;
+    cursor: pointer;
+}
 #login {
     /* top: 150px; */
     /* position: absolute; */

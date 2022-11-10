@@ -23,6 +23,20 @@ function register(evt) {
     evt.target.classList.add('active');
     currentTab = evt.target;
 }
+let togglePassword = document.getElementById("togglePassword");
+let toggleCPassword = document.getElementById("toggleCPassword");
+
+togglePassword.addEventListener("click", function () {
+    const type = password.getAttribute("type") === "password" ? "text" : "password";
+    password.setAttribute("type", type);
+    this.classList.toggle("bi-eye");
+})
+toggleCPassword.addEventListener("click", function () {
+    const type = confirm_password.getAttribute("type") === "password" ? "text" : "password";
+    confirm_password.setAttribute("type", type);
+    this.classList.toggle("bi-eye");
+})
+
 function login(evt) {
     // x.style.left = "50px";
     // y.style.left = "450px";
