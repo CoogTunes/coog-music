@@ -88,7 +88,6 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pwd := []byte(r.Form.Get("password"))
-	fmt.Println(r.Form.Get("password"))
 	hashedPwd, err := bcrypt.GenerateFromPassword(pwd, bcrypt.DefaultCost)
 	if err != nil {
 		log.Fatal(err)
@@ -96,6 +95,7 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 	}
 
 	adminLevel := r.Form.Get("user-level")
+	fmt.Println(adminLevel)
 	lvl := 0
 	if adminLevel == "user" {
 		lvl = 1
