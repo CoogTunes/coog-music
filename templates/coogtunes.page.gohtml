@@ -6,6 +6,7 @@
 
     {{define "css"}}
         <link rel="stylesheet" href="/static/css/coogtunes.css">
+        <link rel="stylesheet" href="/static/css/modals.css">
     {{end}}
 
     {{define "content"}}
@@ -69,6 +70,19 @@
                         <i class="bi bi-search"></i>
                         <input type="text" placeholder="What do you want to listen to?" />
                     </div>
+                    {{if eq .UserData.Admin_level 2}}
+                        <div class="artist-control control-actions">
+                            <ul>
+                                <li>
+                                    <div class="modal-btn dp-flex" data-target-modal="artistModal">
+                                        <div>Upload</div>
+                                        <span></span>
+                                        <i class="bi bi-plus-square-dotted modal-btn"></i>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    {{end}}
 
                     {{if (gt .UserData.Admin_level 0)}}
                     <div class="auth-user-control">
@@ -642,11 +656,79 @@
                     </div>
                 </div>
             </div>
+            {{if eq .UserData.Admin_level 2}}
+            <div class="modals-container">
+                <div id="artistModal" class="modal-container">
+                    <div class="modal-wrapper">
+                        <div class="modal-header">
+                            <div class="modal-title">
+                                Upload Center
+                                <i class="bi bi-x-square close-modal cursor-pointer"></i>
+                            </div>
+                        </div>
+                        <div class="modal-body">
+                            <form id="upload-form" method="POST">
+                                <div class="form-wrapper">
+                                    <select class="upload-type" name="uploadType">
+                                        <option value="album">Album</option>
+                                        <option value="song">Song</option>
+                                    </select>
+                                    <input
+                                            type="text"
+                                            class=""
+                                            name="artist_name"
+                                            placeholder="Artist Name"
+                                    />
+                                    <input
+                                            type="text"
+                                            class=""
+                                            name="music_name"
+                                            placeholder="Song or Album Name"
+                                    />
+                                    <label
+                                            for="music_cover"
+                                            class="file-upload-cover upload-label"
+                                    >
+                                        <input
+                                                id="music_cover"
+                                                type="file"
+                                                class=""
+                                                name="music_cover"
+                                        />
+                                        <i class="bi bi-upload"></i><span>Upload Cover</span>
+                                    </label>
+                                    <label
+                                            for="music_audio"
+                                            class="file-upload-audio upload-label"
+                                    >
+                                        <input
+                                                id="music_audio"
+                                                type="file"
+                                                class=""
+                                                name="music_audio"
+                                                multiple
+                                        />
+                                        <i class="bi bi-cassette"></i><span>Upload Audio</span>
+                                    </label>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="icon-slide-left upload-btn">
+                                <span>Submit</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
+        {{end}}
     {{end}}
 
     {{define "js"}}
+        <script src="/static/js/modals.js"></script>
         <script src="/static/js/coogtunes.js"></script>
         <script src="/static/js/musicplayer.js"></script>
+        <script src="/static/js/uploadFile.js"></script>
     {{end}}
 

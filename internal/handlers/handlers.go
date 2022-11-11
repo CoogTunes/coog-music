@@ -150,6 +150,51 @@ func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 //  END OF PROFILE PAGE
+// POST UPLOAD ALBUM
+
+// UPLOAD MUSIC
+func (m *Repository) UploadFile(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Passing through upload file handler")
+	err := r.ParseForm()
+	if err != nil {
+		log.Fatal("Cannot parse upload Files")
+	}
+
+	songOrAlbum := r.Form.Get("uploadType")
+	fmt.Println(songOrAlbum)
+	if err != nil {
+		fmt.Println("cannot parse the image file")
+	}
+
+	if songOrAlbum == "song" {
+		fmt.Println("Passing through the upload song handler")
+		m.UploadSong(w, r)
+		return
+	}
+
+	m.UploadAlbum(w, r)
+}
+
+func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
+
+	err := r.ParseForm()
+	if err != nil {
+		log.Fatal("Cannot parse song file")
+	}
+
+	artistName := r.Form.Get("artist_name")
+	songName := r.Form.Get("music_name")
+	coverPic := r.Form.Get("music_cover")
+	audioFile := r.Form.Get("music_audio")
+
+	fmt.Println(artistName)
+	fmt.Println(songName)
+	fmt.Println(audioFile)
+	fmt.Println(coverPic)
+}
+func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
+	return
+}
 
 // USERS
 func (m *Repository) AddUser(w http.ResponseWriter, r *http.Request) {
