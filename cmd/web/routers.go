@@ -21,9 +21,8 @@ func routes() http.Handler {
 	mux.Use(middleware.Recoverer)
 	mux.Use(middleware.AllowContentType("application/json", "application/x-www-form-urlencoded", "multipart/form-data"))
 	mux.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		AllowCredentials: false,
+		AllowedOrigins: []string{"https://*", "http://*"},
+		AllowedHeaders: []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 	}))
 	// These work
 	mux.Post("/user", handlers.Repo.AddUser)
@@ -64,6 +63,10 @@ func routes() http.Handler {
 
 	// Upload handlers
 	mux.Post("/upload", handlers.Repo.UploadFile)
+
+	// Playlist
+	mux.Get("/playlist/Search/{playlistSearchInfo}", handlers.Repo.PlaylistSearch)
+	mux.Post("/addPlaylist", handlers.Repo.InsertPlaylist)
 	// Profile page handlers
 	mux.Get("/profile", handlers.Repo.GetProfile)
 	// Need to finish handlers and maybe adjust routing

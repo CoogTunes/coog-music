@@ -132,7 +132,10 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-// ADD ARTIST
+// END LOGIN/SIGNUP--------------------------------------------------------------------------------------
+
+// ADD ARTIST ------------------------------------------------------------------
+
 func (m *Repository) AddArtist(firstName string, lastName string) {
 	artistName := concatenateName(firstName, lastName)
 
@@ -149,7 +152,9 @@ func (m *Repository) AddArtist(firstName string, lastName string) {
 	}
 }
 
-// HOME PAGE
+// END ADD ARTIST ---------------------------------------------------------------
+
+// HOME PAGE ---------------------------------------------------------------------------------
 
 func (m *Repository) GetHome(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "coogtunes.page.gohtml", &models.TemplateData{
@@ -166,20 +171,19 @@ func (m *Repository) LogOut(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-// END OF HOME PAGE
+// END OF HOME PAGE ---------------------------------------------------------------------------------
 
-// PROFILE PAGE
+// PROFILE PAGE ---------------------------------------------------------------------------------
+
 func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "profilepage.page.gohtml", &models.TemplateData{
 		Form: forms.New(nil),
 	})
 }
 
-//  END OF PROFILE PAGE
+//  END OF PROFILE PAGE ---------------------------------------------------------------------------------
 
-// POST UPLOAD ALBUM
-
-// UPLOAD MUSIC
+// UPLOAD MUSIC ---------------------------------------------------------------------------------
 
 func (m *Repository) UploadFile(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Passing through upload file handler")
@@ -209,71 +213,71 @@ func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
 	}
 	artistName := concatenateName(UserCache.First_name, UserCache.Last_name)
 	songName := r.Form.Get("music_name")
-	albumName := "singles"
-	coverPath := ""
-	songPath := ""
-	files := r.MultipartForm.File["file"]
-	for _, fileHeader := range files {
-		fileSize := fileHeader.Size
-		file, err := fileHeader.Open()
-		if err != nil {
-			fmt.Println("Could not open the file")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		defer file.Close()
-
-		buff := make([]byte, fileSize)
-		_, err = file.Read(buff)
-		if err != nil {
-			fmt.Println("Could not read the file")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		filetype := http.DetectContentType(buff)
-		if filetype != "image/jpeg" && filetype != "audio/mpeg" {
-			http.Error(w, "The provided file format is not allowed. Please upload a JPEG image or MP3 file", http.StatusBadRequest)
-			return
-		}
-
-		_, err = file.Seek(0, io.SeekStart)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		filePath := "./static/media/artist/" + artistName + "/" + albumName
-		err = os.MkdirAll(filePath, os.ModePerm)
-		if os.IsExist(err) {
-			fmt.Println("Song already exists!")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		f, err := os.Create(fmt.Sprintf(filePath+"/"+"%s", fileHeader.Filename))
-		if err != nil {
-			fmt.Println("Could not create the named file")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		defer f.Close()
-		_, err = io.Copy(f, file)
-		if err != nil {
-			fmt.Println("Could not copy the uploaded files")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		if filetype == "image/jpeg" {
-			coverPath = filePath + "/" + fileHeader.Filename
-		} else if filetype == "audio/mpeg" {
-			songPath = filePath + "/" + fileHeader.Filename
-		}
+	fmt.Println("Passes through the songName")
+	coverFile, fhCover, err := r.FormFile("music_cover")
+	if err != nil {
+		log.Println("Cannot read cover_file")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+	fmt.Println("Passes through coverFile")
+
+	coverPath := "./static/media/artist/" + artistName
+	err = os.MkdirAll(coverPath, os.ModePerm)
+	if os.IsExist(err) {
+		log.Println("Cover jpeg is already in directory")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	dst, err := os.Create(fmt.Sprintf(coverPath+"/"+"%s", fhCover.Filename))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = io.Copy(dst, coverFile)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fullCoverPath := coverPath + "/" + fhCover.Filename
+	coverFile.Close()
+	dst.Close()
+
+	songFile, fhSong, err := r.FormFile("music_audio")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	songPath := "./static/media/artist/" + artistName
+	err = os.MkdirAll(songPath, os.ModePerm)
+	if os.IsExist(err) {
+		log.Println("Song audio is already in directory")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	dst2, err := os.Create(fmt.Sprintf(songPath+"/"+"%s", fhSong.Filename))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = io.Copy(dst2, songFile)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fullSongPath := songPath + "/" + fhSong.Filename
+	coverFile.Close()
+	dst.Close()
 
 	songInfo := models.Song{
 		Title:     songName,
 		Artist_id: UserCache.User_id,
-		CoverPath: coverPath,
-		SongPath:  songPath,
+		CoverPath: fullCoverPath,
+		SongPath:  fullSongPath,
 	}
 
 	err = m.DB.AddSong(songInfo)
@@ -292,7 +296,7 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 	}
 	artistName := concatenateName(UserCache.First_name, UserCache.Last_name)
 	albumName := r.Form.Get("music_name")
-	coverFile, fhCover, err := r.FormFile("cover_file")
+	coverFile, fhCover, err := r.FormFile("music_cover")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -330,9 +334,10 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 		log.Println("Cannot add album")
 		return
 	}
-	files := r.MultipartForm.File["file"]
+	files := r.MultipartForm.File["music_audio"]
 	for _, fileHeader := range files {
 		fileSize := fileHeader.Size
+		fmt.Println(fileHeader.Filename)
 		file, err := fileHeader.Open()
 		if err != nil {
 			fmt.Println("Could not open the file")
@@ -390,7 +395,7 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 			Artist_id: UserCache.User_id,
 			Album_id:  albumDBInfo.Album_id,
 		}
-		err = m.DB.AddSong(songInfo)
+		err = m.DB.AddSongForAlbum(songInfo)
 		if err != nil {
 			log.Println("Cannot add song")
 			return
@@ -399,7 +404,35 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// USERS
+// END OF UPLOAD MUSIC ---------------------------------------------------------------------------------
+
+// PLAYLIST SECTION ---------------------------------------------------------------------------------
+
+func (m *Repository) PlaylistSearch(w http.ResponseWriter, r *http.Request) {
+	searchParameters := chi.URLParam(r, "playlistSearchInfo")
+	fmt.Println(searchParameters)
+}
+
+type PlayListJson struct {
+	PlayListName string   `json:"playlistName"`
+	PlayList     []string `json:"playList"`
+}
+
+func (m *Repository) InsertPlaylist(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	var playlistInfo PlayListJson
+	err := decoder.Decode(&playlistInfo)
+	if err != nil {
+		log.Println("Cannot decode the json")
+	}
+	log.Println(playlistInfo.PlayList[0])
+	log.Println(playlistInfo.PlayListName)
+}
+
+// END PLAYLIST SECTION --------------------------------------------------------------------------------
+
+// USERS ------------------------------------------------------------------------
+
 func (m *Repository) AddUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	// get fields
@@ -429,6 +462,8 @@ func (m *Repository) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	returnAsJSON(user, w, err)
 }
+
+// END USERS -------------------------------------------------------------------
 
 // ARTISTS
 //

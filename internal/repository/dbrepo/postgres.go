@@ -175,8 +175,20 @@ func (m *postgresDBRepo) Authenticate(email string, password string) (models.Use
 	return userInfo, nil
 }
 
-// SONGS
+// SONG
 func (m *postgresDBRepo) AddSong(res models.Song) error {
+	query := "insert into song (title, artist_id, song_path, cover_path, uploaded_date) values ($1, $2, $3, $4, to_date($5, 'YYYY-MM-DD'))"
+
+	_, err := m.DB.Exec(query, res.Title, res.Artist_id, res.SongPath, res.CoverPath, time.Now())
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+// SONGS
+func (m *postgresDBRepo) AddSongForAlbum(res models.Song) error {
 	query := "insert into song (title, artist_id, album_id, song_path, cover_path, uploaded_date) values ($1, $2, $3, $4, $5, to_date($6, 'YYYY-MM-DD'))"
 
 	_, err := m.DB.Exec(query, res.Title, res.Artist_id, res.Album_id, res.SongPath, res.CoverPath, time.Now())
