@@ -30,20 +30,20 @@ func routes() http.Handler {
 	mux.Get("/user/{id}", handlers.Repo.GetUser)
 	mux.Put("/user", handlers.Repo.UpdateUser)
 
-	mux.Post("/artist", handlers.Repo.AddArtist)
+	//mux.Post("/artist", handlers.Repo.AddArtist)
 	mux.Get("/artists", handlers.Repo.GetArtists)
 	mux.Put("/artist", handlers.Repo.UpdateArtist)
-	mux.Get("/artists-songs", handlers.Repo.GetArtistsAndSongs)
+	//mux.Get("/artists-songs", handlers.Repo.GetArtistsAndSongs)
 
-	mux.Post("/album", handlers.Repo.AddAlbum)
+	//mux.Post("/album", handlers.Repo.AddAlbum)
 	mux.Get("/albums", handlers.Repo.GetAlbums)
 
-	mux.Post("/song", handlers.Repo.AddSong)
-	mux.Get("/song/{id}", handlers.Repo.GetSong)
-	mux.Get("/songs", handlers.Repo.GetSongs)
-	mux.Put("/song", handlers.Repo.UpdateSong)
+	//mux.Post("/song", handlers.Repo.AddSong)
+	//mux.Get("/song/{id}", handlers.Repo.GetSong)
+	//mux.Get("/songs", handlers.Repo.GetSongs)
+	//mux.Put("/song", handlers.Repo.UpdateSong)
 
-	mux.Put("/songCount/{id}", handlers.Repo.UpdateSongCount)
+	//mux.Put("/songCount/{id}", handlers.Repo.UpdateSongCount)
 
 	mux.Get("/playlists", handlers.Repo.GetPlaylists)
 

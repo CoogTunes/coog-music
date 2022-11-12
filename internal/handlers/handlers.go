@@ -3,9 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/CoogTunes/coog-music/internal/forms"
 	"github.com/CoogTunes/coog-music/internal/render"
@@ -95,7 +99,8 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 	}
 
 	adminLevel := r.Form.Get("user-level")
-	fmt.Println(adminLevel)
+	firstName := r.Form.Get("first_name")
+	lastName := r.Form.Get("last_name")
 	lvl := 0
 	if adminLevel == "user" {
 		lvl = 1
@@ -104,8 +109,8 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 	}
 
 	registrationModel := models.Users{
-		First_name:  r.Form.Get("first_name"),
-		Last_name:   r.Form.Get("last_name"),
+		First_name:  firstName,
+		Last_name:   lastName,
 		Username:    r.Form.Get("email"),
 		Password:    string(hashedPwd),
 		Admin_level: lvl,
@@ -118,9 +123,30 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	UserCache = registrationModel
+	UserCache = users
+
+	if lvl == 2 {
+		m.AddArtist(firstName, lastName)
+	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// ADD ARTIST
+func (m *Repository) AddArtist(firstName string, lastName string) {
+	artistName := concatenateName(firstName, lastName)
+
+	artistInfo := models.Artist{
+		Name:      artistName,
+		Artist_id: UserCache.User_id,
+		Location:  "no_location",
+	}
+
+	err := m.DB.AddArtistDB(artistInfo)
+	if err != nil {
+		log.Println("Cannot add artist information")
+		return
+	}
 }
 
 // HOME PAGE
@@ -150,18 +176,19 @@ func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 //  END OF PROFILE PAGE
+
 // POST UPLOAD ALBUM
 
 // UPLOAD MUSIC
+
 func (m *Repository) UploadFile(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Passing through upload file handler")
-	err := r.ParseForm()
+	err := r.ParseMultipartForm(32 << 20) // 32mb
 	if err != nil {
 		log.Fatal("Cannot parse upload Files")
 	}
 
 	songOrAlbum := r.Form.Get("uploadType")
-	fmt.Println(songOrAlbum)
 	if err != nil {
 		fmt.Println("cannot parse the image file")
 	}
@@ -176,24 +203,199 @@ func (m *Repository) UploadFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
-
-	err := r.ParseForm()
+	err := r.ParseMultipartForm(32 << 20)
 	if err != nil {
-		log.Fatal("Cannot parse song file")
+		log.Fatal("Could not parse multipart forms")
+	}
+	artistName := concatenateName(UserCache.First_name, UserCache.Last_name)
+	songName := r.Form.Get("music_name")
+	albumName := "singles"
+	coverPath := ""
+	songPath := ""
+	files := r.MultipartForm.File["file"]
+	for _, fileHeader := range files {
+		fileSize := fileHeader.Size
+		file, err := fileHeader.Open()
+		if err != nil {
+			fmt.Println("Could not open the file")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+
+		buff := make([]byte, fileSize)
+		_, err = file.Read(buff)
+		if err != nil {
+			fmt.Println("Could not read the file")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		filetype := http.DetectContentType(buff)
+		if filetype != "image/jpeg" && filetype != "audio/mpeg" {
+			http.Error(w, "The provided file format is not allowed. Please upload a JPEG image or MP3 file", http.StatusBadRequest)
+			return
+		}
+
+		_, err = file.Seek(0, io.SeekStart)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		filePath := "./static/media/artist/" + artistName + "/" + albumName
+		err = os.MkdirAll(filePath, os.ModePerm)
+		if os.IsExist(err) {
+			fmt.Println("Song already exists!")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		f, err := os.Create(fmt.Sprintf(filePath+"/"+"%s", fileHeader.Filename))
+		if err != nil {
+			fmt.Println("Could not create the named file")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		defer f.Close()
+		_, err = io.Copy(f, file)
+		if err != nil {
+			fmt.Println("Could not copy the uploaded files")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if filetype == "image/jpeg" {
+			coverPath = filePath + "/" + fileHeader.Filename
+		} else if filetype == "audio/mpeg" {
+			songPath = filePath + "/" + fileHeader.Filename
+		}
 	}
 
-	artistName := r.Form.Get("artist_name")
-	songName := r.Form.Get("music_name")
-	coverPic := r.Form.Get("music_cover")
-	audioFile := r.Form.Get("music_audio")
+	songInfo := models.Song{
+		Title:     songName,
+		Artist_id: UserCache.User_id,
+		CoverPath: coverPath,
+		SongPath:  songPath,
+	}
 
-	fmt.Println(artistName)
-	fmt.Println(songName)
-	fmt.Println(audioFile)
-	fmt.Println(coverPic)
+	err = m.DB.AddSong(songInfo)
+	if err != nil {
+		log.Println("Cannot add song to the database")
+	}
+
+	fmt.Fprintf(w, "Upload successful")
+
 }
+
 func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
-	return
+	err := r.ParseMultipartForm(32 << 20)
+	if err != nil {
+		log.Fatal("Could not parse multipart forms")
+	}
+	artistName := concatenateName(UserCache.First_name, UserCache.Last_name)
+	albumName := r.Form.Get("music_name")
+	coverFile, fhCover, err := r.FormFile("cover_file")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	coverPath := "./static/media/artist/" + artistName + "/" + albumName
+	err = os.MkdirAll(coverPath, os.ModePerm)
+	if os.IsExist(err) {
+		log.Println("Cover jpeg is already in directory")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	dst, err := os.Create(fmt.Sprintf(coverPath+"/"+"%s", fhCover.Filename))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = io.Copy(dst, coverFile)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fullCoverPath := coverPath + "/" + fhCover.Filename
+	coverFile.Close()
+	dst.Close()
+
+	albumInfo := models.Album{
+		Name:      albumName,
+		Artist_id: UserCache.User_id,
+	}
+
+	err = m.DB.AddAlbum(albumInfo)
+	if err != nil {
+		log.Println("Cannot add album")
+		return
+	}
+	files := r.MultipartForm.File["file"]
+	for _, fileHeader := range files {
+		fileSize := fileHeader.Size
+		file, err := fileHeader.Open()
+		if err != nil {
+			fmt.Println("Could not open the file")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+
+		buff := make([]byte, fileSize)
+		_, err = file.Read(buff)
+		if err != nil {
+			fmt.Println("Could not read the file")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		filetype := http.DetectContentType(buff)
+		if filetype != "image/jpeg" && filetype != "audio/mpeg" {
+			http.Error(w, "The provided file format is not allowed. Please upload a JPEG image or MP3 file", http.StatusBadRequest)
+			return
+		}
+
+		_, err = file.Seek(0, io.SeekStart)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		filePath := "./static/media/artist/" + artistName + "/" + albumName
+		err = os.MkdirAll(filePath, os.ModePerm)
+		if os.IsExist(err) {
+			fmt.Println("Song already exists!")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		f, err := os.Create(fmt.Sprintf(filePath+"/"+"%s", fileHeader.Filename))
+		if err != nil {
+			fmt.Println("Could not create the named file")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		defer f.Close()
+		_, err = io.Copy(f, file)
+		if err != nil {
+			fmt.Println("Could not copy the uploaded files")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		title := strings.ReplaceAll(fileHeader.Filename, filepath.Ext(fileHeader.Filename), "")
+		songPath := filePath + "/" + fileHeader.Filename
+		songInfo := models.Song{
+			Title:     title,
+			Album:     albumName,
+			SongPath:  songPath,
+			CoverPath: fullCoverPath,
+			Artist_id: UserCache.User_id,
+		}
+		err = m.DB.AddSong(songInfo)
+		if err != nil {
+			log.Println("Cannot add song")
+			return
+		}
+	}
+
 }
 
 // USERS
@@ -228,37 +430,39 @@ func (m *Repository) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // ARTISTS
-func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	// get fields
-	name := r.Form.Get("name")
-	artist_id := r.Form.Get("artist_id")
-	location := r.Form.Get("location")
-	join_date := r.Form.Get("join_date")
-	var songs []models.Song
-
-	int_artist_id, err := strconv.Atoi(artist_id)
-	if err != nil {
-		log.Println(err)
-	}
-	// joindate and songs[] should be empty to start.
-	artistToAdd := models.Artist{Name: name, Artist_id: int_artist_id, Location: location, Join_date: join_date, Songs: songs}
-
-	addedArtist, err := m.DB.AddArtist(artistToAdd)
-
-	returnAsJSON(addedArtist, w, err)
-
-}
+//
+//	func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
+//		r.ParseForm()
+//		// get fields
+//		name := r.Form.Get("name")
+//		artist_id := r.Form.Get("artist_id")
+//		location := r.Form.Get("location")
+//		join_date := r.Form.Get("join_date")
+//		var songs []models.Song
+//
+//		int_artist_id, err := strconv.Atoi(artist_id)
+//		if err != nil {
+//			log.Println(err)
+//		}
+//		// joindate and songs[] should be empty to start.
+//		artistToAdd := models.Artist{Name: name, Artist_id: int_artist_id, Location: location, Join_date: join_date, Songs: songs}
+//
+//		addedArtist, err := m.DB.AddArtist(artistToAdd)
+//
+//		returnAsJSON(addedArtist, w, err)
+//
+// }
 func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
 	artists, err := m.DB.GetArtists()
 
 	returnAsJSON(artists, w, err)
 }
 
-func (m *Repository) GetArtistsAndSongs(w http.ResponseWriter, r *http.Request) {
-	artists, err := m.DB.GetArtistsAndSongs()
-	returnAsJSON(artists, w, err)
-}
+//
+//func (m *Repository) GetArtistsAndSongs(w http.ResponseWriter, r *http.Request) {
+//	artists, err := m.DB.GetArtistsAndSongs()
+//	returnAsJSON(artists, w, err)
+//}
 
 func (m *Repository) UpdateArtist(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
@@ -282,116 +486,116 @@ func (m *Repository) UpdateArtist(w http.ResponseWriter, r *http.Request) {
 
 // ALBUMS
 
-func (m *Repository) AddAlbum(w http.ResponseWriter, r *http.Request) {
-	var album models.Album
-	var err error
-	r.ParseForm()
-	// get fields
-	album.Artist_id, err = strconv.Atoi(r.Form.Get("artist_id"))
-	if err != nil {
-		log.Println(err)
-	}
-	album.Name = r.Form.Get("album_name")
-	album.Date_added = r.Form.Get("album_date")
-	addedAlbum, err := m.DB.AddAlbum(album)
-
-	returnAsJSON(addedAlbum, w, err)
-}
+//func (m *Repository) AddAlbum(w http.ResponseWriter, r *http.Request) {
+//	var album models.Album
+//	var err error
+//	r.ParseForm()
+//	// get fields
+//	album.Artist_id, err = strconv.Atoi(r.Form.Get("artist_id"))
+//	if err != nil {
+//		log.Println(err)
+//	}
+//	album.Name = r.Form.Get("album_name")
+//	album.Date_added = r.Form.Get("album_date")
+//	addedAlbum, err := m.DB.AddAlbum(album)
+//
+//	returnAsJSON(addedAlbum, w, err)
+//}
 
 // SONGS
 
-func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	// get fields
-	title := r.Form.Get("title")
-	release_date := r.Form.Get("release_date")
-	duration := r.Form.Get("duration")
-	artist_id_string := r.Form.Get("artist_id")
-	album_id_string := r.Form.Get("album_id")
+//func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
+//	r.ParseForm()
+//	// get fields
+//	title := r.Form.Get("title")
+//	release_date := r.Form.Get("release_date")
+//	duration := r.Form.Get("duration")
+//	artist_id_string := r.Form.Get("artist_id")
+//	album_id_string := r.Form.Get("album_id")
+//
+//	artist_id, err := strconv.Atoi(artist_id_string)
+//	if err != nil {
+//
+//	}
+//	album_id, err := strconv.Atoi(album_id_string)
+//	if err != nil {
+//
+//	}
+//	songToAdd := models.Song{
+//		Title:        title,
+//		Release_date: release_date,
+//		Duration:     duration,
+//		Album_id:     album_id,
+//		Artist_id:    artist_id,
+//	}
+//
+//	addedSong, err := m.DB.AddSong(songToAdd)
+//	if err != nil {
+//		log.Println(err)
+//	}
+//
+//	addedSong.Artist_name, err = m.DB.GetArtistName(artist_id)
+//	if err != nil {
+//		log.Println(err)
+//	}
+//	returnAsJSON(addedSong, w, err)
+//}
 
-	artist_id, err := strconv.Atoi(artist_id_string)
-	if err != nil {
+//func (m *Repository) GetSongs(w http.ResponseWriter, r *http.Request) {
+//	songs, err := m.DB.GetSongs()
+//
+//	returnAsJSON(songs, w, err)
+//}
+//
+//func (m *Repository) GetSong(w http.ResponseWriter, r *http.Request) {
+//	x := chi.URLParam(r, "id")
+//	song, err := m.DB.GetSong(x)
+//	returnAsJSON(song, w, err)
+//}
 
-	}
-	album_id, err := strconv.Atoi(album_id_string)
-	if err != nil {
+//func (m *Repository) UpdateSong(w http.ResponseWriter, r *http.Request) {
+//	r.ParseForm()
+//	// get fields
+//	title := r.Form.Get("title")
+//	duration := r.Form.Get("duration")
+//	song_id_string := r.Form.Get("song_id")
+//
+//	song_id, err := strconv.Atoi(song_id_string)
+//	if err != nil {
+//		log.Println(err)
+//	}
+//
+//	songToUpdate := models.Song{
+//		Title:    title,
+//		Duration: duration,
+//		Song_id:  song_id,
+//	}
+//
+//	updatedSong, err := m.DB.UpdateSong(songToUpdate)
+//	if err != nil {
+//		log.Println(err)
+//	}
+//
+//	returnAsJSON(updatedSong, w, err)
+//}
 
-	}
-	songToAdd := models.Song{
-		Title:        title,
-		Release_date: release_date,
-		Duration:     duration,
-		Album_id:     album_id,
-		Artist_id:    artist_id,
-	}
-
-	addedSong, err := m.DB.AddSong(songToAdd)
-	if err != nil {
-		log.Println(err)
-	}
-
-	addedSong.Artist_name, err = m.DB.GetArtistName(artist_id)
-	if err != nil {
-		log.Println(err)
-	}
-	returnAsJSON(addedSong, w, err)
-}
-
-func (m *Repository) GetSongs(w http.ResponseWriter, r *http.Request) {
-	songs, err := m.DB.GetSongs()
-
-	returnAsJSON(songs, w, err)
-}
-
-func (m *Repository) GetSong(w http.ResponseWriter, r *http.Request) {
-	x := chi.URLParam(r, "id")
-	song, err := m.DB.GetSong(x)
-	returnAsJSON(song, w, err)
-}
-
-func (m *Repository) UpdateSong(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	// get fields
-	title := r.Form.Get("title")
-	duration := r.Form.Get("duration")
-	song_id_string := r.Form.Get("song_id")
-
-	song_id, err := strconv.Atoi(song_id_string)
-	if err != nil {
-		log.Println(err)
-	}
-
-	songToUpdate := models.Song{
-		Title:    title,
-		Duration: duration,
-		Song_id:  song_id,
-	}
-
-	updatedSong, err := m.DB.UpdateSong(songToUpdate)
-	if err != nil {
-		log.Println(err)
-	}
-
-	returnAsJSON(updatedSong, w, err)
-}
-
-func (m *Repository) UpdateSongCount(w http.ResponseWriter, r *http.Request) {
-	idString := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idString)
-	if err != nil {
-		log.Println(err)
-	}
-	var songWithId models.Song = models.Song{Song_id: id}
-	song, err := m.DB.UpdateSongCount(songWithId)
-	returnAsJSON(song, w, err)
-}
+//func (m *Repository) UpdateSongCount(w http.ResponseWriter, r *http.Request) {
+//	idString := chi.URLParam(r, "id")
+//	id, err := strconv.Atoi(idString)
+//	if err != nil {
+//		log.Println(err)
+//	}
+//	var songWithId models.Song = models.Song{Song_id: id}
+//	song, err := m.DB.UpdateSongCount(songWithId)
+//	returnAsJSON(song, w, err)
+//}
 
 func (m *Repository) AddSongToPlaylist(w http.ResponseWriter, r *http.Request) {
-
+	return
 }
 
 func (m *Repository) AddSongToAlbum(w http.ResponseWriter, r *http.Request) {
-
+	return
 }
 
 func (m *Repository) GetPlaylists(w http.ResponseWriter, r *http.Request) {
@@ -452,6 +656,7 @@ func (m *Repository) Follow(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(follower, w, err)
 }
 
+// HELPER FUNCTIONS
 // i is the models.XYZ property
 func returnAsJSON(i interface{}, w http.ResponseWriter, err error) {
 	if err != nil {
@@ -463,4 +668,14 @@ func returnAsJSON(i interface{}, w http.ResponseWriter, err error) {
 	if err != nil {
 		log.Print(err)
 	}
+}
+
+func concatenateName(firstName string, lastName string) string {
+	artistName := ""
+	if len(lastName) > 0 {
+		artistName = firstName + "_" + lastName
+	} else {
+		artistName = firstName
+	}
+	return artistName
 }
