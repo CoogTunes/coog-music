@@ -30,6 +30,7 @@ CREATE TABLE Song (
                         cover_path varchar,
                         uploaded_date date DEFAULT 'now()',
                         total_plays bigint DEFAULT 0,
+                        total_likes bigint default 0,
                         PRIMARY KEY (song_id, artist_id)
 );
 
