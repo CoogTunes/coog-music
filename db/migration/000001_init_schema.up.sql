@@ -78,12 +78,12 @@ CREATE TABLE Followers (
   						PRIMARY KEY (user_id, artist_id)
 );
 
--- Haven't tested at all CREATE TABLE Messages (
---                         user_id int,
---                         admin_level int CHECK (admin_level >= 0 AND admin_level <= 3),
---                         message varchar(500),
---                         created_date date DEFAULT now()
--- )
+CREATE TABLE Messages (
+                        user_id int,
+                        admin_level int CHECK (admin_level >= 0 AND admin_level <= 3),
+                        message varchar(500),
+                        created_date date DEFAULT now()
+)
 
 
 

@@ -53,6 +53,19 @@ func (m *postgresDBRepo) AddArtistDB(res models.Artist) error {
 	return nil
 }
 
+func (m *postgresDBRepo) AddPlaylist(res models.Users, name string) error{
+
+	query := "insert into Playlist (user_id, name) values($1, $2)"
+	_, err := m.DB.Exec(query, res.User_id, name)
+	if err != nil{
+		log.Println(err)
+		return err
+	}
+
+	return nil
+
+}
+
 // For searching artists?
 func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 	var artists []models.Artist
