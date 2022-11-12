@@ -6,6 +6,7 @@
 
     {{define "css"}}
         <link rel="stylesheet" href="/static/css/profilepage.css">
+        <link rel="stylesheet" href="/static/css/modals.css">
     {{end}}
 
     {{define "content"}}
@@ -68,7 +69,17 @@
                         <input type="text" placeholder="What do you want to listen to?" />
                     </div>
                     {{if (eq .UserData.Admin_level 2)}}
-                    <h3 id="upload">Upload</h3>
+                    <div class="artist-control control-actions">
+                        <ul>
+                            <li>
+                                <div class="dp-flex" data-target-modal="artistModal">
+                                    <div>Upload</div>
+                                    <span></span>
+                                    <i class="bi bi-plus-square-dotted"></i>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                     {{end}}
                     <div class="auth-user-control">
                         <img src="/static/img/account.png" alt="user_pic" onclick="toggleMenu()" />
@@ -371,11 +382,175 @@
                     </div>
                 </div>
             </div>
+            <div class="modals-container">
+                <div id="artistModal" class="modal-container">
+                    <div class="modal-wrapper">
+                    <div class="modal-header">
+                        <div class="modal-title">
+                        Upload Center
+                        <i class="bi bi-x-square close-modal cursor-pointer"></i>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <form id="upload-form" method="POST">
+                        <div class="form-wrapper">
+                            <select class="upload-type" name="uploadType">
+                            <option value="album">Album</option>
+                            <option value="song">Song</option>
+                            </select>
+                            <input type="text" class="" name="artist_name"placeholder="Artist Name">
+                            <input type="text" class="" name="music_name"placeholder="Song or Album Name">
+                            <label for="music_cover" class="file-upload-cover upload-label">
+                            <input id="music_cover" type="file" class="" name="music_cover">
+                            <i class="bi bi-upload"></i><span>Upload Cover</span>
+                            </label>
+                            <label for="music_audio" class="file-upload-audio upload-label">
+                            <input id="music_audio" type="file" class="" name="music_audio" multiple>
+                            <i class="bi bi-cassette"></i><span>Upload Audio</span>
+                            </label>
+                        </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="icon-slide-left upload-btn"><span>Submit</span></button>
+                    </div>
+                    </div>
+                </div>
+                <div id="playListModal" class="modal-container">
+                    <div class="modal-wrapper playlist-modal">
+                    <div class="modal-header">
+                        <div class="modal-title">
+                        Create a Playlist
+                        <i class="bi bi-x-square close-modal cursor-pointer"></i>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <form id="upload-form" method="POST">
+                        <div class="form-wrapper">
+                            <input type="text" class="playlist-create-name" name="playlist_name"placeholder="Playlist Name">
+                            <input type="search" id="playListSearch" class="" name="playlist_name"placeholder="Search for songs">
+                            <div class="search-modal-helper">
+                            <div class="search-filter">
+                                <div class="filter-type">
+                                <span>Artist</span>
+                                <input type="hidden" class="" name="filter_artist" name="album" value="artist">
+                                </div>
+                                <div class="filter-type">
+                                <span>Song</span>
+                                <input type="hidden" class="" name="filter_song" name="album" value="song">
+                                </div>
+                                <div class="filter-type">
+                                <span>Album</span>
+                                <input type="hidden" class="" name="filter_album" name="album" value="album">
+                                </div>
+                            </div>
+                            <div id="playlistSearchFound" class="">
+                                <div class="search-item" data-search-item="Artist">
+                                <div class="search-item-img">
+                                    <img src="/static/img/drake-pfp.jpg">
+                                </div>
+                                <div class="search-item-info">
+                                    <div class="search-item-title">Drake</div>
+                                    <div class="search-item-sub-title">Artist</div>
+                                </div>
+                                <div class="search-item-control">
+                                    <div class="control-item"><i class="bi bi-chevron-right"></i></div>
+                                </div>
+                                </div>
+                                <div class="search-item" data-search-item="Album">
+                                <div class="search-item-img">
+                                    <img src="/static/img/her_loss.jpg">
+                                </div>
+                                <div class="search-item-info">
+                                    <div class="search-item-title">Her Loss</div>
+                                    <div class="search-item-sub-title">Album</div>
+                                </div>
+                                <div class="search-item-control">
+                                    <div class="control-item"><i class="bi bi-chevron-right"></i></div>
+                                </div>
+                                </div>
+                                <div class="search-item" data-search-item="Song" data-audio-id="WXI5H6FDWS68Z">
+                                <div class="search-item-img">
+                                    <img src="/static/img/her_loss.jpg">
+                                </div>
+                                <div class="search-item-info">
+                                    <div class="search-item-title">On BS</div>
+                                    <div class="search-item-sub-title">Drake, 21 Savage</div>
+                                </div>
+                                <div class="search-item-control">
+                                    <div class="control-item add">Add</div>
+                                </div>
+                                </div>
+                                <div class="search-item" data-search-item="Song" data-audio-id="W779I7I4NGNKM">
+                                <div class="search-item-img">
+                                    <img src="/static/img/her_loss.jpg">
+                                </div>
+                                <div class="search-item-info">
+                                    <div class="search-item-title">Major Distribution</div>
+                                    <div class="search-item-sub-title">Drake, 21 Savage</div>
+                                </div>
+                                <div class="search-item-control">
+                                    <div class="control-item add">Add</div>
+                                </div>
+                                </div>
+                                <div class="search-item" data-search-item="Song" data-audio-id="WXIKHNMPWS68Z">
+                                <div class="search-item-img">
+                                    <img src="/static/img/her_loss.jpg">
+                                </div>
+                                <div class="search-item-info">
+                                    <div class="search-item-title">Broke Boys</div>
+                                    <div class="search-item-sub-title">Drake, 21 Savage</div>
+                                </div>
+                                <div class="search-item-control">
+                                    <div class="control-item add">Add</div>
+                                </div>
+                                </div>
+                                <div class="search-item" data-search-item="Song" data-audio-id="HLI5H6FDWGJGH">
+                                <div class="search-item-img">
+                                    <img src="/static/img/her_loss.jpg">
+                                </div>
+                                <div class="search-item-info">
+                                    <div class="search-item-title">Circo Loco</div>
+                                    <div class="search-item-sub-title">Drake, 21 Savage</div>
+                                </div>
+                                <div class="search-item-control">
+                                    <div class="control-item add">Add</div>
+                                </div>
+                                </div>
+                                <div class="search-item" data-search-item="Song" data-audio-id="KFO5H6FD5U68Z">
+                                <div class="search-item-img">
+                                    <img src="/static/img/her_loss.jpg">
+                                </div>
+                                <div class="search-item-info">
+                                    <div class="search-item-title">Rich Flex</div>
+                                    <div class="search-item-sub-title">Drake, 21 Savage</div>
+                                </div>
+                                <div class="search-item-control">
+                                    <div class="control-item add">Add</div>
+                                </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="icon-slide-left create-btn"><span>Create</span></button>
+                    </div>
+                    </div>
+                </div>
+            </div>
         </section>
     {{end}}
 
     {{define "js"}}
         <script src="/static/js/coogtunes.js"></script>
+        <script type="module" src="/static/js/ajax.js"></script>"
+        <script src="/static/js/modals.js"></script>
+        <script src="/static/js/coogtunes.js"></script>
+        <script src="/static/js/musicplayer.js"></script>
+        <script src="/static/js/uploadFile.js"></script>
+        <script type="module" src="/static/js/playlist.js"></script>
     {{end}}
 
 
