@@ -178,6 +178,7 @@ func (m *Repository) LogOut(w http.ResponseWriter, r *http.Request) {
 func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "profilepage.page.gohtml", &models.TemplateData{
 		Form: forms.New(nil),
+		UserData: UserCache,
 	})
 }
 
