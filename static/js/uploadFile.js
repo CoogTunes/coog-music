@@ -1,25 +1,34 @@
 class uploadManager {
-    constructor(form, routed) {
+    constructor(form, route) {
         this.form = form;
-        this.route = routed;
+        this.route = route;
     }
 
-    inputElements() {
-        let inputs = this.form.querySelectorAll("input, select");
+    getElements() {
+        let inputs = [...this.form.querySelectorAll('input, select')].filter(elem => elem.getAttribute('data-state') != 'disabled');
         return inputs;
     }
 
     inputLog(elems) {
-        elems.forEach((elem) => console.log(elem.name, elem.type, elem.value));
+        elems.forEach(elem => console.log(elem.name, elem.value));
     }
 
-    gatherData() {
+    gatherData(){
         let data = new FormData();
-        let elems = this.inputElements();
-        elems.forEach((elem) => {
-            if (elem.type === "file")
-                data.append(elem.getAttribute("name"), elem.files[0]);
-            else data.append(elem.getAttribute("name"), elem.value);
+        let elems = this.getElements();
+        elems.forEach(elem => {
+            if(elem.type === 'file'){
+                if(elem.files.length > 1){
+                    for(let i = 0; i < elem.files.length; i++){
+                        data.append(elem.getAttribute('name'), elem.files[i]);
+                    }
+                }
+                else{
+                    data.append(elem.getAttribute('name'), elem.files[0]);
+                }
+            }
+            else
+                data.append(elem.getAttribute('name'), elem.value);
         });
         return data;
     }
@@ -27,37 +36,33 @@ class uploadManager {
     send() {
         let data = this.gatherData();
         fetch(this.route, {
-            method: "POST",
-            body: data,
-            // headers: {
-            //     'Content-Type': 'application/json'
-            //     // 'Content-Type': 'application/x-www-form-urlencoded',
-            // },
-        })
-            .then((response) => response.json())
-            .then((success) => {
-                console.log(success);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+            method: 'POST',
+            body: data
+        }).then(
+            response => response.json()
+        ).then(
+            success => console.log(success)
+        ).catch(
+            error => console.log(error)
+        );
     }
-}
+};
 
-function uploadForm() {
-    let submitBtn = document.querySelector(".upload-btn");
-    let formUpload = document.querySelector("#upload-form");
-    let uploadCenter = new uploadManager(formUpload, "/upload");
+function uploadForm(){
+    let submitBtn = document.querySelector('.upload-btn');
+    let formUpload = document.querySelector('#upload-form');
+    let uploader = new uploadManager(formUpload, '/upload');
 
-    submitBtn.addEventListener("click", function (evt) {
-        evt.preventDefault();
-        console.log(uploadCenter.route);
-        uploadCenter.inputLog(uploadCenter.inputElements());
-        console.log([...uploadCenter.gatherData().entries()]);
-        uploadCenter.send();
+    submitBtn.addEventListener('click', function (event) {
+        event.preventDefault();
+        console.log('Submitting Upload information');
+        uploader.inputLog(uploader.getElements());
+        console.log([...uploader.gatherData().entries()]);
+        uploader.send();
     });
 }
 
-window.addEventListener("DOMContentLoaded", function () {
+window.addEventListener('DOMContentLoaded', function () {
     uploadForm();
 });
+
