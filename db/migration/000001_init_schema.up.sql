@@ -5,7 +5,6 @@ CREATE TABLE Users (
                         first_name varchar,
                         last_name varchar,
                         admin_level int CHECK (admin_level >= 0 AND admin_level <= 3),
-                        last_login date DEFAULT now(),
                         -- 1 = basic
                         -- 2 = artist
                         -- 3 = admin
@@ -75,7 +74,7 @@ CREATE TABLE SongPlaylist(
 CREATE TABLE Followers (
                         user_id integer,
                         artist_id integer,
-  						PRIMARY KEY (user_id, artist_id)
+  						          PRIMARY KEY (user_id, artist_id)
 );
 
 CREATE TABLE Messages (
@@ -83,18 +82,16 @@ CREATE TABLE Messages (
                         admin_level int CHECK (admin_level >= 0 AND admin_level <= 3),
                         message varchar(500),
                         created_date date DEFAULT now()
-)
+);
 
+CREATE TABLE Likes (
+              user_id int,
+              song_id int,
+							isLike boolean,
+						  PRIMARY KEY (user_id, song_id)
+);
 
-
--- tested some and looks like it works? CREATE TABLE Likes (
---                         user_id int,
---                         song_id int,
--- 							isLike boolean,
--- 						  PRIMARY KEY (user_id, song_id)
--- );
--- ALTER TABLE Likes ADD FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE ON UPDATE CASCADE;
-
+ALTER TABLE Likes ADD FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE Song ADD FOREIGN KEY (artist_id) REFERENCES ARTIST (artist_id) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -124,40 +121,6 @@ ALTER TABLE Followers ADD FOREIGN KEY (user_id) REFERENCES Users (user_id)ON DEL
 
 ALTER TABLE Followers ADD FOREIGN KEY (artist_id) REFERENCES Artist (artist_id) ON DELETE CASCADE ON UPDATE CASCADE;
 
-CREATE OR REPLACE FUNCTION checkAlbumDate() RETURNS trigger AS $$
-	DECLARE
-		artist_date date;
-    BEGIN
-		select ar.join_date into artist_date from artist as ar where new.artist_id = ar.artist_id;
-		
-		if artist_date > new.date_added THEN
-			new.date_added = artist_date;
-		END if;
-		
-		return new;
-    END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE TRIGGER checkAlbumDate BEFORE INSERT OR UPDATE ON Album
-    FOR EACH ROW EXECUTE FUNCTION checkAlbumDate();
-	
-	
-CREATE OR REPLACE FUNCTION checkSongDate() RETURNS trigger AS $$
-	DECLARE
-		album_date date;
-    BEGIN
-		select al.date_added into album_date from album as al where new.album_id = al.album_id;
-		
-		if album_date > new.uploaded_date THEN
-			new.uploaded_date = album_date;
-		END if;
-		
-		return new;
-    END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE TRIGGER checkSongDate BEFORE INSERT OR UPDATE ON Song
-    FOR EACH ROW EXECUTE FUNCTION checkSongDate();
 
 CREATE OR REPLACE FUNCTION addAlbumIfSingle() RETURNS trigger AS $$
 BEGIN
@@ -173,3 +136,34 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE TRIGGER addAlbumIfSingle BEFORE INSERT ON Song
     FOR EACH ROW EXECUTE FUNCTION addAlbumIfSingle();
+
+-- CREATE OR REPLACE FUNCTION CheckAlbumDate() RETURNS TRIGGER AS $$
+-- DECLARE 
+--     uid int;
+-- BEGIN
+--     IF (SELECT join_date FROM ARTIST, ALBUM WHERE artist_id = old.artist_id) > old.date_added 
+--     THEN DELETE FROM ALBUM WHERE Album_id = old.album_id;
+--     SELECT user_id INTO uid FROM USERS WHERE admin_level >= 2;
+--     INSERT INTO Messages (user_id, admin_level, message) values(uid, 2, 'Album aborted');
+    
+--     END IF;
+--     return new;
+-- END;
+-- $$ LANGUAGE plpgsql;
+
+-- CREATE OR REPLACE TRIGGER CheckAlbumDate AFTER INSERT ON Album
+--     FOR EACH ROW EXECUTE FUNCTION CheckAlbumDate();
+
+
+-- CREATE OR REPLACE FUNCTION CheckRatings() RETURNS TRIGGER AS $$
+-- BEGIN
+--     IF new.total_likes > 10 
+--     THEN
+--     INSERT INTO MESSAGES (user_id, admin_level, message) VALUES (new.artist_id, 2, 'Your song has reached 10 likes!')
+--     END IF
+--     return new;
+-- END;
+-- $$ language plpgsql
+
+-- CREATE OR REPLACE TRIGGER CheckRatings AFTER UPDATE ON Song
+--     FOR EACH ROW EXECUTE FUCTION CheckRatings();
