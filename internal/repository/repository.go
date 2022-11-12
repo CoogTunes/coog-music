@@ -22,7 +22,10 @@ type DatabaseRepo interface {
 	//GetArtistName(artist_id int) (string, error)
 	GetArtists() ([]models.Artist, error)
 	//GetArtistsAndSongs() ([]models.Artist, error)
-	GetSongFromPlaylist(playlist_id int)([]models.Song, error)
+	GetSongsFromPlaylist(playlist_name string)([]models.Song, error)
+	GetSongsFromAlbum(album_name string)([]models.Song, error)
+	GetSongsFromArtist(artist_name string)([]models.Song, error)
+	GetSongsByName(song_name string)([]models.Song, error)
 
 	GetNumberOfUsers() (models.Users, error)
 	GetNumberOfSongs() (models.Song, error)
@@ -31,10 +34,11 @@ type DatabaseRepo interface {
 
 	Follow(artistId int, userId int) (models.Followers, error) //add
 	Authenticate(email string, password string) (models.Users, error)
+	AddLikeToSong(song_id int)error
 
 	UpdateUser(user models.Users) (models.Users, error)
-	//UpdateSong(song models.Song) (models.Song, error)
-	//UpdateSongCount(song models.Song) (models.Song, error)
+	UpdateSong(song models.Song) (models.Song, error)
+	UpdateSongCount(song models.Song) (models.Song, error)
 	UpdateArtist(artist models.Artist) (models.Artist, error)
 
 	RemoveUser(user_id int) error

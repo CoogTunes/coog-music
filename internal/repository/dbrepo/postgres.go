@@ -212,11 +212,11 @@ func (m *postgresDBRepo) AddSongForAlbum(res models.Song) error {
 	return nil
 }
 
-func (m *postgresDBRepo) GetSongFromPlaylist (playlist_id int)([]models.Song, error){
+func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_name string)([]models.Song, error){
 	var songs []models.Song
 
-	query := "select song from songplaylist, song where songplaylist.playlist_id = $1"
-	rows, err := m.DB.Query(query, playlist_id)
+	query := "select song from song, songplaylist where songplaylist.playlist_id in (SELECT playlist_id from playlist where name like %$1%)"
+	rows, err := m.DB.Query(query, playlist_name)
 	if err != nil{
 		return nil, err
 	}
@@ -242,6 +242,95 @@ func (m *postgresDBRepo) GetSongFromPlaylist (playlist_id int)([]models.Song, er
 	return songs, nil
 }
 
+func (m *postgresDBRepo) GetSongsFromArtist(artist_name string)([]models.Song, error){
+	var songs []models.Song
+
+	query := "select * from Song where artist_id in (SELECT artist_id from artist where name like %$1%)"
+	rows, err := m.DB.Query(query, artist_name)
+	if err != nil{
+		return nil, err
+	}
+
+	defer func (rows *sql.Rows){
+		err := rows.Close()
+		if err != nil{
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next(){
+		var song models.Song
+		
+		rows.Scan(&song.Song_id, &song.Artist_id)
+
+		if err != nil{
+			return nil, err
+		}
+
+		songs = append(songs, song)
+	}
+	return songs, nil
+}
+
+func (m *postgresDBRepo) GetSongsFromAlbum(album_name string)([]models.Song, error){
+	var songs []models.Song
+
+	query := "select song from albumsong, song where albumsong.album_id in (SELECT album_id from album where name like %$1%)"
+	rows, err := m.DB.Query(query, album_name)
+	if err != nil{
+		return nil, err
+	}
+
+	defer func (rows *sql.Rows){
+		err := rows.Close()
+		if err != nil{
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next(){
+		var song models.Song
+		
+		rows.Scan(&song.Song_id, &song.Artist_id)
+
+		if err != nil{
+			return nil, err
+		}
+
+		songs = append(songs, song)
+	}
+	return songs, nil
+}
+
+func (m *postgresDBRepo) GetSongsByName(song_name string)([]models.Song, error){
+	var songs []models.Song
+
+	query := "select * from song where title like %$1%"
+	rows, err := m.DB.Query(query, song_name)
+	if err != nil{
+		return nil, err
+	}
+
+	defer func (rows *sql.Rows){
+		err := rows.Close()
+		if err != nil{
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next(){
+		var song models.Song
+		
+		rows.Scan(&song.Song_id, &song.Artist_id)
+
+		if err != nil{
+			return nil, err
+		}
+
+		songs = append(songs, song)
+	}
+	return songs, nil
+}
 //func (m *postgresDBRepo) GetSongs() ([]models.Song, error) {
 //	var songs []models.Song
 //	// probably need to add a where statement and get rid of *
@@ -287,18 +376,18 @@ func (m *postgresDBRepo) GetSongFromPlaylist (playlist_id int)([]models.Song, er
 //
 //}
 
-//func (m *postgresDBRepo) UpdateSongCount(songWithId models.Song) (models.Song, error) {
-//	var song models.Song
-//
-//	query := "UPDATE Song SET total_plays = total_plays + 1 where song_id = $1 returning *"
-//
-//	row := m.DB.QueryRow(query, songWithId.Song_id)
-//
-//	row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays)
-//
-//	return song, nil
-//
-//}
+func (m *postgresDBRepo) UpdateSongCount(songWithId models.Song) (models.Song, error) {
+	var song models.Song
+
+	query := "UPDATE Song SET total_plays = total_plays + 1 where song_id = $1 returning *"
+
+	row := m.DB.QueryRow(query, songWithId.Song_id)
+
+	row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Album, &song.Total_plays)
+
+	return song, nil
+
+}
 
 //TODO: ADD LINKING TABLES AND USE THEM TO GRAB THE OTHER STUFF
 
@@ -445,26 +534,26 @@ func (m *postgresDBRepo) UpdateArtist(artist models.Artist) (models.Artist, erro
 	return artistToReturn, nil
 }
 
-//func (m *postgresDBRepo) UpdateSong(song models.Song) (models.Song, error) {
-//
-//	var songToReturn models.Song
-//
-//	query := `
-//	UPDATE SONG
-//	SET (title, duration) = ($1, $2)
-//	WHERE song_id = $3 RETURNING *`
-//
-//	row := m.DB.QueryRow(query, song.Title, song.Duration, song.Song_id)
-//
-//	err := row.Scan(&songToReturn.Song_id, &songToReturn.Title, &songToReturn.Artist_id, &songToReturn.Release_date, &songToReturn.Duration, &songToReturn.Album_id, &songToReturn.Total_plays)
-//
-//	if err != nil {
-//		log.Println(err)
-//	}
-//
-//	return songToReturn, nil
-//
-//}
+func (m *postgresDBRepo) UpdateSong(song models.Song) (models.Song, error) {
+
+	var songToReturn models.Song
+
+	query := `
+	UPDATE SONG
+	SET (title, duration) = ($1, $2)
+	WHERE song_id = $3 RETURNING *`
+
+	row := m.DB.QueryRow(query, song.Title, song.Song_id)
+
+	err := row.Scan(&songToReturn.Song_id, &songToReturn.Title, &songToReturn.Artist_id, &songToReturn.Album_id, &songToReturn.Total_plays)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return songToReturn, nil
+
+}
 
 func (m *postgresDBRepo) Follow(artistId int, userId int) (models.Followers, error) {
 
@@ -633,6 +722,17 @@ func (m *postgresDBRepo) GetNumberOfPlaylists() (models.Playlist, error) {
 	return playlist, nil
 }
 
-//delete from playlist/album
-//delete artist, user, song
-//functions to add song to album/playlist and merge them together
+func (m *postgresDBRepo) AddLikeToSong(song_id int) error{
+	query := "UPDATE SONG SET total_likes = total_likes + 1 WHERE song_id = $1"
+
+	_, err := m.DB.Exec(query, song_id)
+	if err != nil{
+		log.Println(err)
+	}
+	return nil
+}
+
+
+
+//add like function to increment in song
+//search function for album, artist, playlist, get every song under these params
