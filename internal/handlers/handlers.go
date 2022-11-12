@@ -425,8 +425,11 @@ func (m *Repository) InsertPlaylist(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Cannot decode the json")
 	}
-	log.Println(playlistInfo.PlayList[0])
-	log.Println(playlistInfo.PlayListName)
+	playlist := models.Playlist{
+		User_id: UserCache.User_id,
+		Name:    playlistInfo.PlayListName,
+	}
+	
 }
 
 // END PLAYLIST SECTION --------------------------------------------------------------------------------
