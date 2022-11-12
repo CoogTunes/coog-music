@@ -584,6 +584,35 @@ func(m *postgresDBRepo) GetNumberOfPlaylists()(models.Playlist, error){
 	return playlist, nil
 }
 
+func (m *postgresDBRepo) GetSongsFromPlaylist (playlist_id int)([]models.Song, error){
+	var songs []models.Song
+
+	query := "select song from songplaylist, song where songplaylist.playlist_id = $1"
+	rows, err := m.DB.Query(query, playlist_id)
+	if err != nil{
+		return nil, err
+	}
+
+	defer func (rows *sql.Rows){
+		err := rows.Close()
+		if err != nil{
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next(){
+		var song models.Song
+		
+		rows.Scan(&song.Song_id, &song.Artist_id)
+
+		if err != nil{
+			return nil, err
+		}
+
+		songs = append(songs, song)
+	}
+	return songs, nil
+}
 
 //delete from playlist/album
 //delete artist, user, song
