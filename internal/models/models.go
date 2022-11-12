@@ -10,15 +10,15 @@ type Users struct {
 }
 
 type Song struct {
-	Song_id      int
-	Title        string
-	Artist_id    int
-	Artist_name  string
-	Release_date string
-	Duration     string
-	Album        string
-	Album_id     int
-	Total_plays  int
+	Song_id       int
+	Title         string
+	Artist_id     int
+	SongPath      string
+	CoverPath     string
+	Uploaded_date string
+	Album         string
+	Album_id      int
+	Total_plays   int
 }
 
 type Artist struct {

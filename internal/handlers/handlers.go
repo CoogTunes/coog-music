@@ -325,7 +325,7 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 		Artist_id: UserCache.User_id,
 	}
 
-	err = m.DB.AddAlbum(albumInfo)
+	albumDBInfo, err := m.DB.AddAlbum(albumInfo)
 	if err != nil {
 		log.Println("Cannot add album")
 		return
@@ -388,6 +388,7 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 			SongPath:  songPath,
 			CoverPath: fullCoverPath,
 			Artist_id: UserCache.User_id,
+			Album_id:  albumDBInfo.Album_id,
 		}
 		err = m.DB.AddSong(songInfo)
 		if err != nil {

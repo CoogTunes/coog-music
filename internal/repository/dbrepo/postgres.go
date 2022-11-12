@@ -42,17 +42,15 @@ func (m *postgresDBRepo) GetUser(User_id string) (models.Users, error) {
 }
 
 // ARTISTS
-func (m *postgresDBRepo) AddArtist(res models.Artist) (models.Artist, error) {
-	var artist models.Artist
+func (m *postgresDBRepo) AddArtistDB(res models.Artist) error {
 
 	query := "insert into Artist (name, artist_id, location, join_date) values ($1, $2, $3, to_date($4, 'YYYY-MM-DD')) RETURNING *"
-	row := m.DB.QueryRow(query, res.Name, res.Artist_id, res.Location, res.Join_date)
-
-	err := row.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date)
+	_, err := m.DB.Exec(query, res.Name, res.Artist_id, res.Location, time.Now())
 	if err != nil {
 		log.Println(err)
+		return err
 	}
-	return artist, nil
+	return nil
 }
 
 // For searching artists?
@@ -86,64 +84,64 @@ func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 	return artists, nil
 }
 
-func (m *postgresDBRepo) GetArtistsAndSongs() ([]models.Artist, error) {
-	var artists []models.Artist
+//func (m *postgresDBRepo) GetArtistsAndSongs() ([]models.Artist, error) {
+//	var artists []models.Artist
+//
+//	query := `SELECT a.name, a.artist_id, a.location, a.join_date, s.song_id, s.title,
+//				s.release_date, s.duration, s.album_id, s.total_plays, s.album_id, al.name
+//				FROM Artist as a, Song as s, Album as al
+//				WHERE a.artist_id = s.artist_id AND al.album_id = s.album_id
+//				ORDER BY lower(a.name), a.artist_id, s.title`
+//
+//	rows, err := m.DB.Query(query)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	defer func(rows *sql.Rows) {
+//		err := rows.Close()
+//		if err != nil {
+//			log.Println(err)
+//		}
+//	}(rows)
+//
+//	for rows.Next() {
+//		var artist models.Artist
+//		var song models.Song
+//
+//		rows.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &song.Song_id, &song.Title,
+//			&song.Release_date, &song.Duration, &song.Album_id, &song.Total_plays, &song.Album_id, &song.Album)
+//
+//		if err != nil {
+//			return nil, err
+//		}
+//
+//		if len(artists) > 0 {
+//			if artist.Artist_id != artists[len(artists)-1].Artist_id {
+//				artists = append(artists, artist)
+//			}
+//		} else if len(artists) == 0 {
+//			artists = append(artists, artist)
+//		}
+//
+//		song.Artist_id = artists[len(artists)-1].Artist_id
+//		song.Artist_name = artists[len(artists)-1].Name
+//		artists[len(artists)-1].Songs = append(artists[len(artists)-1].Songs, song)
+//	}
+//	return artists, nil
+//}
 
-	query := `SELECT a.name, a.artist_id, a.location, a.join_date, s.song_id, s.title, 
-				s.release_date, s.duration, s.album_id, s.total_plays, s.album_id, al.name
-				FROM Artist as a, Song as s, Album as al
-				WHERE a.artist_id = s.artist_id AND al.album_id = s.album_id
-				ORDER BY lower(a.name), a.artist_id, s.title`
-
-	rows, err := m.DB.Query(query)
-	if err != nil {
-		return nil, err
-	}
-
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			log.Println(err)
-		}
-	}(rows)
-
-	for rows.Next() {
-		var artist models.Artist
-		var song models.Song
-
-		rows.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &song.Song_id, &song.Title,
-			&song.Release_date, &song.Duration, &song.Album_id, &song.Total_plays, &song.Album_id, &song.Album)
-
-		if err != nil {
-			return nil, err
-		}
-
-		if len(artists) > 0 {
-			if artist.Artist_id != artists[len(artists)-1].Artist_id {
-				artists = append(artists, artist)
-			}
-		} else if len(artists) == 0 {
-			artists = append(artists, artist)
-		}
-
-		song.Artist_id = artists[len(artists)-1].Artist_id
-		song.Artist_name = artists[len(artists)-1].Name
-		artists[len(artists)-1].Songs = append(artists[len(artists)-1].Songs, song)
-	}
-	return artists, nil
-}
-
-func (m *postgresDBRepo) GetArtistName(artist_id int) (str string, err error) {
-	var song models.Song
-	query := `SELECT name FROM Artist as A, Song as S WHERE A.artist_id = S.artist_id AND A.artist_id = $1`
-	row := m.DB.QueryRow(query, artist_id)
-	err2 := row.Scan(&song.Artist_name)
-	if err2 != nil {
-		log.Println(err)
-	}
-
-	return song.Artist_name, err
-}
+//func (m *postgresDBRepo) GetArtistName(artist_id int) (str string, err error) {
+//	var song models.Song
+//	query := `SELECT name FROM Artist as A, Song as S WHERE A.artist_id = S.artist_id AND A.artist_id = $1`
+//	row := m.DB.QueryRow(query, artist_id)
+//	err2 := row.Scan(&song.Artist_name)
+//	if err2 != nil {
+//		log.Println(err)
+//	}
+//
+//	return song.Artist_name, err
+//}
 
 func (m *postgresDBRepo) AddAlbum(album models.Album) (models.Album, error) {
 	var addedAlbum models.Album
@@ -178,78 +176,74 @@ func (m *postgresDBRepo) Authenticate(email string, password string) (models.Use
 }
 
 // SONGS
-func (m *postgresDBRepo) AddSong(res models.Song) (models.Song, error) {
+func (m *postgresDBRepo) AddSong(res models.Song) error {
+	query := "insert into song (title, artist_id, album_id, song_path, cover_path, uploaded_date) values ($1, $2, $3, $4, $5, to_date($6, 'YYYY-MM-DD'))"
 
-	var song models.Song
-
-	query := `insert into song (title, artist_id, release_date, duration, album_id, total_plays)
-				 select $1, ar.artist_id, to_date($2, 'YYYY-MM-DD'), $3, al.album_id, 0 from artist as ar, album as al where ar.artist_id = $4 AND al.album_id = $5 RETURNING *`
-	row := m.DB.QueryRow(query, res.Title, res.Release_date, res.Duration, res.Artist_id, res.Album_id)
-
-	err := row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album_id, &song.Total_plays)
+	_, err := m.DB.Exec(query, res.Title, res.Artist_id, res.Album_id, res.SongPath, res.CoverPath, time.Now())
 	if err != nil {
 		log.Println(err)
+		return err
 	}
-	return song, nil
+	return nil
 }
 
-func (m *postgresDBRepo) GetSongs() ([]models.Song, error) {
-	var songs []models.Song
-	// probably need to add a where statement and get rid of *
-	query := "SELECT * FROM song"
+//func (m *postgresDBRepo) GetSongs() ([]models.Song, error) {
+//	var songs []models.Song
+//	// probably need to add a where statement and get rid of *
+//	query := "SELECT * FROM song"
+//
+//	rows, err := m.DB.Query(query)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	defer func(rows *sql.Rows) {
+//		err := rows.Close()
+//		if err != nil {
+//			log.Println(err)
+//		}
+//	}(rows)
+//
+//	for rows.Next() {
+//		var song models.Song
+//
+//		rows.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album_id, &song.Total_plays)
+//
+//		if err != nil {
+//			log.Println(err)
+//		}
+//		songs = append(songs, song)
+//	}
+//	return songs, nil
+//}
 
-	rows, err := m.DB.Query(query)
-	if err != nil {
-		return nil, err
-	}
+//func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
+//
+//	var song models.Song
+//
+//	query := "select * from song where song_id = $1"
+//
+//	row := m.DB.QueryRow(query, songID)
+//	log.Println("row", row)
+//	log.Println(row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays))
+//
+//	//maybe call update playcount
+//	return song, nil
+//
+//}
 
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			log.Println(err)
-		}
-	}(rows)
-
-	for rows.Next() {
-		var song models.Song
-
-		rows.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album_id, &song.Total_plays)
-
-		if err != nil {
-			log.Println(err)
-		}
-		songs = append(songs, song)
-	}
-	return songs, nil
-}
-
-func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
-
-	var song models.Song
-
-	query := "select * from song where song_id = $1"
-
-	row := m.DB.QueryRow(query, songID)
-	log.Println("row", row)
-	log.Println(row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays))
-
-	//maybe call update playcount
-	return song, nil
-
-}
-
-func (m *postgresDBRepo) UpdateSongCount(songWithId models.Song) (models.Song, error) {
-	var song models.Song
-
-	query := "UPDATE Song SET total_plays = total_plays + 1 where song_id = $1 returning *"
-
-	row := m.DB.QueryRow(query, songWithId.Song_id)
-
-	row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays)
-
-	return song, nil
-
-}
+//func (m *postgresDBRepo) UpdateSongCount(songWithId models.Song) (models.Song, error) {
+//	var song models.Song
+//
+//	query := "UPDATE Song SET total_plays = total_plays + 1 where song_id = $1 returning *"
+//
+//	row := m.DB.QueryRow(query, songWithId.Song_id)
+//
+//	row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album, &song.Total_plays)
+//
+//	return song, nil
+//
+//}
 
 //TODO: ADD LINKING TABLES AND USE THEM TO GRAB THE OTHER STUFF
 
@@ -396,26 +390,26 @@ func (m *postgresDBRepo) UpdateArtist(artist models.Artist) (models.Artist, erro
 	return artistToReturn, nil
 }
 
-func (m *postgresDBRepo) UpdateSong(song models.Song) (models.Song, error) {
-
-	var songToReturn models.Song
-
-	query := `
-	UPDATE SONG
-	SET (title, duration) = ($1, $2) 
-	WHERE song_id = $3 RETURNING *`
-
-	row := m.DB.QueryRow(query, song.Title, song.Duration, song.Song_id)
-
-	err := row.Scan(&songToReturn.Song_id, &songToReturn.Title, &songToReturn.Artist_id, &songToReturn.Release_date, &songToReturn.Duration, &songToReturn.Album_id, &songToReturn.Total_plays)
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	return songToReturn, nil
-
-}
+//func (m *postgresDBRepo) UpdateSong(song models.Song) (models.Song, error) {
+//
+//	var songToReturn models.Song
+//
+//	query := `
+//	UPDATE SONG
+//	SET (title, duration) = ($1, $2)
+//	WHERE song_id = $3 RETURNING *`
+//
+//	row := m.DB.QueryRow(query, song.Title, song.Duration, song.Song_id)
+//
+//	err := row.Scan(&songToReturn.Song_id, &songToReturn.Title, &songToReturn.Artist_id, &songToReturn.Release_date, &songToReturn.Duration, &songToReturn.Album_id, &songToReturn.Total_plays)
+//
+//	if err != nil {
+//		log.Println(err)
+//	}
+//
+//	return songToReturn, nil
+//
+//}
 
 func (m *postgresDBRepo) Follow(artistId int, userId int) (models.Followers, error) {
 
@@ -484,7 +478,7 @@ func (m *postgresDBRepo) RemoveAlbum(album_id int) error {
 	}
 
 	return nil
-	}
+}
 
 func (m *postgresDBRepo) RemoveArtist(artist_id int) error {
 
@@ -526,7 +520,7 @@ func (m *postgresDBRepo) RemoveSongFromPlaylist(song_id int, playlist_id int) er
 	return nil
 }
 
-func(m *postgresDBRepo) GetNumberOfUsers()(models.Users, error){
+func (m *postgresDBRepo) GetNumberOfUsers() (models.Users, error) {
 
 	var user models.Users
 
@@ -534,14 +528,14 @@ func(m *postgresDBRepo) GetNumberOfUsers()(models.Users, error){
 	row := m.DB.QueryRow(query)
 
 	err := row.Scan(&user.User_id)
-	if err != nil{
+	if err != nil {
 		log.Println(err)
 	}
 
 	return user, nil
 }
 
-func(m *postgresDBRepo) GetNumberOfArtists()(models.Users, error){
+func (m *postgresDBRepo) GetNumberOfArtists() (models.Users, error) {
 
 	var user models.Users
 
@@ -549,7 +543,7 @@ func(m *postgresDBRepo) GetNumberOfArtists()(models.Users, error){
 	row := m.DB.QueryRow(query)
 
 	err := row.Scan(&user.User_id)
-	if err != nil{
+	if err != nil {
 		log.Println(err)
 	}
 
@@ -557,20 +551,20 @@ func(m *postgresDBRepo) GetNumberOfArtists()(models.Users, error){
 
 }
 
-func(m *postgresDBRepo) GetNumberOfSongs()(models.Song, error){
+func (m *postgresDBRepo) GetNumberOfSongs() (models.Song, error) {
 	var song models.Song
 
 	query := "SELECT MAX(song_id) FROM SONG"
 	row := m.DB.QueryRow(query)
 
 	err := row.Scan(&song.Song_id)
-	if err != nil{
+	if err != nil {
 		log.Println(err)
 	}
 	return song, nil
 }
 
-func(m *postgresDBRepo) GetNumberOfPlaylists()(models.Playlist, error){
+func (m *postgresDBRepo) GetNumberOfPlaylists() (models.Playlist, error) {
 	var playlist models.Playlist
 
 	query := "SELECT MAX(playlist_id) FROM PLAYLIST"
@@ -578,12 +572,11 @@ func(m *postgresDBRepo) GetNumberOfPlaylists()(models.Playlist, error){
 	row := m.DB.QueryRow(query)
 
 	err := row.Scan(&playlist.Playlist_id)
-	if err != nil{
-	log.Println(err)
+	if err != nil {
+		log.Println(err)
 	}
 	return playlist, nil
 }
-
 
 //delete from playlist/album
 //delete artist, user, song

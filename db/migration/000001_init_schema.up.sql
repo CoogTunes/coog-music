@@ -24,10 +24,12 @@ CREATE TABLE Artist (
 CREATE TABLE Song (
                         song_id bigserial UNIQUE NOT NULL,
                         title varchar,
+                        album_id int NOT NULL,
                         artist_id int,
-                        release_date date DEFAULT 'now()',
-                        duration float NOT NULL,
-                        album_id int,
+                        song_path varchar,
+                        cover_path varchar,
+                        uploaded_date date DEFAULT 'now()',
+
                         total_plays bigint DEFAULT 0,
                         PRIMARY KEY (song_id, artist_id)
 );
