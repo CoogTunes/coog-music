@@ -9,113 +9,251 @@
     {{end}}
 
     {{define "content"}}
-        <header>
+         <section>
             <div class="menu_side">
-                <h1>Coog Tunes</h1>
+                <a href="/" class="logo-wrapper">
+                    <img class="logo-limit" src="/static/img/cootune-logo-sizeds.png" />
+                </a>
                 <div class="playlist">
-                    <h4 class="active"><span></span><i class="bi bi-house-door-fill"></i>Home</h4>
-                    <h4 class="active"><span></span><i class="bi bi-vinyl"></i>Discover</h4>
-                    <h4 class="active"><span></span><i class="bi bi-music-note-beamed"></i>My Playlist</h4>
-                </div>
-                <div class="menu_song">
-                    <li class="songItem">
-                        <span>01</span>
-                        <img src="/static/img/adele.jpg" alt="Adele">
-                        <h5>
-                            Hello
-                            <div class="subtitle">Adele</div>
-                        </h5>
-                        <i class="bi playListPlay bi-play-circle-fill" id="1"></i>
-
-                    </li>
-                    <li class="songItem">
-                        <span>02</span>
-                        <img src="/static/img/adele.jpg" alt="Adele">
-                        <h5>
-                            I Miss You
-                            <div class="subtitle">Adele</div>
-                        </h5>
-                        <i class="bi playListPlay bi-play-circle-fill" id="2"></i>
-
-                    </li>
-                    <li class="songItem">
-                        <span>03</span>
-                        <img src="/static/img/adele.jpg" alt="Adele">
-                        <h5>
-                            Remedy
-                            <div class="subtitle">Adele</div>
-                        </h5>
-                        <i class="bi playListPlay bi-play-circle-fill" id="3"></i>
-
-                    </li>
-                    <li class="songItem">
-                        <span>04</span>
-                        <img src="/static/img/adele.jpg" alt="Adele">
-                        <h5>
-                            River Lea
-                            <div class="subtitle">Adele</div>
-                        </h5>
-                        <i class="bi playListPlay bi-play-circle-fill" id="4"></i>
-                    </li>
-                    <li class="songItem">
-                        <span>05</span>
-                        <img src="/static/img/adele.jpg" alt="Adele">
-                        <h5>
-                            Send My Love
-                            <div class="subtitle">Adele</div>
-                        </h5>
-                        <i class="bi playListPlay bi-play-circle-fill" id="5"></i>
-                    </li>
-                    <li class="songItem">
-                        <span>06</span>
-                        <img src="/static/img/adele.jpg" alt="Adele">
-                        <h5>
-                            Love in the Dark
-                            <div class="subtitle">Adele</div>
-                        </h5>
-                        <i class="bi playListPlay bi-play-circle-fill" id="6"></i>
-                    </li>
+                    <h4 class="active"><span></span><i class="bi bi-front"></i>Home</h4>
+                    <h4 class="active">
+                        <span></span><i class="bi bi-vinyl"></i>Discover
+                    </h4>
+                    <h4 class="active">
+                        <span></span><i class="bi bi-collection"></i>My Playlist
+                    </h4>
+                    <div class="playlist-bottom">
+                        <h4 class="active">
+                            <span></span><i class="bi bi-plus-square"></i>Create Playlist
+                        </h4>
+                        <h4 class="active">
+                            <span></span><i class="bi bi-box2-heart"></i>Liked Songs
+                        </h4>
+                    </div>
+                    <div class="my-playlist-container">
+                        <div class="divider"></div>
+                    </div>
                 </div>
             </div>
-
-
             <div class="song_side">
+                <svg
+                        class="gradient-container"
+                        version="1.1"
+                        xmlns="http://www.w3.org/2000/svg"
+                >
+                    <defs>
+                        <linearGradient id="MyGradient" gradientTransform="rotate(90)">
+                            <stop offset="10%" stop-color="var(--color-top)" />
+                            <stop offset="20%" stop-color="var(--color-middle)" />
+                            <stop offset="90%" stop-color="var(--color-middle)" />
+                            <stop offset="95%" stop-color="var(--color-middle)" />
+                        </linearGradient>
+                    </defs>
+                    <rect width="100%" height="100%" />
+                </svg>
                 <nav>
                     <ul>
-                        <li>DISCOVER <span></span></li>
-                        <li>MY LIBRARY</li>
-                        <li>RADIO</li>
+                        <li><i class="bi bi-chevron-double-left"></i></li>
+                        <li><i class="bi bi-chevron-double-right"></i></li>
+                        <li>
+                            DISCOVER <span></span><i class="bi bi-distribute-vertical"></i>
+                        </li>
+                        <li>
+                            MY LIBRARY <span></span><i class="bi bi-collection-play-fill"></i>
+                        </li>
+{{/*                        <li>RADIO <span ></span><i class="bi bi-broadcast"></i></li>*/}}
                     </ul>
                     <div class="search">
                         <i class="bi bi-search"></i>
-                        <input type="text" placeholder="Search Music...">
+                        <input type="text" placeholder="What do you want to listen to?" />
                     </div>
-                    <div class="user" id="subMenu">
-                        <div class="sub-menu">
-                            <div class="user-info">
-                                <img src="/static/img/account.png">
-                                Fardad Sadeghi
+                    {{if (eq .UserData.Admin_level 2)}}
+                    <h3 id="upload">Upload</h3>
+                    {{end}}
+                    <div class="auth-user-control">
+                        <img src="/static/img/account.png" alt="user_pic" onclick="toggleMenu()" />
+                        <div class="user" id="subMenu">
+                            <div class="sub-menu">
+                                <div class="user-info">
+                                    <img src="/static/img/account.png" />
+                                    {{.UserData.First_name}} {{.UserData.Last_name}}
+                                </div>
+                                <hr />
+                                <a href="#Account" class="sub-menu-link">Account</a>
+                                <a href="/profile" class="sub-menu-link">Profile</a>
+                                <a href="#Settings" class="sub-menu-link">Settings</a>
+                                <a href="/logout" class="sub-menu-link">Log Out</a>
                             </div>
-                            <hr>
-                            <a href="#Account" class="sub-menu-link">Account</a>
-                            <a href="#Profile" class="sub-menu-link">Profile</a>
-                            <a href="#Settings" class="sub-menu-link">Settings</a>
-                            <a href="#login" class="sub-menu-link">Log In</a>
                         </div>
                     </div>
                 </nav>
-                <div class="content">
-                    <h1>Profile Page</h1>
-                    <img class="profile-pic" src= "/static/img/account.png">
-                    <div class="buttons">
-                        <button>EDIT</button>
+
+                <div class="song_side-wrappers music-manager-container">
+                    <div class="contents">
+                        <div class="picture">
+                            <img id="profile-pic" src= "/static/img/account.png">
+                        </div>
+                        <div class="profile-name">
+                            <h1>Profile</h1>
+                            <span>{{.UserData.First_name}} {{.UserData.Last_name}}</span> 
+                        </div>        
                     </div>
-                    <input class="search-bar" type="text" placeholder="Tell us about yourself" >
+                    <div
+                            class="playlist-wrapper"
+                            data-playlist-id=""
+                            data-playlist-name="Playlists"
+                    >
+                        <div class="row">
+                            <div class="playlist-title">
+                                Playlists <i class="bi bi-layers-fill playlist-icon"></i>
+                            </div>
+                        </div>
+                        <div class="row cards-wrapper">
+                            <div class="content">
+                                <div class="content-wrapper">
+                                    <div class="content-img">
+                                        <img src="/static/img/sza-sized.png" />
+                                        <div class="buttons">
+                                            <button><i class="bi bi-play-fill play-btn"></i></button>
+                                        </div>
+                                    </div>
+                                    <h1>Sad Music</h1>
+                                    <p class="truncate-txt">Songs to listen when I'm sad</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <div class="content-wrapper">
+                                    <div class="content-img">
+                                        <img src="/static/img/sza-sized.png" />
+                                        <div class="buttons">
+                                            <button><i class="bi bi-play-fill play-btn"></i></button>
+                                        </div>
+                                    </div>
+                                    <h1>Sad Music</h1>
+                                    <p class="truncate-txt">Songs to listen when I'm sad</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <div class="content-wrapper">
+                                    <div class="content-img">
+                                        <img src="/static/img/sza-sized.png" />
+                                        <div class="buttons">
+                                            <button><i class="bi bi-play-fill play-btn"></i></button>
+                                        </div>
+                                    </div>
+                                    <h1>Sad Music</h1>
+                                    <p class="truncate-txt">Songs to listen when I'm sad</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <div class="content-wrapper">
+                                    <div class="content-img">
+                                        <img src="/static/img/sza-sized.png" />
+                                        <div class="buttons">
+                                            <button><i class="bi bi-play-fill play-btn"></i></button>
+                                        </div>
+                                    </div>
+                                    <h1>Sad Music</h1>
+                                    <p class="truncate-txt">Songs to listen when I'm sad</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-
+                    <div
+                            class="playlist-wrapper"
+                            data-playlist-id=""
+                            data-playlist-name="Playlists"
+                    >
+                        <div class="row">
+                            <div class="playlist-title">
+                                Playlists <i class="bi bi-layers-fill playlist-icon"></i>
+                            </div>
+                        </div>
+                        <div class="row cards-wrapper">
+                            <div class="content">
+                                <div class="content-wrapper">
+                                    <div class="content-img">
+                                        <img src="/static/img/sza-sized.png" />
+                                        <div class="buttons">
+                                            <button><i class="bi bi-play-fill play-btn"></i></button>
+                                        </div>
+                                    </div>
+                                    <h1>Sad Music</h1>
+                                    <p class="truncate-txt">Songs to listen when I'm sad</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <div class="content-wrapper">
+                                    <div class="content-img">
+                                        <img src="/static/img/sza-sized.png" />
+                                        <div class="buttons">
+                                            <button><i class="bi bi-play-fill play-btn"></i></button>
+                                        </div>
+                                    </div>
+                                    <h1>Sad Music</h1>
+                                    <p class="truncate-txt">Songs to listen when I'm sad</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <div class="content-wrapper">
+                                    <div class="content-img">
+                                        <img src="/static/img/sza-sized.png" />
+                                        <div class="buttons">
+                                            <button><i class="bi bi-play-fill play-btn"></i></button>
+                                        </div>
+                                    </div>
+                                    <h1>Sad Music</h1>
+                                    <p class="truncate-txt">Songs to listen when I'm sad</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <div class="content-wrapper">
+                                    <div class="content-img">
+                                        <img src="/static/img/sza-sized.png" />
+                                        <div class="buttons">
+                                            <button><i class="bi bi-play-fill play-btn"></i></button>
+                                        </div>
+                                    </div>
+                                    <h1>Sad Music</h1>
+                                    <p class="truncate-txt">Songs to listen when I'm sad</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <div class="content-wrapper">
+                                    <div class="content-img">
+                                        <img src="/static/img/sza-sized.png" />
+                                        <div class="buttons">
+                                            <button><i class="bi bi-play-fill play-btn"></i></button>
+                                        </div>
+                                    </div>
+                                    <h1>Sad Music</h1>
+                                    <p class="truncate-txt">Songs to listen when I'm sad</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <div class="content-wrapper">
+                                    <div class="content-img">
+                                        <img src="/static/img/sza-sized.png" />
+                                        <div class="buttons">
+                                            <button><i class="bi bi-play-fill play-btn"></i></button>
+                                        </div>
+                                    </div>
+                                    <h1>Sad Music</h1>
+                                    <p class="truncate-txt">Songs to listen when I'm sad</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
+                
+
                 <div class="profile-playlist">
+                    {{/* <div class="buttons">
+                        <button>EDIT</button>
+                    </div>
+                    <input id="search-bar" type="text" placeholder="Tell us about yourself" > */}}
                     <p>
                         Playlists
                     </p>
@@ -130,53 +268,114 @@
 
 
             <div class="master_play">
-                <div class="wave">
+                <div class="wave active2">
                     <div class="wave1"></div>
                     <div class="wave1"></div>
                     <div class="wave1"></div>
                 </div>
-                <img src="/static/img/adele.jpg" alt="Adele">
-                <h5>Love in the Dark <br>
+                <img src="/static/img/adele.jpg" alt="Adele" />
+                <h5>
+                    Love in the Dark <br />
                     <div class="subtitle">Adele</div>
                 </h5>
-                <div class="icon">
-                    <i class="bi bi-skip-start-fill"></i>
-                    <i class="bi bi-play-fill"></i>
-                    <i class="bi bi-skip-end-fill"></i>
-                </div>
-                <span id="currentStart">0:00</span>
-                <div class="bar">
-                    <input type="range" class="seek" min="0" value="0" max="100">
-                    <div class="bar2" id="bar2"></div>
-                    <div class="dot"></div>
-                </div>
-                <span id="currentEnd">0:00</span>
 
+                <div class="yfitops-wrapper">
+                    <div class="icon">
+                        <i class="bi bi-skip-start-fill"></i>
+                        <i class="bi bi-play-fill"></i>
+                        <i class="bi bi-skip-end-fill"></i>
+                    </div>
+                    <div class="music-bar">
+                        <div class="music-time-passed"><span>0:00</span></div>
+                        <div
+                                class="music-playback-progress"
+                                data-music-max=""
+                                data-music-value="0 seconds"
+                        >
+                            <div class="timeline-progress-bg"></div>
+                            <div class="timeline-progress-bar"></div>
+                            <div class="timeline-progress-handler"></div>
+                        </div>
+                        <div class="music-time-duration"><span>0:00</span></div>
+                    </div>
+                </div>
                 <div class="volume">
                     <i class="bi bi-volume-down-fill"></i>
-                    <input type="range" class="vol" min="0" value="30" max="100">
-                    <div class="vol_bar"></div>
-                    <div class="dot" id="vol_dot"></div>
+                    <div class="volume-bar-wrapper">
+                        <input
+                                class="master-volume"
+                                type="range"
+                                min="0"
+                                value="50"
+                                max="100"
+                        />
+                        <div class="vol_bar"></div>
+                    </div>
+                </div>
+                <div class="menu_song">
+                    <div class="queue-container">
+                        <div class="songItem">
+                            <span>01</span>
+                            <img src="/static/img/adele.jpg" alt="Adele" />
+                            <h5>
+                                Love in the Dark
+                                <div class="subtitle">Adele</div>
+                            </h5>
+                            <i class="bi playListPlay bi-play-circle-fill" id="1"></i>
+                        </div>
+                        <div class="songItem">
+                            <span>02</span>
+                            <img src="/static/img/adele.jpg" alt="Adele" />
+                            <h5>
+                                Love in the Dark
+                                <div class="subtitle">Adele</div>
+                            </h5>
+                            <i class="bi playListPlay bi-play-circle-fill" id="2"></i>
+                        </div>
+                        <div class="songItem">
+                            <span>03</span>
+                            <img src="/static/img/adele.jpg" alt="Adele" />
+                            <h5>
+                                Love in the Dark
+                                <div class="subtitle">Adele</div>
+                            </h5>
+                            <i class="bi playListPlay bi-play-circle-fill" id="3"></i>
+                        </div>
+                        <div class="songItem">
+                            <span>04</span>
+                            <img src="/static/img/adele.jpg" alt="Adele" />
+                            <h5>
+                                Love in the Dark
+                                <div class="subtitle">Adele</div>
+                            </h5>
+                            <i class="bi playListPlay bi-play-circle-fill" id="4"></i>
+                        </div>
+                        <div class="songItem">
+                            <span>05</span>
+                            <img src="/static/img/adele.jpg" alt="Adele" />
+                            <h5>
+                                Love in the Dark
+                                <div class="subtitle">Adele</div>
+                            </h5>
+                            <i class="bi playListPlay bi-play-circle-fill" id="5"></i>
+                        </div>
+                        <div class="songItem">
+                            <span>06</span>
+                            <img src="/static/img/adele.jpg" alt="Adele" />
+                            <h5>
+                                Love in the Dark
+                                <div class="subtitle">Adele</div>
+                            </h5>
+                            <i class="bi playListPlay bi-play-circle-fill" id="6"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <!--
-            <nav>
-                <a href="coogtunes.html"></a>
-                <div class="nav-links" id="navLinks">
-                    <ul>
-                        <li><a href="">HOME</a> </li>
-                        <li><a href="">LIBRARY</a></li>
-                        <li><a href="">DISCOVER</a></li>
-                        <li><a href="">ACCOUNT</a></li>
-                    </ul>
-                </div>
-            </nav>
-            -->
-        </header>
+        </section>
     {{end}}
 
     {{define "js"}}
-        <script src="/static/js/profilepage.js"></script>
+        <script src="/static/js/coogtunes.js"></script>
     {{end}}
 
 

@@ -178,6 +178,7 @@ func (m *Repository) LogOut(w http.ResponseWriter, r *http.Request) {
 func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "profilepage.page.gohtml", &models.TemplateData{
 		Form: forms.New(nil),
+		UserData: UserCache,
 	})
 }
 
@@ -429,7 +430,12 @@ func (m *Repository) InsertPlaylist(w http.ResponseWriter, r *http.Request) {
 		User_id: UserCache.User_id,
 		Name:    playlistInfo.PlayListName,
 	}
-	
+
+	err = m.DB.AddPlaylist(playlist)
+	if err != nil {
+		log.Println("Cannot add playlist")
+		return
+	}
 }
 
 // END PLAYLIST SECTION --------------------------------------------------------------------------------

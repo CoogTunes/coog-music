@@ -53,11 +53,11 @@ func (m *postgresDBRepo) AddArtistDB(res models.Artist) error {
 	return nil
 }
 
-func (m *postgresDBRepo) AddPlaylist(res models.Users, name string) error{
+func (m *postgresDBRepo) AddPlaylist(res models.Playlist) error {
 
 	query := "insert into Playlist (user_id, name) values($1, $2)"
-	_, err := m.DB.Exec(query, res.User_id, name)
-	if err != nil{
+	_, err := m.DB.Exec(query, res.User_id, res.Name)
+	if err != nil {
 		log.Println(err)
 		return err
 	}
