@@ -25,15 +25,11 @@ CREATE TABLE Song (
                         song_id bigserial UNIQUE NOT NULL,
                         title varchar,
                         artist_id int,
-
-                        release_date date DEFAULT 'now()',
-                        duration float NOT NULL,
                         album_id int NOT NULL,
 
                         song_path varchar,
                         cover_path varchar,
                         uploaded_date date DEFAULT 'now()',
-                        album_id int,
                         total_plays bigint DEFAULT 0,
                         PRIMARY KEY (song_id, artist_id)
 );
@@ -146,17 +142,17 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE TRIGGER checkSongDate BEFORE INSERT OR UPDATE ON Song
     FOR EACH ROW EXECUTE FUNCTION checkSongDate();
     
-CREATE OR REPLACE FUNCTION checkIfAlbum() RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION addAlbumIfSingle() RETURNS trigger AS $$
     BEGIN
-		if new.album_id IS NULL THEN
+		IF new.album_id IS NULL THEN
 			INSERT INTO Album (name, artist_id, date_added) 
 			VALUES (new.title, new.artist_id, new.release_date) 
 			RETURNING album.album_id into new.album_id;
-		END if;
+		END IF;
 		
 		return new;
     END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER checkIfAlbum BEFORE INSERT ON Song
-    FOR EACH ROW EXECUTE FUNCTION checkIfAlbum();
+CREATE OR REPLACE TRIGGER addAlbumIfSingle BEFORE INSERT ON Song
+    FOR EACH ROW EXECUTE FUNCTION addAlbumIfSingle();
