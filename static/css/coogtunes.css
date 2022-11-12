@@ -37,7 +37,7 @@ img {
 *::-webkit-scrollbar-thumb {
     background-color: #404040;
     border-radius: 10px;
-    border: 3px solid #ffffff;
+    /* border: 3px solid #ffffff; */
 }
 
 body {
@@ -132,16 +132,16 @@ section .menu_side .playlist h4 span {
     margin-right: 35px;
 }
 
-section .menu_side .playlist h4 span::before {
-    content: "";
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    border: 2px solid #4c5262;
-    border-radius: 50%;
-    top: -4px;
-    transition: 0.3s linear;
-}
+/* section .menu_side .playlist h4 span::before {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border: 2px solid #4c5262;
+  border-radius: 50%;
+  top: -4px;
+  transition: 0.3s linear;
+} */
 
 section .menu_side .playlist h4:hover span::before {
     border: 2px solid white;
@@ -155,9 +155,9 @@ section .menu_side .playlist .active {
     color: #ffffff;
 }
 
-section .menu_side .playlist .active span {
-    display: none;
-}
+/* section .menu_side .playlist .active span {
+  display: none;
+} */
 
 section .menu_side .playlist .active .bi {
     display: flex;
@@ -1081,6 +1081,104 @@ input[type="range"]:focus::-moz-range-thumb {
     display: flex;
 }
 
+.search-modal-helper {
+    display: none;
+}
+
+.search-modal-helper.show {
+    display: block;
+    animation: fadeInShow 0.3s;
+}
+
+.search-modal-helper.show .search-filter {
+    opacity: 1;
+}
+
+.search-filter {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-type {
+    background: #1e1d1d;
+    padding: 10px 20px;
+    flex: 1;
+    border-radius: 5px;
+    transition: 0.3s all ease-out;
+    cursor: pointer;
+    user-select: none;
+}
+
+.filter-type:hover {
+    background: #252525;
+}
+
+.search-item {
+    display: flex;
+    width: 100%;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    padding: 6px 18px;
+    background: #1e1d1d;
+    transition: 0.3s all ease-out;
+    cursor: pointer;
+    align-items: center;
+}
+
+.search-item:hover {
+    /* background: #151515; */
+    background: #252525;
+}
+
+.search-item-img {
+    width: 30px;
+    height: 30px;
+}
+
+.search-item-img img {
+    object-fit: cover;
+    border-radius: 100%;
+    height: 100%;
+}
+
+.search-item-info {
+    margin-left: 15px;
+}
+
+.search-item-title {
+    color: white;
+}
+
+.search-item-control {
+    display: flex;
+    flex: 1 auto;
+    justify-content: flex-end;
+}
+
+.control-item.add {
+    color: white;
+    border-radius: 15px;
+    padding: 5px 15px;
+    border: 1px solid rgb(105, 105, 105);
+    transition: 0.3s all ease-out;
+}
+
+.control-item.add:hover {
+    border: 1px solid rgb(255, 255, 255);
+}
+
+
+@keyframes fadeInShow {
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
 
 @media (max-width: 1500px) {
     section .song_side .content h1 {

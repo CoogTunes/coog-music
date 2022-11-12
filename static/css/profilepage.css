@@ -343,7 +343,7 @@ header .song_side::before {
     margin-left: 550px;
     width: 50%;
     height: 300px;
-    background: url("images/coldplay.png");
+    background: url("/static/img/coldplay.png");
     z-index: -1;
 }
 header .song_side nav {
