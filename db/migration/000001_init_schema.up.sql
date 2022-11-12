@@ -25,9 +25,15 @@ CREATE TABLE Song (
                         song_id bigserial UNIQUE NOT NULL,
                         title varchar,
                         artist_id int,
+
                         release_date date DEFAULT 'now()',
                         duration float NOT NULL,
                         album_id int NOT NULL,
+
+                        song_path varchar,
+                        cover_path varchar,
+                        uploaded_date date DEFAULT 'now()',
+                        album_id int,
                         total_plays bigint DEFAULT 0,
                         PRIMARY KEY (song_id, artist_id)
 );
