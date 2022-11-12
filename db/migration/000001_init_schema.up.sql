@@ -5,6 +5,7 @@ CREATE TABLE Users (
                         first_name varchar,
                         last_name varchar,
                         admin_level int CHECK (admin_level >= 0 AND admin_level <= 3),
+                        last_login date DEFAULT now(),
                         -- 1 = basic
                         -- 2 = artist
                         -- 3 = admin
@@ -76,6 +77,23 @@ CREATE TABLE Followers (
                         artist_id integer,
   						PRIMARY KEY (user_id, artist_id)
 );
+
+-- Haven't tested at all CREATE TABLE Messages (
+--                         user_id int,
+--                         admin_level int CHECK (admin_level >= 0 AND admin_level <= 3),
+--                         message varchar(500),
+--                         created_date date DEFAULT now()
+-- )
+
+
+
+-- tested some and looks like it works? CREATE TABLE Likes (
+--                         user_id int,
+--                         song_id int,
+-- 							isLike boolean,
+-- 						  PRIMARY KEY (user_id, song_id)
+-- );
+-- ALTER TABLE Likes ADD FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
 ALTER TABLE Song ADD FOREIGN KEY (artist_id) REFERENCES ARTIST (artist_id) ON DELETE CASCADE ON UPDATE CASCADE;
