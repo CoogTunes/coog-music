@@ -227,7 +227,7 @@ func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
 
 	var song models.Song
 
-	query := "select * from song where song_id = $1"
+	query := "select * from song where song_id = $1;"
 
 	row := m.DB.QueryRow(query, songID)
 	log.Println("row", row)
@@ -584,6 +584,7 @@ func(m *postgresDBRepo) GetNumberOfPlaylists()(models.Playlist, error){
 	return playlist, nil
 }
 
+<<<<<<< Updated upstream
 func (m *postgresDBRepo) GetSongsFromPlaylist (playlist_id int)([]models.Song, error){
 	var songs []models.Song
 
@@ -613,7 +614,18 @@ func (m *postgresDBRepo) GetSongsFromPlaylist (playlist_id int)([]models.Song, e
 	}
 	return songs, nil
 }
+=======
+func(m *postgresDBRepo) AddLikeToSong(song_id int)error{
+	query := "UPDATE Song SET total_likes = total_likes + 1 where song_id = $1"
+>>>>>>> Stashed changes
 
+	_, err := m.DB.Exec(query, song_id)
+
+	if err != nil{
+		log.Println(err)
+	}
+	return nil
+}
 //delete from playlist/album
 //delete artist, user, song
 //functions to add song to album/playlist and merge them together
