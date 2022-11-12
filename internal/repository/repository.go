@@ -22,6 +22,7 @@ type DatabaseRepo interface {
 	//GetArtistName(artist_id int) (string, error)
 	GetArtists() ([]models.Artist, error)
 	//GetArtistsAndSongs() ([]models.Artist, error)
+	GetSongFromPlaylist(playlist_id int)([]models.Song, error)
 
 	GetNumberOfUsers() (models.Users, error)
 	GetNumberOfSongs() (models.Song, error)

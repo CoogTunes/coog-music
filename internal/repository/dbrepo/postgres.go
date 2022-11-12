@@ -212,6 +212,36 @@ func (m *postgresDBRepo) AddSongForAlbum(res models.Song) error {
 	return nil
 }
 
+func (m *postgresDBRepo) GetSongFromPlaylist (playlist_id int)([]models.Song, error){
+	var songs []models.Song
+
+	query := "select song from songplaylist, song where songplaylist.playlist_id = $1"
+	rows, err := m.DB.Query(query, playlist_id)
+	if err != nil{
+		return nil, err
+	}
+
+	defer func (rows *sql.Rows){
+		err := rows.Close()
+		if err != nil{
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next(){
+		var song models.Song
+		
+		rows.Scan(&song.Song_id, &song.Artist_id)
+
+		if err != nil{
+			return nil, err
+		}
+
+		songs = append(songs, song)
+	}
+	return songs, nil
+}
+
 //func (m *postgresDBRepo) GetSongs() ([]models.Song, error) {
 //	var songs []models.Song
 //	// probably need to add a where statement and get rid of *
