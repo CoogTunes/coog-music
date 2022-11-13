@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -137,7 +138,12 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 // ADD ARTIST ------------------------------------------------------------------
 
 func (m *Repository) AddArtist(firstName string, lastName string) {
-	artistName := concatenateName(firstName, lastName)
+	artistName := ""
+	if lastName != "" {
+		artistName = firstName + " " + lastName
+	} else {
+		artistName = firstName
+	}
 
 	artistInfo := models.Artist{
 		Name:      artistName,
@@ -177,7 +183,7 @@ func (m *Repository) LogOut(w http.ResponseWriter, r *http.Request) {
 
 func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "profilepage.page.gohtml", &models.TemplateData{
-		Form: forms.New(nil),
+		Form:     forms.New(nil),
 		UserData: UserCache,
 	})
 }
@@ -212,7 +218,7 @@ func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal("Could not parse multipart forms")
 	}
-	artistName := concatenateName(UserCache.First_name, UserCache.Last_name)
+	artistName := concatenateName(r.Form.Get("artist_name"))
 	songName := r.Form.Get("music_name")
 	fmt.Println("Passes through the songName")
 	coverFile, fhCover, err := r.FormFile("music_cover")
@@ -295,14 +301,15 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal("Could not parse multipart forms")
 	}
-	artistName := concatenateName(UserCache.First_name, UserCache.Last_name)
+	artistName := concatenateName(r.Form.Get("artist_name"))
 	albumName := r.Form.Get("music_name")
+	pathAlbumName := concatenateName(albumName)
 	coverFile, fhCover, err := r.FormFile("music_cover")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	coverPath := "./static/media/artist/" + artistName + "/" + albumName
+	coverPath := "./static/media/artist/" + artistName + "/" + pathAlbumName
 	err = os.MkdirAll(coverPath, os.ModePerm)
 	if os.IsExist(err) {
 		log.Println("Cover jpeg is already in directory")
@@ -366,7 +373,7 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		filePath := "./static/media/artist/" + artistName + "/" + albumName
+		filePath := "./static/media/artist/" + artistName + "/" + pathAlbumName
 		err = os.MkdirAll(filePath, os.ModePerm)
 		if os.IsExist(err) {
 			fmt.Println("Song already exists!")
@@ -387,9 +394,10 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		title := strings.ReplaceAll(fileHeader.Filename, filepath.Ext(fileHeader.Filename), "")
+		newTitle := splitName(title)
 		songPath := filePath + "/" + fileHeader.Filename
 		songInfo := models.Song{
-			Title:     title,
+			Title:     newTitle,
 			Album:     albumName,
 			SongPath:  songPath,
 			CoverPath: fullCoverPath,
@@ -407,11 +415,29 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 
 // END OF UPLOAD MUSIC ---------------------------------------------------------------------------------
 
+// SEARCH SECTION --------------------------------------------------------------------------------------
+func (m *Repository) Search(w http.ResponseWriter, r *http.Request) (string, string) {
+	target := r.URL.Query().Get("strTarget")
+	filter := r.URL.Query().Get("filters")
+	decodedValue, err := url.QueryUnescape(target)
+	if err != nil {
+		log.Print("Could not decode the parameter")
+	}
+	return decodedValue, filter
+}
+
 // PLAYLIST SECTION ---------------------------------------------------------------------------------
 
 func (m *Repository) PlaylistSearch(w http.ResponseWriter, r *http.Request) {
-	searchParameters := chi.URLParam(r, "playlistSearchInfo")
-	fmt.Println(searchParameters)
+	decodedValue, filter := m.Search(w, r)
+	if filter == "song" {
+		songInfo, err := m.DB.GetSongsByName(decodedValue)
+		if err != nil {
+			log.Println("Cannot get songs!")
+		}
+		returnAsJSON(songInfo, w, err)
+		return
+	}
 }
 
 type PlayListJson struct {
@@ -708,6 +734,7 @@ func returnAsJSON(i interface{}, w http.ResponseWriter, err error) {
 		log.Println(err)
 	}
 	j, _ := json.MarshalIndent(i, "", "   ")
+	log.Println(string(j))
 	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(j)
 	if err != nil {
@@ -715,12 +742,14 @@ func returnAsJSON(i interface{}, w http.ResponseWriter, err error) {
 	}
 }
 
-func concatenateName(firstName string, lastName string) string {
-	artistName := ""
-	if len(lastName) > 0 {
-		artistName = firstName + "_" + lastName
-	} else {
-		artistName = firstName
-	}
-	return artistName
+func concatenateName(artistName string) string {
+	splitString := strings.Split(artistName, " ")
+	newString := strings.Join(splitString, "_")
+	return newString
+}
+
+func splitName(titleName string) string {
+	splitString := strings.Split(titleName, "_")
+	newString := strings.Join(splitString, " ")
+	return newString
 }
