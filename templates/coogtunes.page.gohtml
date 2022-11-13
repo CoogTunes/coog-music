@@ -558,7 +558,7 @@
           </div>
         </div>
         <div class="master_play">
-          <div class="wave active2">
+          <div class="wave">
             <div class="wave1"></div>
             <div class="wave1"></div>
             <div class="wave1"></div>
@@ -707,9 +707,13 @@
                 <form id="upload-form" method="POST">
                   <div class="form-wrapper">
                     <input type="text" class="playlist-create-name" name="playlist_name"placeholder="Playlist Name">
-                    <input type="search" id="playListSearch" class="" name="playlist_name"placeholder="Search for songs">
+                    <div class="find-something">Let's find something for your playlist</div>
+                    <div class="search-container playlist">
+                      <input type="search" id="playListSearch" name="playlist_name"placeholder="Search for songs">
+                      <i class="bi bi-x-square input-clear"></i>
+                    </div>
                     <div class="search-modal-helper">
-                      <div class="search-filter">
+                      <div class="search-filter playlist">
                         <div class="filter-type">
                           <span>Artist</span>
                           <input type="hidden" class="" name="filter_artist" name="album" value="artist">
@@ -824,7 +828,8 @@
 
 
     {{define "js"}}
-        <script type="module" src="/static/js/ajax.js"></script>"
+      <script type="module" src="/static/js/ajax.js"></script>
+      <script type="module" src="/static/js/search.js"></script>
         <script src="/static/js/modals.js"></script>
         <script src="/static/js/coogtunes.js"></script>
         <script src="/static/js/musicplayer.js"></script>
