@@ -19,6 +19,8 @@ type Song struct {
 	Album         string
 	Album_id      int
 	Total_plays   int
+	Total_likes   int
+	Artist_name   string
 }
 
 type Artist struct {
