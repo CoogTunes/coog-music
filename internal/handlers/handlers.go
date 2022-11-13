@@ -468,16 +468,12 @@ func (m *Repository) InsertPlaylist(w http.ResponseWriter, r *http.Request) {
 	}
 
 	plylist, err := m.DB.AddPlaylist(playlist)
-	fmt.Println("This is playlist ID")
-	fmt.Println(plylist.Playlist_id)
 	if err != nil {
 		log.Println("Cannot add playlist")
 		return
 	}
 	for _, strNum := range playlistInfo.PlayList {
 		songID, err := strconv.Atoi(strNum)
-		fmt.Println("This is song ID")
-		log.Println(songID)
 		if err != nil {
 			log.Println("Cannot convert string to num")
 		}
@@ -486,6 +482,8 @@ func (m *Repository) InsertPlaylist(w http.ResponseWriter, r *http.Request) {
 			log.Println("Cannot add playlist")
 		}
 	}
+
+	returnAsJSON(plylist, w, err)
 
 }
 

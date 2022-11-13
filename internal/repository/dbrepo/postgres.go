@@ -44,7 +44,7 @@ func (m *postgresDBRepo) GetUser(User_id string) (models.Users, error) {
 // ARTISTS
 func (m *postgresDBRepo) AddArtist(res models.Artist) error {
 
-	query := "insert into Artist (name, artist_id, location, join_date) values ($1, $2, $3, to_date($4, 'YYYY-MM-DD')) RETURNING *"
+	query := "insert into Artist (name, artist_id, location, join_date) values ($1, $2, $3, to_date($4, 'YYYY-MM-DD'))"
 	_, err := m.DB.Exec(query, res.Name, res.Artist_id, res.Location, time.Now())
 	if err != nil {
 		log.Println(err)
@@ -56,8 +56,8 @@ func (m *postgresDBRepo) AddArtist(res models.Artist) error {
 func (m *postgresDBRepo) AddPlaylist(res models.Playlist) (models.Playlist, error) {
 	var playlist models.Playlist
 	query := "insert into Playlist (user_id, name) values($1, $2) RETURNING *"
-	rows := m.DB.QueryRow(query, res.User_id, res.Name)
-	err := rows.Scan(&playlist.User_id, &playlist.Name, &playlist.Playlist_id)
+	row := m.DB.QueryRow(query, res.User_id, res.Name)
+	err := row.Scan(&playlist.User_id, &playlist.Name, &playlist.Playlist_id)
 	if err != nil {
 		log.Println(err)
 		return playlist, err
@@ -429,8 +429,7 @@ func (m *postgresDBRepo) AddSongToAlbum(res models.Song, album models.Album) (mo
 
 	var albumsong models.AlbumSong
 
-	query := `insert into albumsong(album_id, song_id)
-	values ($1, $2) returning *`
+	query := `insert into albumsong(album_id, song_id) values ($1, $2) returning *`
 
 	row := m.DB.QueryRow(query, album.Album_id, res.Song_id)
 
