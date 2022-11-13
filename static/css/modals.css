@@ -46,59 +46,6 @@
 	transform: translateY(0%);
 }
 
-.form-wrapper {
-	display: flex;
-	flex-direction: column;
-	padding: 40px;
-	color: #868686;
-	position: relative;
-}
-
-.upload-type {
-	background: #1e1d1d;
-	border: none;
-	padding: 10px;
-	border-radius: 5px;
-	color: #868686;
-	min-height: 41px;
-}
-
-.form-wrapper > * {
-	margin-bottom: 15px;
-	font-size: 14px;
-}
-
-.form-wrapper > input {
-	background: #1e1d1d;
-	border: none;
-	padding: 10px;
-	border-radius: 5px;
-	color: #868686;
-	min-height: 41px;
-}
-
-.form-wrapper input:focus-visible {
-	outline: none;
-}
-
-.upload-label {
-	background: #1e1d1d;
-	border: none;
-	padding: 10px;
-	border-radius: 5px;
-	color: #868686;
-	min-height: 41px;
-	cursor: pointer;
-}
-
-.upload-label input {
-	display: none;
-}
-
-.upload-label i {
-	margin-right: 5px;
-}
-
 .cursor-pointer {
 	cursor: pointer;
 }

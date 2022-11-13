@@ -5,6 +5,20 @@ html {
     /* Yes! */
 }
 
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+    transition: background-color 600000s 0s, color 600000s 0s;
+}
+
+/* clears the ‘X’ from Internet Explorer */
+input[type=search]::-ms-clear { display: none; width : 0; height: 0; }
+input[type=search]::-ms-reveal { display: none; width : 0; height: 0; }
+/* clears the ‘X’ from Chrome */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration { display: none; }
+
 * {
     padding: 0%;
     margin: 0%;
@@ -1211,15 +1225,16 @@ input[type="range"]:focus::-moz-range-thumb {
     justify-content: flex-end;
 }
 
-.control-item.add {
+.control-item.add, .control-item.remove {
     color: white;
     border-radius: 15px;
     padding: 5px 15px;
     border: 1px solid rgb(105, 105, 105);
     transition: 0.3s all ease-out;
+    user-select: none;
 }
 
-.control-item.add:hover {
+.control-item.add:hover, .control-item.remove:hover {
     border: 1px solid rgb(255, 255, 255);
 }
 
@@ -1279,6 +1294,14 @@ input[type="range"]:focus::-moz-range-thumb {
     font-family: "bootstrap-icons";
     display: flex;
     flex: 1 auto;
+}
+
+.temp-playlist-wrapper {
+    padding: 0px 40px;
+}
+
+.temp-playlist-wrapper .search-item:first-child {
+    margin-top: 40px;
 }
 
 @keyframes fadeOutHide {
