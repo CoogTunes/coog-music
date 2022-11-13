@@ -198,8 +198,14 @@ func (m *postgresDBRepo) GetSongs() ([]models.Song, error) {
 	// probably need to add a where statement and get rid of *
 	query := "SELECT * FROM song"
 
+<<<<<<< Updated upstream
 	rows, err := m.DB.Query(query)
 	if err != nil {
+=======
+	query := "select song.*, playlist.name from song, songplaylist where song_id = songplaylist.song_id and songplaylist.playlist_id in (SELECT playlist_id from playlist where LOWER(name) LIKE LOWER(%$1%)"
+	rows, err := m.DB.Query(query, playlist_name)
+	if err != nil{
+>>>>>>> Stashed changes
 		return nil, err
 	}
 
@@ -213,11 +219,73 @@ func (m *postgresDBRepo) GetSongs() ([]models.Song, error) {
 	for rows.Next() {
 		var song models.Song
 
+<<<<<<< Updated upstream
 		rows.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Release_date, &song.Duration, &song.Album_id, &song.Total_plays)
 
 		if err != nil {
 			log.Println(err)
 		}
+=======
+		songs = append(songs, song)
+	}
+	return songs, nil
+}
+
+func (m *postgresDBRepo) GetSongsFromArtist(artist_name string)([]models.Song, error){//get all artists
+	var songs []models.Song
+
+	query := "select Song.*, Artist.name as ArtistName from Song, Artist where song.artist_id in (SELECT artist_id from artist where LOWER(name) like LOWER('%$1%')) ORDER BY Song.title"
+	rows, err := m.DB.Query(query, artist_name)
+	if err != nil{
+		return nil, err
+	}
+
+	defer func (rows *sql.Rows){
+		err := rows.Close()
+		if err != nil{
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next(){
+		var song models.Song
+		
+		rows.Scan(&song.Song_id, &song.Title, &song.Album_id, &song.Artist_id, &song.SongPath, &song.CoverPath, &song.Uploaded_date, &song.Total_plays, &song.Total_likes, &song.Artist_name)
+
+		if err != nil{
+			return nil, err
+		}
+
+		songs = append(songs, song)
+	}
+	return songs, nil
+}
+
+func (m *postgresDBRepo) GetSongsFromAlbum(album_name string)([]models.Album, error){//return album, get artist name
+	var songs []models.Album
+
+	query := "select Song.*, Album.name as AlbumName from Song, Album where song.album_id in (SELECT album_id from album where LOWER(name) like LOWER('%$1%')) ORDER BY Song.title"
+	rows, err := m.DB.Query(query, album_name)
+	if err != nil{
+		return nil, err
+	}
+
+	defer func (rows *sql.Rows){
+		err := rows.Close()
+		if err != nil{
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next(){
+		var song models.Song
+		rows.Scan(&song.Song_id, &song.Title, &song.Album_id, &song.Artist_id, &song.SongPath, &song.CoverPath, &song.Uploaded_date, &song.Total_plays, &song.Total_likes, &song.Album)
+
+		if err != nil{
+			return nil, err
+		}
+
+>>>>>>> Stashed changes
 		songs = append(songs, song)
 	}
 	return songs, nil

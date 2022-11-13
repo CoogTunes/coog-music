@@ -10,6 +10,7 @@ type Users struct {
 }
 
 type Song struct {
+<<<<<<< Updated upstream
 	Song_id      int
 	Title        string
 	Artist_id    int
@@ -19,6 +20,19 @@ type Song struct {
 	Album        string
 	Album_id     int
 	Total_plays  int
+=======
+	Song_id       int
+	Title         string
+	Artist_id     int
+	SongPath      string
+	CoverPath     string
+	Uploaded_date string
+	Album         string
+	Album_id      int
+	Total_plays   int
+	Total_likes	  int
+	Artist_name   string
+>>>>>>> Stashed changes
 }
 
 type Artist struct {
