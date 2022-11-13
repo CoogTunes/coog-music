@@ -53,17 +53,29 @@ func (m *postgresDBRepo) AddArtist(res models.Artist) error {
 	return nil
 }
 
-func (m *postgresDBRepo) AddPlaylist(res models.Playlist) error {
-
-	query := "insert into Playlist (user_id, name) values($1, $2)"
-	_, err := m.DB.Exec(query, res.User_id, res.Name)
+func (m *postgresDBRepo) AddPlaylist(res models.Playlist) (models.Playlist, error) {
+	var playlist models.Playlist
+	query := "insert into Playlist (user_id, name) values($1, $2) RETURNING *"
+	rows := m.DB.QueryRow(query, res.User_id, res.Name)
+	err := rows.Scan(&playlist.User_id, &playlist.Name, &playlist.Playlist_id)
 	if err != nil {
+		log.Println(err)
+		return playlist, err
+	}
+
+	return playlist, nil
+
+}
+
+func (m *postgresDBRepo) AddPlaylistSong(songID int, playlistID int) error {
+	query := "insert into SongPlaylist (song_id, playlist_id) values ($1, $2)"
+	_, err := m.DB.Exec(query, songID, playlistID)
+	if err != nil {
+		log.Println("Cannot add song playlist")
 		log.Println(err)
 		return err
 	}
-
 	return nil
-
 }
 
 // For searching artists?

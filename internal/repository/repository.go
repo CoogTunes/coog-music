@@ -12,7 +12,8 @@ type DatabaseRepo interface {
 	AddSongToAlbum(res models.Song, album models.Album) (models.AlbumSong, error)
 	AddSongToPlaylist(song models.Song, playlist models.Playlist) (models.SongPlaylist, error)
 	AddSong(res models.Song) error
-	AddPlaylist(res models.Playlist) error
+	AddPlaylist(res models.Playlist) (models.Playlist, error)
+	AddPlaylistSong(num int, playlistID int) error
 	AddSongForAlbum(res models.Song) error
 	GetUser(id string) (models.Users, error)
 	//GetSong(songID string) (models.Song, error)

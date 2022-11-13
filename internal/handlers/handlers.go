@@ -424,12 +424,13 @@ func (m *Repository) Search(w http.ResponseWriter, r *http.Request) (string, str
 }
 
 // PLAYLIST SECTION ---------------------------------------------------------------------------------
-
+// TODO: Return empty json when getting an error on
 func (m *Repository) PlaylistSearch(w http.ResponseWriter, r *http.Request) {
 	decodedValue, filter := m.Search(w, r)
 	if filter == "song" {
 		songInfo, err := m.DB.GetSongsByName(decodedValue)
 		if err != nil {
+			returnAsJSON(songInfo, w, err)
 			log.Println("Cannot get songs!")
 		}
 		returnAsJSON(songInfo, w, err)
@@ -448,13 +449,16 @@ func (m *Repository) PlaylistSearch(w http.ResponseWriter, r *http.Request) {
 
 type PlayListJson struct {
 	PlayListName string   `json:"playlistName"`
-	PlayList     []string `json:"playList"`
+	PlayList     []string `json:"playListItems"`
 }
 
 func (m *Repository) InsertPlaylist(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var playlistInfo PlayListJson
 	err := decoder.Decode(&playlistInfo)
+
+	log.Println(playlistInfo.PlayListName)
+
 	if err != nil {
 		log.Println("Cannot decode the json")
 	}
@@ -463,11 +467,26 @@ func (m *Repository) InsertPlaylist(w http.ResponseWriter, r *http.Request) {
 		Name:    playlistInfo.PlayListName,
 	}
 
-	err = m.DB.AddPlaylist(playlist)
+	plylist, err := m.DB.AddPlaylist(playlist)
+	fmt.Println("This is playlist ID")
+	fmt.Println(plylist.Playlist_id)
 	if err != nil {
 		log.Println("Cannot add playlist")
 		return
 	}
+	for _, strNum := range playlistInfo.PlayList {
+		songID, err := strconv.Atoi(strNum)
+		fmt.Println("This is song ID")
+		log.Println(songID)
+		if err != nil {
+			log.Println("Cannot convert string to num")
+		}
+		err = m.DB.AddPlaylistSong(songID, plylist.Playlist_id)
+		if err != nil {
+			log.Println("Cannot add playlist")
+		}
+	}
+
 }
 
 // END PLAYLIST SECTION --------------------------------------------------------------------------------
