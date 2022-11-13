@@ -42,7 +42,7 @@ func (m *postgresDBRepo) GetUser(User_id string) (models.Users, error) {
 }
 
 // ARTISTS
-func (m *postgresDBRepo) AddArtistDB(res models.Artist) error {
+func (m *postgresDBRepo) AddArtist(res models.Artist) error {
 
 	query := "insert into Artist (name, artist_id, location, join_date) values ($1, $2, $3, to_date($4, 'YYYY-MM-DD')) RETURNING *"
 	_, err := m.DB.Exec(query, res.Name, res.Artist_id, res.Location, time.Now())
@@ -97,52 +97,52 @@ func (m *postgresDBRepo) GetArtists() ([]models.Artist, error) {
 	return artists, nil
 }
 
-//func (m *postgresDBRepo) GetArtistsAndSongs() ([]models.Artist, error) {
-//	var artists []models.Artist
-//
-//	query := `SELECT a.name, a.artist_id, a.location, a.join_date, s.song_id, s.title,
-//				s.release_date, s.duration, s.album_id, s.total_plays, s.album_id, al.name
-//				FROM Artist as a, Song as s, Album as al
-//				WHERE a.artist_id = s.artist_id AND al.album_id = s.album_id
-//				ORDER BY lower(a.name), a.artist_id, s.title`
-//
-//	rows, err := m.DB.Query(query)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	defer func(rows *sql.Rows) {
-//		err := rows.Close()
-//		if err != nil {
-//			log.Println(err)
-//		}
-//	}(rows)
-//
-//	for rows.Next() {
-//		var artist models.Artist
-//		var song models.Song
-//
-//		rows.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &song.Song_id, &song.Title,
-//			&song.Release_date, &song.Duration, &song.Album_id, &song.Total_plays, &song.Album_id, &song.Album)
-//
-//		if err != nil {
-//			return nil, err
-//		}
-//
-//		if len(artists) > 0 {
-//			if artist.Artist_id != artists[len(artists)-1].Artist_id {
-//				artists = append(artists, artist)
-//			}
-//		} else if len(artists) == 0 {
-//			artists = append(artists, artist)
-//		}
-//
-//		song.Artist_id = artists[len(artists)-1].Artist_id
-//		song.Artist_name = artists[len(artists)-1].Name
-//		artists[len(artists)-1].Songs = append(artists[len(artists)-1].Songs, song)
-//	}
-//	return artists, nil
-//}
+// func (m *postgresDBRepo) GetArtistsAndSongs() ([]models.Artist, error) {
+// 	var artists []models.Artist
+
+// 	query := `SELECT a.name, a.artist_id, a.location, a.join_date, s.song_id, s.title,
+// 				s.release_date, s.duration, s.album_id, s.total_plays, s.album_id, al.name
+// 				FROM Artist as a, Song as s, Album as al
+// 				WHERE a.artist_id = s.artist_id AND al.album_id = s.album_id
+// 				ORDER BY lower(a.name), a.artist_id, s.title`
+
+// 	rows, err := m.DB.Query(query)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	defer func(rows *sql.Rows) {
+// 		err := rows.Close()
+// 		if err != nil {
+// 			log.Println(err)
+// 		}
+// 	}(rows)
+
+// 	for rows.Next() {
+// 		var artist models.Artist
+// 		var song models.Song
+
+// 		rows.Scan(&artist.Name, &artist.Artist_id, &artist.Location, &artist.Join_date, &song.Song_id, &song.Title,
+// 			&song.Uploaded_date, &song.Album_id, &song.Total_plays, &song.Album_id, &song.Album)
+
+// 		if err != nil {
+// 			return nil, err
+// 		}
+
+// 		if len(artists) > 0 {
+// 			if artist.Artist_id != artists[len(artists)-1].Artist_id {
+// 				artists = append(artists, artist)
+// 			}
+// 		} else if len(artists) == 0 {
+// 			artists = append(artists, artist)
+// 		}
+
+// 		song.Artist_id = artists[len(artists)-1].Artist_id
+// 		song.Artist_name = artists[len(artists)-1].Name
+// 		artists[len(artists)-1].Songs = append(artists[len(artists)-1].Songs, song)
+// 	}
+// 	return artists, nil
+// }
 
 func (m *postgresDBRepo) GetArtistName(artist_id int) (str string, err error) {
 	var song models.Song
@@ -216,25 +216,25 @@ func (m *postgresDBRepo) AddSongForAlbum(res models.Song) error {
 	return nil
 }
 
-func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_name string)([]models.Song, error){
+func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_name string) ([]models.Song, error) {
 	var songs []models.Song
 
 	query := "select song from song, songplaylist where songplaylist.playlist_id in (SELECT playlist_id from playlist where name like %$1%)"
 	rows, err := m.DB.Query(query, playlist_name)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
-	defer func (rows *sql.Rows){
+	defer func(rows *sql.Rows) {
 		err := rows.Close()
-		if err != nil{
+		if err != nil {
 			log.Println(err)
 		}
 	}(rows)
 
-	for rows.Next(){
+	for rows.Next() {
 		var song models.Song
-		
+
 		rows.Scan(&song.Song_id, &song.Title, &song.Album_id, &song.Artist_id, &song.SongPath, &song.CoverPath, &song.Uploaded_date, &song.Total_plays, &song.Total_likes, &song.Artist_name)
 
 		if err != nil {
@@ -306,12 +306,7 @@ func (m *postgresDBRepo) SearchAlbums(album_name string) ([]models.Album, error)
 }
 
 func (m *postgresDBRepo) GetSong(songID string) (models.Song, error) {
-
-	query := "select * from Song where artist_id in (SELECT artist_id from artist where name like %$1%)"
-	rows, err := m.DB.Query(query, artist_name)
-	if err != nil{
-		return nil, err
-	}
+	var song models.Song
 
 	query := "select * from song where song_id = $1;"
 
@@ -353,28 +348,28 @@ func (m *postgresDBRepo) GetSongsByName(song_name string) ([]models.Song, error)
 	return songs, nil
 }
 
-func (m *postgresDBRepo) GetSongsFromAlbum(album_name string)([]models.Song, error){
+func (m *postgresDBRepo) GetSongsFromAlbum(album_name string) ([]models.Song, error) {
 	var songs []models.Song
 
 	query := "select song from albumsong, song where albumsong.album_id in (SELECT album_id from album where name like %$1%)"
 	rows, err := m.DB.Query(query, album_name)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
-	defer func (rows *sql.Rows){
+	defer func(rows *sql.Rows) {
 		err := rows.Close()
-		if err != nil{
+		if err != nil {
 			log.Println(err)
 		}
 	}(rows)
 
-	for rows.Next(){
+	for rows.Next() {
 		var song models.Song
-		
+
 		rows.Scan(&song.Song_id, &song.Artist_id)
 
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 
@@ -383,35 +378,6 @@ func (m *postgresDBRepo) GetSongsFromAlbum(album_name string)([]models.Song, err
 	return songs, nil
 }
 
-func (m *postgresDBRepo) GetSongsByName(song_name string)([]models.Song, error){
-	var songs []models.Song
-
-	query := "select * from song where title like %$1%"
-	rows, err := m.DB.Query(query, song_name)
-	if err != nil{
-		return nil, err
-	}
-
-	defer func (rows *sql.Rows){
-		err := rows.Close()
-		if err != nil{
-			log.Println(err)
-		}
-	}(rows)
-
-	for rows.Next(){
-		var song models.Song
-		
-		rows.Scan(&song.Song_id, &song.Artist_id)
-
-		if err != nil{
-			return nil, err
-		}
-
-		songs = append(songs, song)
-	}
-	return songs, nil
-}
 //func (m *postgresDBRepo) GetSongs() ([]models.Song, error) {
 //	var songs []models.Song
 //	// probably need to add a where statement and get rid of *
@@ -831,35 +797,6 @@ func (m *postgresDBRepo) GetNumberOfPlaylists() (models.Playlist, error) {
 	return playlist, nil
 }
 
-func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_id int) ([]models.Song, error) {
-	var songs []models.Song
-
-	query := "select song from songplaylist, song where songplaylist.playlist_id = $1"
-	rows, err := m.DB.Query(query, playlist_id)
-	if err != nil {
-		return nil, err
-	}
-
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			log.Println(err)
-		}
-	}(rows)
-
-	for rows.Next() {
-		var song models.Song
-
-		rows.Scan(&song.Song_id, &song.Artist_id)
-
-		if err != nil {
-			return nil, err
-		}
-
-		songs = append(songs, song)
-	}
-	return songs, nil
-}
 func (m *postgresDBRepo) AddLikeToSong(song_id int) error {
 	query := "UPDATE Song SET total_likes = total_likes + 1 where song_id = $1"
 
@@ -870,5 +807,3 @@ func (m *postgresDBRepo) AddLikeToSong(song_id int) error {
 	}
 	return nil
 }
-
-
