@@ -260,7 +260,6 @@ func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
 	// get fields
 	title := r.Form.Get("title")
 	release_date := r.Form.Get("release_date")
-	duration := r.Form.Get("duration")
 	artist_id_string := r.Form.Get("artist_id")
 	album_id_string := r.Form.Get("album_id")
 
@@ -273,11 +272,10 @@ func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
 
 	}
 	songToAdd := models.Song{
-		Title:        title,
-		Release_date: release_date,
-		Duration:     duration,
-		Album_id:     album_id,
-		Artist_id:    artist_id,
+		Title:         title,
+		Uploaded_date: release_date,
+		Album_id:      album_id,
+		Artist_id:     artist_id,
 	}
 
 	addedSong, err := m.DB.AddSong(songToAdd)
@@ -308,7 +306,6 @@ func (m *Repository) UpdateSong(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	// get fields
 	title := r.Form.Get("title")
-	duration := r.Form.Get("duration")
 	song_id_string := r.Form.Get("song_id")
 
 	song_id, err := strconv.Atoi(song_id_string)
@@ -317,9 +314,8 @@ func (m *Repository) UpdateSong(w http.ResponseWriter, r *http.Request) {
 	}
 
 	songToUpdate := models.Song{
-		Title:    title,
-		Duration: duration,
-		Song_id:  song_id,
+		Title:   title,
+		Song_id: song_id,
 	}
 
 	updatedSong, err := m.DB.UpdateSong(songToUpdate)
