@@ -42,35 +42,36 @@ class audioItem {
 
 let musicManagerTest = {
   KYqAYsujixMlfw7:
-    "/static/media/artist/lil_baby/albums/its_only_me/songs/Lil_Baby-Real_Spill.mp3",
+      "/media/artist/lil_baby/albums/its_only_me/songs/Lil_Baby-Real_Spill.mp3",
   zX3mtNS60AxOHLQ:
-    "/static/media/artist/bad_bunny/albums/un_verano_sin_ti/songs/Bad_Bunny-Moscow_Mule.mp3",
+      "/media/artist/bad_bunny/albums/un_verano_sin_ti/songs/Bad_Bunny-Moscow_Mule.mp3",
   tv2j4ayyyUyUZI3:
-    "/static/media/artist/beyonce/albums/renaissance/songs/Beyonce-Cozy.mp3",
+      "/media/artist/beyonce/albums/renaissance/songs/Beyonce-Cozy.mp3",
   "8M06h9HcaWHS1Ya":
-    "/static/media/artist/morgan_allen/albums/dangerous/songs/Morgan_Wallen-Dangerous.mp3",
+      "/media/artist/morgan_allen/albums/dangerous/songs/Morgan_Wallen-Dangerous.mp3",
   UyTInzO6jCD1j2X:
-    "/static/media/artist/stray_kids/albums/maxident/songs/Stray_Kids-Super_Board.mp3",
+      "/media/artist/stray_kids/albums/maxident/songs/Stray_Kids-Super_Board.mp3",
   fBRiFzGIVST51kD:
-    "/static/media/artist/the_weeknd/albums/the_highlights/songs/The_Weeknd_&_Ariana_Grande-Save_Your_Tears.mp3",
+      "/media/artist/the_weeknd/albums/the_highlights/songs/The_Weeknd_&_Ariana_Grande-Save_Your_Tears.mp3",
   g7vtS4I1sZDY099:
-    "/static/media/artist/harry_style/albums/harrys_house/songs/Harry_Styles-As_It_Was.mp3",
+      "/media/artist/harry_style/albums/harrys_house/songs/Harry_Styles-As_It_Was.mp3",
   tZM5ee4bCLQEmaM:
-    "/static/media/artist/quavo_takeoff/albums/only_built_for_infinity_links/songs/Quavo_&_Takeoff-2.30.mp3",
+      "/media/artist/quavo_takeoff/albums/only_built_for_infinity_links/songs/Quavo_&_Takeoff-2.30.mp3",
   ChLf0BDpj8egdsm:
-    "/static/media/artist/zach_bryan/albums/american_heartbreak/songs/Zach_Bryan-Something_In_The_Orange.mp3",
+      "/media/artist/zach_bryan/albums/american_heartbreak/songs/Zach_Bryan-Something_In_The_Orange.mp3",
   pKixQhRYiWwFRod:
-    "/static/media/artist/g_herbo/albums/survivors_remorse/songs/G_Herbo-4_Minutes_of_Hell.mp3",
+      "/media/artist/g_herbo/albums/survivors_remorse/songs/G_Herbo-4_Minutes_of_Hell.mp3",
   fX8LYvcQR3PziKl:
-    "/static/media/artist/charlie_puth/albums/charlie/songs/Charlie_Puth-Left_And_Right_ft._Jungkook_of_BTS.mp3",
+      "/media/artist/charlie_puth/albums/charlie/songs/Charlie_Puth-Left_And_Right_ft._Jungkook_of_BTS.mp3",
   "1jnOsMvleMc1zUa":
-    "/static /media/artist/rod_wave/albums/beautiful_mind/songs/Rod_Wave-Yungen_ft._Jack_Harlow.mp3",
+      "/media/artist/rod_wave/albums/beautiful_mind/songs/Rod_Wave-Yungen_ft._Jack_Harlow.mp3",
 };
 
 function musicManager() {
   const updatePlayControl = new CustomEvent("updatePlayControl");
   const updatePauseControl = new CustomEvent("updatePauseControl");
   const timeLineTrigger = new CustomEvent("timeLineTrigger");
+
 
   let timelineControlPanel = {
     musicDuration: null,
@@ -85,22 +86,22 @@ function musicManager() {
 
     init: function () {
       timelineControlPanel.playbackProgress = document.querySelector(
-        ".music-playback-progress"
+          ".music-playback-progress"
       );
       timelineControlPanel.playbackProgressBg = document.querySelector(
-        ".timeline-progress-bg"
+          ".timeline-progress-bg"
       );
       timelineControlPanel.playbackProgressBar = document.querySelector(
-        ".timeline-progress-bar"
+          ".timeline-progress-bar"
       );
       timelineControlPanel.progressBarHandler = document.querySelector(
-        ".timeline-progress-handler"
+          ".timeline-progress-handler"
       );
       timelineControlPanel.musicDuration = document.querySelector(
-        ".music-time-duration"
+          ".music-time-duration"
       );
       timelineControlPanel.musicTimePassed =
-        document.querySelector(".music-time-passed");
+          document.querySelector(".music-time-passed");
       timelineControlPanel.maxDuration = 0;
       timelineControlPanel.ratio = 0;
       timelineControlPanel.handlerMovement = 0;
@@ -121,11 +122,11 @@ function musicManager() {
     songLogs: function () {
       // * Set the song duration in secs
       console.log(
-        "Max Song Duration: " + timelineControlPanel.maxDuration + " secs"
+          "Max Song Duration: " + timelineControlPanel.maxDuration + " secs"
       );
       timelineControlPanel.playbackProgress.setAttribute(
-        "data-music-max",
-        timelineControlPanel.maxDuration
+          "data-music-max",
+          timelineControlPanel.maxDuration
       );
     },
 
@@ -144,25 +145,25 @@ function musicManager() {
     setMusicDuration: function () {
       let time = getTime(timelineControlPanel.maxDuration);
       timelineControlPanel.musicDuration.firstChild.innerHTML =
-        formatTime(time);
+          formatTime(time);
     },
 
     setRatio: function () {
       timelineControlPanel.ratio =
-        parseFloat(
-          getComputedStyle(
-            timelineControlPanel.playbackProgressBg
-          ).getPropertyValue("width"),
-          10
-        ) / parseFloat(timelineControlPanel.maxDuration);
+          parseFloat(
+              getComputedStyle(
+                  timelineControlPanel.playbackProgressBg
+              ).getPropertyValue("width"),
+              10
+          ) / parseFloat(timelineControlPanel.maxDuration);
       console.log(timelineControlPanel.maxDuration);
       console.log(
-        parseFloat(
-          getComputedStyle(
-            timelineControlPanel.playbackProgressBg
-          ).getPropertyValue("width"),
-          10
-        )
+          parseFloat(
+              getComputedStyle(
+                  timelineControlPanel.playbackProgressBg
+              ).getPropertyValue("width"),
+              10
+          )
       );
       console.log(timelineControlPanel.ratio);
     },
@@ -178,12 +179,12 @@ function musicManager() {
         let time = getTime(seconds);
         timelineControlPanel.setMusicTimePassed(formatTime(time));
         timelineControlPanel.setHandlerMovement(
-          seconds * timelineControlPanel.ratio
+            seconds * timelineControlPanel.ratio
         );
         timelineControlPanel.progressBarHandler.style.left =
-          timelineControlPanel.handlerMovement + "px";
+            timelineControlPanel.handlerMovement + "px";
         timelineControlPanel.playbackProgressBar.style.width =
-          timelineControlPanel.handlerMovement + "px";
+            timelineControlPanel.handlerMovement + "px";
         currentAudio.setCurrentTime(currentAudio.getAudio().currentTime);
         e.stopImmediatePropagation();
       });
@@ -202,8 +203,8 @@ function musicManager() {
   let coogtuneContainer = document.querySelector(".music-manager-container");
   let playControl = document.querySelector(".icon :nth-child(2)");
   let currentAudio = new audioItem(null, null, null, null, null);
-  let playClass = "bi-play-fill";
-  let pauseClass = "bi-pause-fill";
+  let wave = document.querySelector('.wave');
+
   timelineControlPanel.init();
   timelineControlPanel.initLogs();
 
@@ -212,17 +213,17 @@ function musicManager() {
 
   // * TimeLine Trigger
   timelineControlPanel.playbackProgress.addEventListener(
-    "timeLineTrigger",
-    function (e) {
-      console.log("Triggered TimeLine Event");
-      loadMetaData(currentAudio.getAudio()).then(function (res) {
-        timelineControlPanel.setMaxDuration(currentAudio.getAudio().duration);
-        timelineControlPanel.setMusicDuration();
-        timelineControlPanel.setRatio();
-        timelineControlPanel.songLogs();
-        timelineControlPanel.timeline();
-      });
-    }
+      "timeLineTrigger",
+      function (e) {
+        console.log("Triggered TimeLine Event");
+        loadMetaData(currentAudio.getAudio()).then(function (res) {
+          timelineControlPanel.setMaxDuration(currentAudio.getAudio().duration);
+          timelineControlPanel.setMusicDuration();
+          timelineControlPanel.setRatio();
+          timelineControlPanel.songLogs();
+          timelineControlPanel.timeline();
+        });
+      }
   );
 
   coogtuneContainer.addEventListener("click", function (evt) {
@@ -237,28 +238,31 @@ function musicManager() {
     let musicState = isPlaying(playButton);
     let base_url = window.location.origin;
     let audioID = playButton
-      .closest(".content-wrapper")
-      .getAttribute("data-music-id");
+        .closest(".content-wrapper")
+        .getAttribute("data-music-id");
     let targetAudio = new Audio(base_url + musicManagerTest[audioID]);
     if (musicState == "paused") {
       if (currentAudio.getID() == null) {
         currentAudio = new audioItem(
-          audioID,
-          targetAudio,
-          targetAudio.currentTime,
-          playButton,
-          0
+            audioID,
+            targetAudio,
+            targetAudio.currentTime,
+            playButton,
+            0
         );
         playControlPanel();
       }
       currentAudio.getAudio().play();
+      wave.classList.toggle('active2');
       currentAudio.getPlayButton().classList.remove("bi-play-fill");
       currentAudio.getPlayButton().classList.add("bi-pause-fill");
       currentAudio.getParent().setAttribute("data-music-state", "playing");
       playControl.dispatchEvent(updatePlayControl);
       timelineControlPanel.playbackProgress.dispatchEvent(timeLineTrigger);
+
     } else if (musicState == "playing") {
       currentAudio.getAudio().pause();
+      wave.classList.toggle('active2');
       currentAudio.getPlayButton().classList.remove("bi-pause-fill");
       currentAudio.getPlayButton().classList.add("bi-play-fill");
       currentAudio.getParent().setAttribute("data-music-state", "paused");
@@ -269,13 +273,13 @@ function musicManager() {
   // * Helper Function
   function isPlaying(playBtn) {
     let musicState = playBtn
-      .closest(".content-wrapper")
-      .getAttribute("data-music-state");
+        .closest(".content-wrapper")
+        .getAttribute("data-music-state");
     return musicState == "playing"
-      ? "playing"
-      : musicState == "paused"
-      ? "paused"
-      : "error";
+        ? "playing"
+        : musicState == "paused"
+            ? "paused"
+            : "error";
   }
 
   function playControlPanel() {
@@ -300,12 +304,14 @@ function musicManager() {
       console.log(musicState);
       if (musicState == "paused") {
         currentAudio.getAudio().play();
+        wave.classList.toggle('active2');
         currentAudio.getPlayButton().classList.remove("bi-play-fill");
         currentAudio.getPlayButton().classList.add("bi-pause-fill");
         currentAudio.getParent().setAttribute("data-music-state", "playing");
         playToPause();
       } else if (musicState == "playing") {
         currentAudio.getAudio().pause();
+        wave.classList.toggle('active2');
         currentAudio.getPlayButton().classList.remove("bi-pause-fill");
         currentAudio.getPlayButton().classList.add("bi-play-fill");
         currentAudio.setCurrentTime(currentAudio.getAudio().currentTime);
@@ -335,7 +341,7 @@ function musicManager() {
 
     masterVolume.setAttribute("value", masterVolume.value);
     volumeBackground.style.width = masterVolume.value + "%";
-    
+
     masterVolume.addEventListener("input", function (evt) {
       let target = evt.target;
       volumeBackground.style.width = target.value + "%";
