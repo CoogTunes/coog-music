@@ -1,4 +1,5 @@
 import { ajaxGetHandler, ajaxPostHandler } from './ajax.js';
+import { search } from './search.js';
 
 class playListAddManager {
     constructor() {
@@ -20,22 +21,20 @@ class playListAddManager {
         return [...this.playlistSongList.keys()];
     }
 
+    getElement(id){
+        return this.playlistSongList.get(id);
+    }
+
 };
 
 
 // * Playlist Add Control
 function playListControl() {
-    let playListSearch = document.querySelector('#playListSearch');
-    let searchHelper = document.querySelector('.search-modal-helper');
     const addClassList = ['control-item', 'add'];
+    let searchHelper = document.querySelector('.search-modal-helper');
     let addPlaylistManager = new playListAddManager();
     let addPlaylist = document.querySelector('.create-btn');
-    let playListInput = document.querySelector('.playlist-create-name');
-    let playListName = null;
-
-    playListInput.addEventListener('input', function (evt){
-        playListName = evt.target.value;
-    });
+    let tempListWrapper = document.querySelector('.temp-playlist-wrapper');
 
     playListSearch.addEventListener('click', function (evt) {
         searchHelper.classList.add('show');
@@ -47,20 +46,20 @@ function playListControl() {
             let targetElement = target.closest('.search-item');
             let audioID = targetElement.getAttribute('data-audio-id');
             addPlaylistManager.add(audioID, targetElement);
+            // tempListWrapper.append(addPlaylistManager.getElement(audioID));
             console.log(targetElement);
             console.log(audioID);
         }
     });
 
     addPlaylist.addEventListener('click', function (evt) {
-        let data = {
-            playlistName : playListName,
-            playList : addPlaylistManager.getData(),
-        }
+        let data = addPlaylistManager.getData();
         ajaxPostHandler('/addPlaylist', data);
         console.log(data);
         console.log("Sending playlist creation...");
     });
+
+    search('.search-container.playlist', '#playlistSearchFound', ".search-filter.playlist","/playlist/search/?");
 }
 
 window.addEventListener('DOMContentLoaded', function (evt) {
