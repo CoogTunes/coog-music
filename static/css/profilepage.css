@@ -1141,10 +1141,10 @@ section .song_side .song_side-wrappers .contents {
     display: flex;
     position: relative;
     width: 98%;
-    height: 36vh;
+    height: auto;
     margin: auto;
     /* border: 1px solid white; */
-    padding-bottom: 15px;
+    padding-bottom: 25px;
 }
 section .song_side .song_side-wrappers .contents .picture {
     display: flex;
@@ -1159,13 +1159,14 @@ section .song_side .song_side-wrappers .contents .profile-name {
     flex-flow: column;
     justify-content: flex-end;
     z-index: 0;
+    margin: auto;
 }
 section .song_side .song_side-wrappers .contents .profile-name h1 {
     display: flex;
     font-size: 20px;
     font-weight: 600;
     margin-left: 37px;
-    margin-top: 80px;
+    margin-top: 70px;
 }
 section .song_side .song_side-wrappers .contents .profile-name span {
     font-size: 80px;
@@ -1218,7 +1219,7 @@ section .song_side .profile-playlist .buttons button:nth-child(2):hover {
     width: 200px;
     float: left;
     border-radius: 50%;
-    margin-top: 40px;
+    margin-top: auto;
     margin-left: 50px;
     cursor: pointer;
 }
