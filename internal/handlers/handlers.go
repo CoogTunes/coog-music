@@ -138,12 +138,7 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 // ADD ARTIST ------------------------------------------------------------------
 
 func (m *Repository) AddArtist(firstName string, lastName string) {
-	artistName := ""
-	if lastName != "" {
-		artistName = firstName + " " + lastName
-	} else {
-		artistName = firstName
-	}
+	artistName := getArtistName(firstName, lastName)
 
 	artistInfo := models.Artist{
 		Name:      artistName,
@@ -218,6 +213,7 @@ func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal("Could not parse multipart forms")
 	}
+
 	artistName := concatenateName(r.Form.Get("artist_name"))
 	songName := r.Form.Get("music_name")
 	fmt.Println("Passes through the songName")
@@ -438,6 +434,15 @@ func (m *Repository) PlaylistSearch(w http.ResponseWriter, r *http.Request) {
 		}
 		returnAsJSON(songInfo, w, err)
 		return
+	} else if filter == "album" {
+		albumInfo, err := m.DB.GetSongsFromAlbum(decodedValue)
+		if err != nil {
+			log.Println("Cannot get songs!")
+		}
+		returnAsJSON(albumInfo, w, err)
+		return
+	} else {
+
 	}
 }
 
@@ -765,6 +770,16 @@ func returnAsJSON(i interface{}, w http.ResponseWriter, err error) {
 	if err != nil {
 		log.Print(err)
 	}
+}
+
+func getArtistName(firstName string, lastName string) string {
+	artistName := ""
+	if lastName != "" {
+		artistName = firstName + " " + lastName
+	} else {
+		artistName = firstName
+	}
+	return artistName
 }
 
 func concatenateName(artistName string) string {
