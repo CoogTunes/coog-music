@@ -145,7 +145,7 @@ func (m *Repository) AddArtist(firstName string, lastName string) {
 		Location:  "no_location",
 	}
 
-	err := m.DB.AddArtistDB(artistInfo)
+	err := m.DB.AddArtist(artistInfo)
 	if err != nil {
 		log.Println("Cannot add artist information")
 		return
@@ -396,7 +396,7 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 			Artist_id: UserCache.User_id,
 			Album_id:  albumDBInfo.Album_id,
 		}
-		err = m.DB.AddSongForAlbum(songInfo)
+		err = m.DB.AddSong(songInfo)
 		if err != nil {
 			log.Println("Cannot add song")
 			return
