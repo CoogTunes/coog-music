@@ -338,6 +338,7 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 	}
 
 	albumDBInfo, err := m.DB.AddAlbum(albumInfo)
+
 	if err != nil {
 		log.Println("Cannot add album")
 		return
@@ -404,7 +405,7 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 			Artist_id: UserCache.User_id,
 			Album_id:  albumDBInfo.Album_id,
 		}
-		err = m.DB.AddSong(songInfo)
+		err = m.DB.AddSongForAlbum(songInfo)
 		if err != nil {
 			log.Println("Cannot add song")
 			return
@@ -523,6 +524,29 @@ func (m *Repository) GetUser(w http.ResponseWriter, r *http.Request) {
 //		returnAsJSON(addedArtist, w, err)
 //
 // }
+// ARTISTS
+//
+//	func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
+//		r.ParseForm()
+//		// get fields
+//		name := r.Form.Get("name")
+//		artist_id := r.Form.Get("artist_id")
+//		location := r.Form.Get("location")
+//		join_date := r.Form.Get("join_date")
+//		var songs []models.Song
+//
+//		int_artist_id, err := strconv.Atoi(artist_id)
+//		if err != nil {
+//			log.Println(err)
+//		}
+//		// joindate and songs[] should be empty to start.
+//		artistToAdd := models.Artist{Name: name, Artist_id: int_artist_id, Location: location, Join_date: join_date, Songs: songs}
+//
+//		addedArtist, err := m.DB.AddArtist(artistToAdd)
+//
+//		returnAsJSON(addedArtist, w, err)
+//
+// }
 func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
 	artists, err := m.DB.GetArtists()
 
@@ -618,6 +642,7 @@ func (m *Repository) UpdateArtist(w http.ResponseWriter, r *http.Request) {
 //	returnAsJSON(songs, w, err)
 //}
 //
+
 //func (m *Repository) GetSong(w http.ResponseWriter, r *http.Request) {
 //	x := chi.URLParam(r, "id")
 //	song, err := m.DB.GetSong(x)

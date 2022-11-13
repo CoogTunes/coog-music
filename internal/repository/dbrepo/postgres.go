@@ -42,7 +42,7 @@ func (m *postgresDBRepo) GetUser(User_id string) (models.Users, error) {
 }
 
 // ARTISTS
-func (m *postgresDBRepo) AddArtistDB(res models.Artist) error {
+func (m *postgresDBRepo) AddArtist(res models.Artist) error {
 
 	query := "insert into Artist (name, artist_id, location, join_date) values ($1, $2, $3, to_date($4, 'YYYY-MM-DD')) RETURNING *"
 	_, err := m.DB.Exec(query, res.Name, res.Artist_id, res.Location, time.Now())
@@ -160,7 +160,7 @@ func (m *postgresDBRepo) AddAlbum(album models.Album) (models.Album, error) {
 	var addedAlbum models.Album
 
 	query := "insert into Album (name, artist_id, date_added) values ($1, $2, to_date($3, 'YYYY-MM-DD')) RETURNING *"
-	row := m.DB.QueryRow(query, album.Name, album.Artist_id, album.Date_added)
+	row := m.DB.QueryRow(query, album.Name, album.Artist_id, time.Now())
 
 	err := row.Scan(&addedAlbum.Name, &addedAlbum.Artist_id, &addedAlbum.Album_id, &addedAlbum.Date_added)
 	if err != nil {

@@ -13,19 +13,22 @@ type DatabaseRepo interface {
 	AddSongToPlaylist(song models.Song, playlist models.Playlist) (models.SongPlaylist, error)
 	AddSong(res models.Song) error
 	AddPlaylist(res models.Playlist) error
-
+	AddSongForAlbum(res models.Song) error
 	GetUser(id string) (models.Users, error)
-	GetSong(songID string) (models.Song, error)
+	//GetSong(songID string) (models.Song, error)
 	//GetSongs() ([]models.Song, error)
 	GetPlaylists() ([]models.Playlist, error)
 	GetAlbums() ([]models.Album, error)
-	GetArtistName(artist_id int) (string, error)
+	//GetArtistName(artist_id int) (string, error)
 	GetArtists() ([]models.Artist, error)
 	//GetArtistsAndSongs() ([]models.Artist, error)
-	SearchPlaylists(playlist_name string) ([]models.Playlist, error)
-	SearchAlbums(album_name string) ([]models.Album, error)
-	SearchArtists(artist_name string) ([]models.Artist, error)
+	//SearchPlaylists(playlist_name string) ([]models.Playlist, error)
+	//SearchAlbums(album_name string) ([]models.Album, error)
+	//SearchArtists(artist_name string) ([]models.Artist, error)
 	GetSongsByName(song_name string) ([]models.Song, error)
+	GetSongsFromPlaylist(playlist_name string) ([]models.Song, error)
+	GetSongsFromArtist(artist_name string) ([]models.Song, error)
+	GetSongsFromAlbum(album_name string) ([]models.Song, error)
 
 	GetNumberOfUsers() (models.Users, error)
 	GetNumberOfSongs() (models.Song, error)
