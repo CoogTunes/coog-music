@@ -36,7 +36,7 @@ CREATE TABLE Song (
                         cover_path varchar,
                         uploaded_date date DEFAULT 'now()',
                         total_plays bigint DEFAULT 0,
-                        total_likes bigint default 0,
+                        -- total_likes bigint default 0, Getting this through count()
                         PRIMARY KEY (song_id, artist_id)
 );
 
@@ -56,7 +56,8 @@ CREATE TABLE Messages (
                         user_id int,
                         admin_level int CHECK (admin_level >= 0 AND admin_level <= 3),
                         message varchar(500),
-                        created_date date DEFAULT now()
+                        created_date date DEFAULT now(),
+                        message_id bigserial UNIQUE PRIMARY KEY
 );
 
 CREATE TABLE Likes (
@@ -120,7 +121,7 @@ ALTER TABLE SongPlaylist ADD FOREIGN KEY (playlist_id) REFERENCES Playlist (play
 
 -- ALTER TABLE Followers ADD FOREIGN KEY (artist_id) REFERENCES Artist (artist_id) ON DELETE CASCADE ON UPDATE CASCADE;
 
-
+-- This Trigger adds a 'single' album if no album is available to add to.
 CREATE OR REPLACE FUNCTION addAlbumIfSingle() RETURNS trigger AS $$
 BEGIN
 		IF new.album_id IS NULL THEN
@@ -136,22 +137,40 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE TRIGGER addAlbumIfSingle BEFORE INSERT ON Song
     FOR EACH ROW EXECUTE FUNCTION addAlbumIfSingle();
 
--- CREATE OR REPLACE FUNCTION CheckAlbumDate() RETURNS TRIGGER AS $$
--- DECLARE 
---     uid int;
--- BEGIN
---     IF (SELECT join_date FROM ARTIST, ALBUM WHERE artist_id = old.artist_id) > old.date_added 
---     THEN DELETE FROM ALBUM WHERE Album_id = old.album_id;
---     SELECT user_id INTO uid FROM USERS WHERE admin_level >= 2;
---     INSERT INTO Messages (user_id, admin_level, message) values(uid, 2, 'Album aborted');
-    
---     END IF;
---     return new;
--- END;
--- $$ LANGUAGE plpgsql;
+-- This trigger delete the value from the likes table if it exists, when being added
+CREATE OR REPLACE FUNCTION onLikeInsert() RETURNS trigger AS $$
+BEGIN
+		IF EXISTS (select likes.user_id from likes where likes.user_id = new.user_id AND likes.song_id = new.song_id) THEN
+			DELETE FROM likes WHERE likes.user_id = new.user_id AND likes.song_id = new.song_id; 
+END IF;
 
--- CREATE OR REPLACE TRIGGER CheckAlbumDate AFTER INSERT ON Album
---     FOR EACH ROW EXECUTE FUNCTION CheckAlbumDate();
+return new;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER onLikeInsert BEFORE INSERT ON Likes
+    FOR EACH ROW EXECUTE FUNCTION onLikeInsert();
+
+
+-- alerts all admin if a bad album date is added
+CREATE OR REPLACE FUNCTION CheckAlbumDate() RETURNS TRIGGER AS $$
+DECLARE 
+    artist_join_date date;
+BEGIN
+	SELECT join_date into artist_join_date FROM ARTIST, ALBUM WHERE ARTIST.artist_id = new.artist_id AND album.album_id = new.album_id;
+    IF (artist_join_date) > new.date_added 
+		THEN 
+-- 		DELETE FROM ALBUM WHERE album.Album_id = new.album_id; (maybe use?)
+		INSERT INTO Messages select users.user_id, users.admin_level, 
+		CONCAT('ALBUM ID ', new.album_id, ' of date ', new.date_added, ' is before artist join date of ', artist_join_date, '.') 
+		as messagex from users where users.admin_level = 3;
+    END IF;
+    return new;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER CheckAlbumDate AFTER INSERT ON Album
+    FOR EACH ROW EXECUTE FUNCTION CheckAlbumDate();
 
 
 -- CREATE OR REPLACE FUNCTION CheckRatings() RETURNS TRIGGER AS $$
