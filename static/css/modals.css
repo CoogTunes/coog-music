@@ -51,6 +51,7 @@
 	flex-direction: column;
 	padding: 40px;
 	color: #868686;
+	position: relative;
 }
 
 .upload-type {
@@ -138,4 +139,8 @@ button.icon-slide-left::after, button.icon-slide-right::after {
 
 .modal-open {
 	overflow: hidden;
+}
+
+.modal-body {
+	position: relative;
 }
