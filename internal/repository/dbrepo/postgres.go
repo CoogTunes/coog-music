@@ -736,5 +736,41 @@ func (m *postgresDBRepo) AddLikeToSong(song_id int) error {
 	return nil
 }
 
+// REPORTS
+func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int, minDislikes int, maxDislikes int) ([]models.LikesReport, error) {
+	var likesReport []models.LikesReport
+	query := `select * from likes_view 
+				where likes_view.likes >= $1
+				AND likes_view.likes <= $2
+				AND likes_view.dislikes >= $3
+				AND likes_view.dislikes <= $4
+				ORDER BY likes_view.likes DESC`
+
+	rows, err := m.DB.Query(query, minLikes, maxLikes, minDislikes, maxDislikes)
+	if err != nil {
+		log.Println(err)
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		var currentRow models.LikesReport
+
+		err := rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Song_title, &currentRow.Artist_name, &currentRow.Album_name, &currentRow.Uploaded_date)
+
+		if err != nil {
+			return nil, err
+		}
+		likesReport = append(likesReport, currentRow)
+	}
+	return likesReport, nil
+
+}
+
 //add like function to increment in song
 //search function for album, artist, playlist, get every song under these params

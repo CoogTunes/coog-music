@@ -71,6 +71,8 @@ func routes() http.Handler {
 	mux.Get("/profile", handlers.Repo.GetProfile)
 	// Need to finish handlers and maybe adjust routing
 
+	mux.Post("/likesReport", handlers.Repo.GetLikesReport)
+
 	fileServer := http.FileServer(http.Dir("./static/"))
 
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer)) // helps use css/js
