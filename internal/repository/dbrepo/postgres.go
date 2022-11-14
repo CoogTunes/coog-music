@@ -767,10 +767,10 @@ func (m *postgresDBRepo) GetNumberOfPlaylists() (models.Playlist, error) {
 	return playlist, nil
 }
 
-func (m *postgresDBRepo) AddLikeToSong(song_id int) error {
-	query := "UPDATE SONG SET total_likes = total_likes + 1 WHERE song_id = $1"
+func (m *postgresDBRepo) AddOrUpdateLikeValue(islike bool, songId int, userId int) error {
+	query := "insert into likes (islike,song_id,user_id) values ($1,$2,$3)"
 
-	_, err := m.DB.Exec(query, song_id)
+	_, err := m.DB.Exec(query, islike, songId, userId)
 	if err != nil {
 		log.Println(err)
 	}

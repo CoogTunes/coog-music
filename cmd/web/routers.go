@@ -70,7 +70,7 @@ func routes() http.Handler {
 	// Profile page handlers
 	mux.Get("/profile", handlers.Repo.GetProfile)
 	// Need to finish handlers and maybe adjust routing
-
+	mux.Post("/like", handlers.Repo.AddOrUpdateLikeValue) // use this for all insert/update like value. Send isLike:null to delete
 	mux.Post("/likesReport", handlers.Repo.GetLikesReport)
 	mux.Post("/reports", handlers.Repo.GetUserOrArtistReport)
 	mux.Post("/songReport", handlers.Repo.GetSongReport)

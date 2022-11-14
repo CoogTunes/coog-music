@@ -783,6 +783,28 @@ func (m *Repository) Follow(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(follower, w, err)
 }
 
+func (m *Repository) AddOrUpdateLikeValue(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	// get fields
+
+	isLike, err := strconv.ParseBool(r.Form.Get("is_like"))
+	if err != nil {
+		log.Println(err)
+	}
+	song_id, err := strconv.Atoi(r.Form.Get("song_id"))
+	if err != nil {
+		log.Println(err)
+	}
+	user_id, err := strconv.Atoi(r.Form.Get("user_id"))
+	if err != nil {
+		log.Println(err)
+	}
+	err2 := m.DB.AddOrUpdateLikeValue(isLike, song_id, user_id)
+	if err2 != nil {
+		log.Println(err)
+	}
+}
+
 // REPORTS
 func (m *Repository) GetLikesReport(w http.ResponseWriter, r *http.Request) {
 

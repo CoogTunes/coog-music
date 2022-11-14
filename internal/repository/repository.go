@@ -39,7 +39,7 @@ type DatabaseRepo interface {
 
 	Follow(artistId int, userId int) (models.Followers, error) //add
 	Authenticate(email string, password string) (models.Users, error)
-	AddLikeToSong(song_id int) error
+	AddOrUpdateLikeValue(islike bool, songId int, userId int) error
 
 	UpdateUser(user models.Users) (models.Users, error)
 	UpdateSong(song models.Song) (models.Song, error)
