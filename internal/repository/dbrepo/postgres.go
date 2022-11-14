@@ -18,7 +18,7 @@ func (m *postgresDBRepo) AddUser(res models.Users) (models.Users, error) {
 
 	row := m.DB.QueryRow(query, res.Username, res.Password, res.First_name, res.Last_name, res.Admin_level)
 
-	err := row.Scan(&user.User_id, &user.Username, &user.Password, &user.First_name, &user.Last_name, &user.Admin_level)
+	err := row.Scan(&user.User_id, &user.Username, &user.Password, &user.First_name, &user.Last_name, &user.Admin_level, &user.JoinedDate)
 	if err != nil {
 		log.Println(err)
 	}
@@ -186,7 +186,7 @@ func (m *postgresDBRepo) Authenticate(email string, password string) (models.Use
 	defer cancel()
 	var userInfo models.Users
 	row := m.DB.QueryRowContext(ctx, "select * from users where username = $1", email)
-	err := row.Scan(&userInfo.User_id, &userInfo.Username, &userInfo.Password, &userInfo.First_name, &userInfo.Last_name, &userInfo.Admin_level)
+	err := row.Scan(&userInfo.User_id, &userInfo.Username, &userInfo.Password, &userInfo.First_name, &userInfo.Last_name, &userInfo.Admin_level, &userInfo.JoinedDate)
 	if err != nil {
 		return userInfo, err
 	}

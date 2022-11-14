@@ -158,10 +158,16 @@ func (m *Repository) AddArtist(firstName string, lastName string) {
 // HOME PAGE ---------------------------------------------------------------------------------
 
 func (m *Repository) GetHome(w http.ResponseWriter, r *http.Request) {
+	m.GetTopSongs(w, r)
 	render.Template(w, r, "coogtunes.page.gohtml", &models.TemplateData{
 		Form:     forms.New(nil),
 		UserData: UserCache,
 	})
+}
+
+func (m *Repository) GetTopSongs(w http.ResponseWriter, r *http.Request) {
+
+	return
 }
 
 // LOGOUT

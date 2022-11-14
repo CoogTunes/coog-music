@@ -696,10 +696,14 @@ section .song_side .content .buttons button:nth-child(2):hover {
     overflow-y: scroll;
     margin: 0 auto;
     width: 100%;
-    padding: 0px 40px;
     padding-bottom: 100px;
-    padding-top: 20px;
     border-left: 2px solid #080809;
+}
+
+body.index-home .song_side-wrapper {
+    padding-left: 40px;
+    padding-top: 20px;
+    padding-right: 40px;
 }
 
 .logo-wrapper {

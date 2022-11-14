@@ -7,6 +7,7 @@ type Users struct {
 	First_name  string
 	Last_name   string
 	Admin_level int
+	JoinedDate  string
 }
 
 type Song struct {
@@ -33,7 +34,6 @@ type Artist struct {
 
 type Playlist struct {
 	User_id     int
-	Song_names  []int
 	Playlist_id int
 	Name        string
 }
