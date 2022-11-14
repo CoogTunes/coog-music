@@ -24,7 +24,6 @@ func routes() http.Handler {
 		AllowedOrigins: []string{"https://*", "http://*"},
 		AllowedHeaders: []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 	}))
-	// These work
 	mux.Post("/user", handlers.Repo.AddUser)
 	mux.Get("/user/{id}", handlers.Repo.GetUser)
 	mux.Put("/user", handlers.Repo.UpdateUser)
@@ -64,13 +63,17 @@ func routes() http.Handler {
 	// Upload handlers
 	mux.Post("/upload", handlers.Repo.UploadFile)
 
+	// Like Page
+	mux.Get("/user/song/likes", handlers.Repo.GetSongsForLikePage)
+
 	// Playlist
 	mux.Get("/playlist/search/", handlers.Repo.PlaylistSearch)
 	mux.Post("/addPlaylist", handlers.Repo.InsertPlaylist)
 	mux.Get("/playlist/getsongs", handlers.Repo.GetPlaylistSongs)
 	// Profile page handlers
 	mux.Get("/profile", handlers.Repo.GetProfile)
-	// Need to finish handlers and maybe adjust routing
+
+	//Reports
 	mux.Post("/like", handlers.Repo.AddOrUpdateLikeValue) // use this for all insert/update like value. Send isLike:null to delete
 	mux.Post("/likesReport", handlers.Repo.GetLikesReport)
 	mux.Post("/reports", handlers.Repo.GetUserOrArtistReport)

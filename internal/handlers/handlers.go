@@ -819,6 +819,11 @@ func (m *Repository) Follow(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(follower, w, err)
 }
 
+func (m *Repository) GetSongsForLikePage(w http.ResponseWriter, r *http.Request) {
+	likedSongs, err := m.DB.GetSongsForLikePage(UserCache.User_id)
+	returnAsJSON(likedSongs, w, err)
+}
+
 func (m *Repository) AddOrUpdateLikeValue(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	// get fields
