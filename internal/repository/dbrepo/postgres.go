@@ -350,7 +350,7 @@ func (m *postgresDBRepo) GetSongsFromAlbum(album_name string) ([]models.Song, er
 func (m *postgresDBRepo) GetSongsByName(song_name string) ([]models.Song, error) {
 	var songs []models.Song
 
-	query := "select a.name, a.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as a, artist as ar, song as s where title = $1 and s.artist_id = a.artist_id and s.artist_id = ar.artist_id"
+	query := "select a.name, a.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as a, artist as ar, song as s where s.title like '%$1%' and s.artist_id = a.artist_id and s.artist_id = ar.artist_id"
 	rows, err := m.DB.Query(query, song_name)
 	if err != nil {
 		log.Println("Cannot get any rows")
