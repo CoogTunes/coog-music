@@ -117,3 +117,11 @@ type DisplaySongInfo struct {
 	ArtistID     int
 	AlbumID      int
 }
+
+type Messages struct{
+	User_id		 int
+	Message		 string
+	Created_date string
+	isRead		 bool
+	message_id	 int
+}

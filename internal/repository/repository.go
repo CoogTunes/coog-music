@@ -41,6 +41,10 @@ type DatabaseRepo interface {
 	Follow(artistId int, userId int) (models.Followers, error) //add
 	Authenticate(email string, password string) (models.Users, error)
 	AddOrUpdateLikeValue(islike bool, songId int, userId int) error
+	CheckMessages(user_id int)([]models.Messages, error)
+	UpdateMessage(user_id int)(error)
+
+
 
 	UpdateUser(user models.Users) (models.Users, error)
 	UpdateSong(song models.Song) (models.Song, error)
@@ -59,4 +63,5 @@ type DatabaseRepo interface {
 	GetUsersReport(minDate string, maxDate string) ([]models.UserReport, error)
 	GetArtistReport(minDate string, maxDate string) ([]models.ArtistReport, error)
 	GetSongReport(minDate string, maxDate string, min_plays int, max_plays int) ([]models.Song, error)
+
 }

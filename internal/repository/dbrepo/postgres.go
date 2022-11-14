@@ -940,5 +940,44 @@ func (m *postgresDBRepo) GetSongReport(minDate string, maxDate string, min_plays
 	return songReport, nil
 }
 
+func(m *postgresDBRepo) CheckMessages(user_id int)([]models.Messages, error){
+	var messages []models.Messages
+
+	checkQuery := "SELECT * FROM MESSAGES WHERE user_id = $1 AND isRead = FALSE"
+	rows, err := m.DB.Query(checkQuery, user_id)
+	if err != nil{
+		log.Println(err)
+	}
+
+	defer func(rows *sql.Rows){
+		err := rows.Close()
+		if err != nil{
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next(){
+		var currentMessage models.Messages
+		err := rows.Scan(&currentMessage.User_id, &currentMessage.Message, &currentMessage.Created_date)
+
+		if err != nil{
+			return nil, err
+		}
+		messages = append(messages, currentMessage)
+	}
+	return messages, nil
+
+}
+
+func(m *postgresDBRepo) UpdateMessage(user_id int)(error){
+	updateQuery := "UPDATE MESSAGES SET isRead = FALSE WHERE user_id = $1 and isRead = FALSE"
+
+	_, err := m.DB.Exec(updateQuery, user_id)
+	if err != nil{
+		log.Println(err)
+	}
+	return nil
+}
+
 //add like function to increment in song
 //search function for album, artist, playlist, get every song under these params
