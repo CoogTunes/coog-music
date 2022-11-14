@@ -347,6 +347,36 @@ func (m *postgresDBRepo) GetSongsByName(song_name string) ([]models.Song, error)
 	return songs, nil
 }
 
+func (m *postgresDBRepo) GetTopSongs() ([]models.Song, error) {
+	var songs []models.Song
+	query := "select s.title, s.song_path, s.cover_path, s.uploaded_date, ar.name, al.name, s.total_plays from song as s, artist as ar, album as al where s.artist_id = ar.artist_id AND s.album_id = al.album_id order by s.total_plays desc Fetch first 14 rows only"
+	rows, err := m.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		var song models.Song
+
+		rows.Scan(&song.Song_id, &song.SongPath, &song.CoverPath, &song.Uploaded_date, &song.Artist_name, &song.Album, &song.Total_plays)
+
+		if err != nil {
+			return nil, err
+		}
+
+		songs = append(songs, song)
+	}
+	return songs, nil
+
+}
+
 //func (m *postgresDBRepo) GetSongs() ([]models.Song, error) {
 //	var songs []models.Song
 //	// probably need to add a where statement and get rid of *
