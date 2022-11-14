@@ -811,7 +811,35 @@ func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int, minDislikes 
 		likesReport = append(likesReport, currentRow)
 	}
 	return likesReport, nil
+}
 
+func (m *postgresDBRepo) GetUsersReport(minDate string, maxDate string) ([]models.UsersReport, error) {
+	var usersReport []models.UsersReport
+	query := `select * from usersreport where join_date > to_date($1, 'YYYY-MM-DD') AND join_date < to_date($2, 'YYYY-MM-DD') ORDER BY join_date`
+
+	rows, err := m.DB.Query(query, minDate, maxDate)
+	if err != nil {
+		log.Println(err)
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		var currentRow models.UsersReport
+
+		err := rows.Scan(&currentRow.User_id, &currentRow.Username, &currentRow.First_name, &currentRow.Last_name, &currentRow.Admin_level, &currentRow.JoinedDate, &currentRow.Playlist_count)
+
+		if err != nil {
+			return nil, err
+		}
+		usersReport = append(usersReport, currentRow)
+	}
+	return usersReport, nil
 }
 
 //add like function to increment in song

@@ -810,6 +810,19 @@ func (m *Repository) GetLikesReport(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(likesReport, w, err)
 }
 
+func (m *Repository) GetUsersReport(w http.ResponseWriter, r *http.Request) {
+
+	r.ParseForm()
+	// get fields
+	userType := r.Form.Get("user_type")
+	minDate := r.Form.Get("min_date")
+	maxDate := r.Form.Get("max_date")
+	if userType == "User" || userType == "user" {
+		usersReport, err := m.DB.GetUsersReport(minDate, maxDate)
+		returnAsJSON(usersReport, w, err)
+	}
+}
+
 // HELPER FUNCTIONS
 // i is the models.XYZ property
 func returnAsJSON(i interface{}, w http.ResponseWriter, err error) {
