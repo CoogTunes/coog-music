@@ -28,7 +28,7 @@ type DatabaseRepo interface {
 	//SearchAlbums(album_name string) ([]models.Album, error)
 	//SearchArtists(artist_name string) ([]models.Artist, error)
 	GetSongsByName(song_name string) ([]models.Song, error)
-	GetSongsFromPlaylist(playlist_name string) ([]models.Song, error)
+	GetSongsFromPlaylist(playlist_name string) ([]models.DisplaySongInfo, error)
 	GetSongsFromArtist(artist_name string) ([]models.Song, error)
 	GetSongsFromAlbum(album_name string) ([]models.Song, error)
 

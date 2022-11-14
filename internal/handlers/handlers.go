@@ -522,16 +522,13 @@ func (m *Repository) GetPlaylistSongs(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Cannot decode the json")
 	}
-	playListIO, err := strconv.Atoi(playlistInfo.PlayListID)
 	if err != nil {
 		log.Println("Cannot convert string to int")
 	}
-	songsFromPlaylistID := models.Playlist{
-		Playlist_id: playListIO,
-	}
 
-	m.DB.
+	displaySongs, err := m.DB.GetSongsFromPlaylist(playlistInfo.PlayListName)
 
+	returnAsJSON(displaySongs, w, err)
 }
 
 // END PLAYLIST SECTION --------------------------------------------------------------------------------

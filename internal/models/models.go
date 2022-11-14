@@ -102,6 +102,15 @@ type ArtistReport struct {
 	Avg_Plays   int
 }
 
+type DisplaySongInfo struct {
+	SongPath   string
+	CoverPath  string
+	Title      string
+	PlaylistID int
+	AlbumID    int
+	ArtistID   int
+}
+
 type SongReport struct {
 	Song Song
 }
