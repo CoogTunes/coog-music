@@ -80,6 +80,8 @@ type LikesReport struct {
 	Uploaded_date string
 	Song_path     string
 	Cover_path    string
+	Artist_id     int
+	Album_id      int
 }
 
 type UserReport struct {
@@ -100,8 +102,4 @@ type ArtistReport struct {
 	Num_Albums  int
 	Total_Plays int
 	Avg_Plays   int
-}
-
-type SongReport struct {
-	Song Song
 }
