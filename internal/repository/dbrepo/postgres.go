@@ -227,8 +227,8 @@ func (m *postgresDBRepo) AddSongForAlbum(res models.Song) error {
 func (m *postgresDBRepo) GetSongsForLikePage(userId int) ([]models.LikesReport, error) {
 	var songs []models.LikesReport
 	query := `select * from likes_view 
-				where likes_view.song_id in (select likes.song_id from likes where user_id = $1) 
-				order by artist_name, album_name, song_title`
+					where likes_view.song_id in (select likes.song_id from likes where user_id = $1 and likes.islike = true) 
+					order by artist_name, album_name, song_title;`
 
 	rows, err := m.DB.Query(query, userId)
 	if err != nil {
@@ -246,7 +246,7 @@ func (m *postgresDBRepo) GetSongsForLikePage(userId int) ([]models.LikesReport, 
 		var currentRow models.LikesReport
 
 		err := rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Song_title,
-			&currentRow.Artist_name, &currentRow.Album_name, &currentRow.Uploaded_date, &currentRow.Song_path, &currentRow.Cover_path)
+			&currentRow.Artist_name, &currentRow.Album_name, &currentRow.Uploaded_date, &currentRow.Song_path, &currentRow.Cover_path, &currentRow.Artist_id, &currentRow.Album_id)
 
 		if err != nil {
 			return nil, err
@@ -837,7 +837,7 @@ func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int, minDislikes 
 		var currentRow models.LikesReport
 
 		err := rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Song_title,
-			&currentRow.Artist_name, &currentRow.Album_name, &currentRow.Uploaded_date, &currentRow.Song_path, &currentRow.Cover_path)
+			&currentRow.Artist_name, &currentRow.Album_name, &currentRow.Uploaded_date, &currentRow.Song_path, &currentRow.Cover_path, &currentRow.Artist_id, &currentRow.Album_id)
 
 		if err != nil {
 			return nil, err

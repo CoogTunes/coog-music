@@ -820,7 +820,7 @@ func (m *Repository) Follow(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) GetSongsForLikePage(w http.ResponseWriter, r *http.Request) {
-	likedSongs, err := m.DB.GetSongsForLikePage(uUserCache.User_id)
+	likedSongs, err := m.DB.GetSongsForLikePage(UserCache.User_id)
 	returnAsJSON(likedSongs, w, err)
 }
 

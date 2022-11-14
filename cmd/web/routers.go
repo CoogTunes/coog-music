@@ -64,7 +64,7 @@ func routes() http.Handler {
 	mux.Post("/upload", handlers.Repo.UploadFile)
 
 	// Like Page
-	mux.Get("/user/song/likes", handlers.Repo.PlaylistSearch)
+	mux.Get("/user/song/likes", handlers.Repo.GetSongsForLikePage)
 
 	// Playlist
 	mux.Get("/playlist/search/", handlers.Repo.PlaylistSearch)
