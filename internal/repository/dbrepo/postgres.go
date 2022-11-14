@@ -224,6 +224,38 @@ func (m *postgresDBRepo) AddSongForAlbum(res models.Song) error {
 	return nil
 }
 
+func (m *postgresDBRepo) GetSongsForLikePage(userId int) ([]models.LikesReport, error) {
+	var songs []models.LikesReport
+	query := `select * from likes_view 
+				where likes_view.song_id in (select likes.song_id from likes where user_id = $1) 
+				order by artist_name, album_name, song_title`
+
+	rows, err := m.DB.Query(query, userId)
+	if err != nil {
+		log.Println(err)
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		var currentRow models.LikesReport
+
+		err := rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Song_title,
+			&currentRow.Artist_name, &currentRow.Album_name, &currentRow.Uploaded_date, &currentRow.Song_path, &currentRow.Cover_path)
+
+		if err != nil {
+			return nil, err
+		}
+		songs = append(songs, currentRow)
+	}
+	return songs, err
+}
+
 func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_name string) ([]models.DisplaySongInfo, error) {
 	var songsInfo []models.DisplaySongInfo
 
