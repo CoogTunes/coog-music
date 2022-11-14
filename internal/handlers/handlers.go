@@ -783,6 +783,33 @@ func (m *Repository) Follow(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(follower, w, err)
 }
 
+// REPORTS
+func (m *Repository) GetLikesReport(w http.ResponseWriter, r *http.Request) {
+
+	r.ParseForm()
+	// get fields
+
+	minLikes, err := strconv.Atoi(r.Form.Get("min_likes"))
+	if err != nil {
+		log.Println(err)
+	}
+	maxLikes, err := strconv.Atoi(r.Form.Get("max_likes"))
+	if err != nil {
+		log.Println(err)
+	}
+	minDislikes, err := strconv.Atoi(r.Form.Get("min_dislikes"))
+	if err != nil {
+		log.Println(err)
+	}
+	maxDislikes, err := strconv.Atoi(r.Form.Get("max_dislikes"))
+	if err != nil {
+		log.Println(err)
+	}
+
+	likesReport, err := m.DB.GetLikesReport(minLikes, maxLikes, minDislikes, maxDislikes)
+	returnAsJSON(likesReport, w, err)
+}
+
 // HELPER FUNCTIONS
 // i is the models.XYZ property
 func returnAsJSON(i interface{}, w http.ResponseWriter, err error) {

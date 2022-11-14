@@ -69,3 +69,13 @@ type Followers struct {
 	User_id   int
 	Artist_id int
 }
+
+type LikesReport struct {
+	Likes         int
+	Dislikes      int
+	Song_id       int
+	Song_title    string
+	Artist_name   string
+	Album_name    string
+	Uploaded_date string
+}
