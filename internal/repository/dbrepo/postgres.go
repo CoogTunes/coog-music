@@ -349,7 +349,7 @@ func (m *postgresDBRepo) GetSongsByName(song_name string) ([]models.Song, error)
 
 func (m *postgresDBRepo) GetTopSongs() ([]models.Song, error) {
 	var songs []models.Song
-	query := "select s.title, s.song_path, s.cover_path, s.uploaded_date, ar.name, al.name, s.total_plays from song as s, artist as ar, album as al where s.artist_id = ar.artist_id AND s.album_id = al.album_id order by s.total_plays desc Fetch first 14 rows only"
+	query := "select s.title, s.song_path, s.cover_path,  ar.name, al.name, s.total_plays from song as s, artist as ar, album as al where s.artist_id = ar.artist_id AND s.album_id = al.album_id order by s.total_plays desc Fetch first 14 rows only"
 	rows, err := m.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -364,9 +364,8 @@ func (m *postgresDBRepo) GetTopSongs() ([]models.Song, error) {
 
 	for rows.Next() {
 		var song models.Song
-
-		rows.Scan(&song.Song_id, &song.SongPath, &song.CoverPath, &song.Uploaded_date, &song.Artist_name, &song.Album, &song.Total_plays)
-
+		rows.Scan(&song.Title, &song.SongPath, &song.CoverPath, &song.Artist_name, &song.Album, &song.Total_plays)
+		log.Println(song.SongPath)
 		if err != nil {
 			return nil, err
 		}
@@ -471,12 +470,12 @@ func (m *postgresDBRepo) AddSongToAlbum(res models.Song, album models.Album) (mo
 	return albumsong, nil
 }
 
-func (m *postgresDBRepo) GetPlaylists() ([]models.Playlist, error) {
+func (m *postgresDBRepo) GetPlaylists(userId int) ([]models.Playlist, error) {
 	var playlists []models.Playlist
 
-	query := "SELECT * FROM PLAYLIST"
+	query := "SELECT name, playlist_id FROM PLAYLIST where user_id = $1"
 
-	rows, err := m.DB.Query(query)
+	rows, err := m.DB.Query(query, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -491,8 +490,8 @@ func (m *postgresDBRepo) GetPlaylists() ([]models.Playlist, error) {
 	for rows.Next() {
 		var playlist models.Playlist
 
-		rows.Scan(&playlist.User_id, &playlist.Name, &playlist.Playlist_id)
-
+		rows.Scan(&playlist.Name, &playlist.Playlist_id)
+		playlist.User_id = userId
 		if err != nil {
 			return nil, err
 		}

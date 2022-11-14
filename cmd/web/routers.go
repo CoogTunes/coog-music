@@ -67,6 +67,7 @@ func routes() http.Handler {
 	// Playlist
 	mux.Get("/playlist/search/", handlers.Repo.PlaylistSearch)
 	mux.Post("/addPlaylist", handlers.Repo.InsertPlaylist)
+	mux.Get("/playlist/getsongs", handlers.Repo.GetPlaylistSongs)
 	// Profile page handlers
 	mux.Get("/profile", handlers.Repo.GetProfile)
 	// Need to finish handlers and maybe adjust routing

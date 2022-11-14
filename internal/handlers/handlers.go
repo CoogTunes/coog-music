@@ -82,6 +82,7 @@ func (m *Repository) PostLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	UserCache = userInfo
+	//m.GetPlaylistsByID(w, r)
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
@@ -135,7 +136,7 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 
 // END LOGIN/SIGNUP--------------------------------------------------------------------------------------
 
-// ADD ARTIST ------------------------------------------------------------------
+// ADD ARTIST -------------------------------------------------------------------------------------------
 
 func (m *Repository) AddArtist(firstName string, lastName string) {
 	artistName := getArtistName(firstName, lastName)
@@ -153,24 +154,37 @@ func (m *Repository) AddArtist(firstName string, lastName string) {
 	}
 }
 
-// END ADD ARTIST ---------------------------------------------------------------
+// END ADD ARTIST ----------------------------------------------------------------------------
 
 // HOME PAGE ---------------------------------------------------------------------------------
 
 func (m *Repository) GetHome(w http.ResponseWriter, r *http.Request) {
-	m.GetTopSongs(w, r)
 	render.Template(w, r, "coogtunes.page.gohtml", &models.TemplateData{
 		Form:     forms.New(nil),
 		UserData: UserCache,
 	})
+	m.GetTopSongs(w, r)
+	m.GetPlaylistsByID(w, r)
 }
-
 func (m *Repository) GetTopSongs(w http.ResponseWriter, r *http.Request) {
 	topSongs, err := m.DB.GetTopSongs()
 	if err != nil {
 		log.Println("Cannot get the top 14 songs")
 	}
 	returnAsJSON(topSongs, w, err)
+}
+
+func (m *Repository) GetPlaylistsByID(w http.ResponseWriter, r *http.Request) {
+	playlists, err := m.DB.GetPlaylists(UserCache.User_id)
+	if err != nil {
+		log.Println("Cannot get the top 14 songs")
+	}
+	if len(playlists) == 0 {
+		emptyPlaylist := models.Playlist{}
+		returnAsJSON(emptyPlaylist, w, err)
+		return
+	}
+	returnAsJSON(playlists, w, err)
 }
 
 // LOGOUT
@@ -496,6 +510,30 @@ func (m *Repository) InsertPlaylist(w http.ResponseWriter, r *http.Request) {
 
 }
 
+type GetSongsFromPlaylist struct {
+	PlayListName string `json:"playlistName"`
+	PlayListID   string `json:"playlistID"`
+}
+
+func (m *Repository) GetPlaylistSongs(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	var playlistInfo GetSongsFromPlaylist
+	err := decoder.Decode(&playlistInfo)
+	if err != nil {
+		log.Println("Cannot decode the json")
+	}
+	playListIO, err := strconv.Atoi(playlistInfo.PlayListID)
+	if err != nil {
+		log.Println("Cannot convert string to int")
+	}
+	songsFromPlaylistID := models.Playlist{
+		Playlist_id: playListIO,
+	}
+
+	m.DB.
+
+}
+
 // END PLAYLIST SECTION --------------------------------------------------------------------------------
 
 // USERS ------------------------------------------------------------------------
@@ -726,9 +764,10 @@ func (m *Repository) AddSongToAlbum(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) GetPlaylists(w http.ResponseWriter, r *http.Request) {
-	playlists, err := m.DB.GetPlaylists()
-
-	returnAsJSON(playlists, w, err)
+	//playlists, err := m.DB.GetPlaylists()
+	//
+	//returnAsJSON(playlists, w, err)
+	return
 }
 
 func (m *Repository) GetAlbums(w http.ResponseWriter, r *http.Request) {
@@ -823,6 +862,23 @@ func returnAsJSON(i interface{}, w http.ResponseWriter, err error) {
 	if err != nil {
 		log.Print(err)
 	}
+}
+
+func returnTopSongsJSON(songs []models.Song, w http.ResponseWriter, err error) {
+	if err != nil {
+		log.Println(err)
+	}
+
+	for _, song := range songs {
+		j, _ := json.MarshalIndent(song, "", "   ")
+		log.Println(string(j))
+		w.Header().Set("Content-Type", "application/json")
+		_, err = w.Write(j)
+		if err != nil {
+			log.Print(err)
+		}
+	}
+
 }
 
 func getArtistName(firstName string, lastName string) string {
