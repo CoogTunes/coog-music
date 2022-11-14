@@ -256,17 +256,14 @@ func (m *postgresDBRepo) GetSongsForLikePage(userId int) ([]models.LikesReport, 
 	return songs, err
 }
 
-func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_name string) ([]models.DisplaySongInfo, error) {
+func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_id int) ([]models.DisplaySongInfo, error) {
 	var songsInfo []models.DisplaySongInfo
 
-	query := `SELECT s.song_path, s.title, s.cover_path, p.playlist_id, al.name, ar.name
-	FROM ALBUM as al, ARTIST AS ar, SONG AS s 
-    FULL OUTER JOIN SONGPLAYLIST AS sp ON s.song_id = sp.song_id
-	FULL OUTER JOIN PLAYLIST as p ON sp.playlist_id = p.playlist_id
-	WHERE LOWER(p.name) LIKE LOWER('%$1%') AND ar.artist_id = s.artist_id
+	query := `select * from likes_view where likes_view.song_id in (select songplaylist.song_id from songplaylist where songplaylist.playlist_id = $1)
 	`
-	rows, err := m.DB.Query(query, playlist_name)
+	rows, err := m.DB.Query(query, playlist_id)
 	if err != nil {
+		log.Println("Cannot execute query")
 		return songsInfo, err
 	}
 
@@ -279,14 +276,15 @@ func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_name string) ([]models.Di
 
 	for rows.Next() {
 		var songInfo models.DisplaySongInfo
-		rows.Scan(&songInfo.SongPath, &songInfo.Title, &songInfo.CoverPath, &songInfo.PlaylistID, &songInfo.AlbumID, &songInfo.ArtistID)
+		rows.Scan(&songInfo.Likes, &songInfo.Dislikes, &songInfo.SongID, &songInfo.Title, &songInfo.Artist, &songInfo.Album, &songInfo.UploadedDate, &songInfo.SongPath, &songInfo.CoverPath, &songInfo.ArtistID, &songInfo.AlbumID)
 
 		if err != nil {
+			log.Println("Cannot scan row")
 			return songsInfo, err
 		}
 		songsInfo = append(songsInfo, songInfo)
 	}
-	return songsInfo, err
+	return songsInfo, nil
 }
 
 func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.Song, error) {

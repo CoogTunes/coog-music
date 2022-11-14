@@ -510,25 +510,27 @@ func (m *Repository) InsertPlaylist(w http.ResponseWriter, r *http.Request) {
 
 }
 
-type GetSongsFromPlaylist struct {
-	PlayListName string `json:"playlistName"`
-	PlayListID   string `json:"playlistID"`
-}
+//type GetSongsFromPlaylist struct {
+//	PlayListID string `json:"playlist-id"`
+//}
 
 func (m *Repository) GetPlaylistSongs(w http.ResponseWriter, r *http.Request) {
-	decoder := json.NewDecoder(r.Body)
-	var playlistInfo GetSongsFromPlaylist
-	err := decoder.Decode(&playlistInfo)
-	if err != nil {
-		log.Println("Cannot decode the json")
-	}
+	id := r.URL.Query().Get("id")
+	playlistID, err := strconv.Atoi(id)
+	fmt.Println(playlistID)
 	if err != nil {
 		log.Println("Cannot convert string to int")
 	}
-
-	displaySongs, err := m.DB.GetSongsFromPlaylist(playlistInfo.PlayListName)
+	displaySongs, err := m.DB.GetSongsFromPlaylist(playlistID)
 
 	returnAsJSON(displaySongs, w, err)
+}
+
+func (m *Repository) GetPlaylists(w http.ResponseWriter, r *http.Request) {
+	playlists, err := m.DB.GetPlaylists(UserCache.User_id)
+
+	returnAsJSON(playlists, w, err)
+	return
 }
 
 // END PLAYLIST SECTION --------------------------------------------------------------------------------
@@ -760,13 +762,6 @@ func (m *Repository) AddSongToAlbum(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (m *Repository) GetPlaylists(w http.ResponseWriter, r *http.Request) {
-	//playlists, err := m.DB.GetPlaylists()
-	//
-	//returnAsJSON(playlists, w, err)
-	return
-}
-
 func (m *Repository) GetAlbums(w http.ResponseWriter, r *http.Request) {
 	albums, err := m.DB.GetAlbums()
 
@@ -925,13 +920,13 @@ func returnAsJSON(i interface{}, w http.ResponseWriter, err error) {
 	}
 }
 
-func returnTopSongsJSON(songs []models.Song, w http.ResponseWriter, err error) {
+func returnArrayJSON(playlists []models.Playlist, w http.ResponseWriter, err error) {
 	if err != nil {
 		log.Println(err)
 	}
 
-	for _, song := range songs {
-		j, _ := json.MarshalIndent(song, "", "   ")
+	for _, playlist := range playlists {
+		j, _ := json.MarshalIndent(playlist, "", "   ")
 		log.Println(string(j))
 		w.Header().Set("Content-Type", "application/json")
 		_, err = w.Write(j)
