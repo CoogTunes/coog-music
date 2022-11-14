@@ -766,10 +766,10 @@ func (m *postgresDBRepo) GetNumberOfPlaylists() (models.Playlist, error) {
 	return playlist, nil
 }
 
-func (m *postgresDBRepo) AddLikeToSong(song_id int) error {
-	query := "UPDATE SONG SET total_likes = total_likes + 1 WHERE song_id = $1"
+func (m *postgresDBRepo) AddOrUpdateLikeValue(islike bool, songId int, userId int) error {
+	query := "insert into likes (islike,song_id,user_id) values ($1,$2,$3)"
 
-	_, err := m.DB.Exec(query, song_id)
+	_, err := m.DB.Exec(query, islike, songId, userId)
 	if err != nil {
 		log.Println(err)
 	}
@@ -801,7 +801,8 @@ func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int, minDislikes 
 	for rows.Next() {
 		var currentRow models.LikesReport
 
-		err := rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Song_title, &currentRow.Artist_name, &currentRow.Album_name, &currentRow.Uploaded_date)
+		err := rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Song_title,
+			&currentRow.Artist_name, &currentRow.Album_name, &currentRow.Uploaded_date, &currentRow.Song_path, &currentRow.Cover_path)
 
 		if err != nil {
 			return nil, err
@@ -809,7 +810,98 @@ func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int, minDislikes 
 		likesReport = append(likesReport, currentRow)
 	}
 	return likesReport, nil
+}
 
+func (m *postgresDBRepo) GetUsersReport(minDate string, maxDate string) ([]models.UserReport, error) {
+	var usersReport []models.UserReport
+	query := `select * from usersreport where join_date > to_date($1, 'YYYY-MM-DD') AND join_date < to_date($2, 'YYYY-MM-DD') ORDER BY join_date`
+
+	rows, err := m.DB.Query(query, minDate, maxDate)
+	if err != nil {
+		log.Println(err)
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		var currentRow models.UserReport
+
+		err := rows.Scan(&currentRow.User_id, &currentRow.Username, &currentRow.First_name, &currentRow.Last_name, &currentRow.Admin_level, &currentRow.JoinedDate, &currentRow.Playlist_count)
+
+		if err != nil {
+			return nil, err
+		}
+		usersReport = append(usersReport, currentRow)
+	}
+	return usersReport, nil
+}
+
+func (m *postgresDBRepo) GetArtistReport(minDate string, maxDate string) ([]models.ArtistReport, error) {
+	var artistReport []models.ArtistReport
+	query := `select * from artistsReport where join_date > to_date($1, 'YYYY-MM-DD') AND join_date < to_date($2, 'YYYY-MM-DD') ORDER BY join_date`
+
+	rows, err := m.DB.Query(query, minDate, maxDate)
+	if err != nil {
+		log.Println(err)
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		var currentRow models.ArtistReport
+
+		err := rows.Scan(&currentRow.Name, &currentRow.Artist_id, &currentRow.Join_date, &currentRow.Num_songs, &currentRow.Num_Albums, &currentRow.Total_Plays, &currentRow.Avg_Plays)
+
+		if err != nil {
+			return nil, err
+		}
+		artistReport = append(artistReport, currentRow)
+	}
+	return artistReport, nil
+}
+
+func (m *postgresDBRepo) GetSongReport(minDate string, maxDate string, min_plays int, max_plays int) ([]models.Song, error) {
+	var songReport []models.Song
+
+	query := `select * from songReport 
+				where songReport.uploaded_date >= $1
+				AND songReport.uploaded_date <= $2
+				AND songReport.total_plays >= $3
+				AND songReport.total_plays <= $4`
+
+	rows, err := m.DB.Query(query, minDate, maxDate, min_plays, max_plays)
+	if err != nil {
+		log.Println(err)
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		var currentRow models.Song
+		err := rows.Scan(&currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id, &currentRow.SongPath, &currentRow.CoverPath,
+			&currentRow.Uploaded_date, &currentRow.Total_plays, &currentRow.Artist_name, &currentRow.Album)
+
+		if err != nil {
+			return nil, err
+		}
+		songReport = append(songReport, currentRow)
+	}
+	return songReport, nil
 }
 
 //add like function to increment in song

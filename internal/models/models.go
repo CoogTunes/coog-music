@@ -78,4 +78,30 @@ type LikesReport struct {
 	Artist_name   string
 	Album_name    string
 	Uploaded_date string
+	Song_path     string
+	Cover_path    string
+}
+
+type UserReport struct {
+	User_id        int
+	Username       string
+	First_name     string
+	Last_name      string
+	Admin_level    int
+	JoinedDate     string
+	Playlist_count int
+}
+
+type ArtistReport struct {
+	Name        string
+	Artist_id   int
+	Join_date   string
+	Num_songs   int
+	Num_Albums  int
+	Total_Plays int
+	Avg_Plays   int
+}
+
+type SongReport struct {
+	Song Song
 }

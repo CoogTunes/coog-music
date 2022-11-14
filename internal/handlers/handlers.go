@@ -822,6 +822,28 @@ func (m *Repository) Follow(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(follower, w, err)
 }
 
+func (m *Repository) AddOrUpdateLikeValue(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	// get fields
+
+	isLike, err := strconv.ParseBool(r.Form.Get("is_like"))
+	if err != nil {
+		log.Println(err)
+	}
+	song_id, err := strconv.Atoi(r.Form.Get("song_id"))
+	if err != nil {
+		log.Println(err)
+	}
+	user_id, err := strconv.Atoi(r.Form.Get("user_id"))
+	if err != nil {
+		log.Println(err)
+	}
+	err2 := m.DB.AddOrUpdateLikeValue(isLike, song_id, user_id)
+	if err2 != nil {
+		log.Println(err)
+	}
+}
+
 // REPORTS
 func (m *Repository) GetLikesReport(w http.ResponseWriter, r *http.Request) {
 
@@ -847,6 +869,43 @@ func (m *Repository) GetLikesReport(w http.ResponseWriter, r *http.Request) {
 
 	likesReport, err := m.DB.GetLikesReport(minLikes, maxLikes, minDislikes, maxDislikes)
 	returnAsJSON(likesReport, w, err)
+}
+
+func (m *Repository) GetUserOrArtistReport(w http.ResponseWriter, r *http.Request) {
+
+	r.ParseForm()
+	// get fields
+	userType := r.Form.Get("user_type")
+	minDate := r.Form.Get("min_date")
+	maxDate := r.Form.Get("max_date")
+	if userType == "User" || userType == "user" {
+		usersReport, err := m.DB.GetUsersReport(minDate, maxDate)
+		returnAsJSON(usersReport, w, err)
+	} else if userType == "Artist" || userType == "artist" {
+		artistReport, err := m.DB.GetArtistReport(minDate, maxDate)
+		returnAsJSON(artistReport, w, err)
+	}
+}
+
+func (m *Repository) GetSongReport(w http.ResponseWriter, r *http.Request) {
+
+	r.ParseForm()
+	// get fields
+
+	min_plays, err := strconv.Atoi(r.Form.Get("min_plays"))
+	if err != nil {
+		log.Println(err)
+	}
+	max_plays, err := strconv.Atoi(r.Form.Get("max_plays"))
+	if err != nil {
+		log.Println(err)
+	}
+	minDate := r.Form.Get("min_date")
+	maxDate := r.Form.Get("max_date")
+
+	songReport, err := m.DB.GetSongReport(minDate, maxDate, min_plays, max_plays)
+	returnAsJSON(songReport, w, err)
+
 }
 
 // HELPER FUNCTIONS

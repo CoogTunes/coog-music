@@ -192,26 +192,36 @@ create or replace view likes_view as
 select 
 	sum(case when likes.islike is true then 1 else 0 end) as likes,
 	sum(case when likes.islike is false then 1 else 0 end) as dislikes,
-	song.song_id, song.title as song_title, artist.name as artist_name, album.name as album_name, song.uploaded_date
+	song.song_id, song.title as song_title, artist.name as artist_name, album.name as album_name, song.uploaded_date, song.song_path, song.cover_path
 from likes, song, users, artist, album
 where 
 	song.song_id = likes.song_id  
 	and users.user_id = likes.user_id
 	and artist.artist_id = song.artist_id
 	and song.album_id = album.album_id
-group by song.song_id, song.title, artist.name, album.name, song.uploaded_date;
+group by song.song_id, song.title, artist.name, album.name, song.uploaded_date,song.song_path, song.cover_path;
 
 
 
 -- These artist/user reports should work. Might add a couple more columns (users add num playlists, num songs liked, )
--- create or replace view usersReport as
--- 	select users.user_id, users.username, users.first_name, users.last_name, users.admin_level, users.join_date 
--- 	from users
--- 	order by users.last_name;
+create or replace view usersReport as
+	select users.user_id, users.username, users.first_name, users.last_name, users.admin_level, users.join_date, count(playlist.playlist_id) playlist_count
+	from users
+	left join playlist on playlist.user_id = users.user_id
+	group by users.user_id,users.username, users.first_name, users.last_name, users.admin_level, users.join_date
+	order by users.user_id;
 
---   create or replace view artistsReport2 as
---     select artist.name, artist.artist_id, artist.join_date, 
---     (select count(song.song_id) from song where song.artist_id = artist.artist_id) as numSongs,
---     (select count(album.album_id) from Album where album.artist_id = artist.artist_id) as numAlbums	
--- 	from artist
--- 	order by artist."name";
+  create or replace view artistsReport as
+    select artist.name, artist.artist_id, artist.join_date, 
+    (select count(song.song_id) from song where song.artist_id = artist.artist_id) as num_songs,
+    (select count(album.album_id) from Album where album.artist_id = artist.artist_id) as num_albums,
+	sum(total_plays) total_plays,
+	round(avg(total_plays),0) average_plays
+	from artist, song
+	where song.artist_id = artist.artist_id group by artist.name, artist.artist_id, artist.join_date  order by artist.artist_id;
+
+CREATE OR REPLACE VIEW songReport as
+    SELECT DISTINCT SONG.*, ARTIST.name as artist_name, ALBUM.NAME as album_name FROM SONG, ARTIST, ALBUM
+    WHERE  ARTIST.name = (SELECT name from ARTIST WHERE ARTIST.Artist_id = Song.artist_id)
+    AND ALBUM.name = (SELECT name from ALBUM WHERE ALBUM.ALBUM_ID = Song.ALBUM_ID)
+    ORDER BY SONG.total_plays desc;
