@@ -188,18 +188,33 @@ CREATE OR REPLACE TRIGGER CheckAlbumDate AFTER INSERT ON Album
 
 
 -- for query 2. maybe adjust return column names
-create or replace view likes_view as 
-select 
-	sum(case when likes.islike is true then 1 else 0 end) as likes,
-	sum(case when likes.islike is false then 1 else 0 end) as dislikes,
-	song.song_id, song.title as song_title, artist.name as artist_name, album.name as album_name, song.uploaded_date, song.song_path, song.cover_path
-from likes, song, users, artist, album
-where 
-	song.song_id = likes.song_id  
-	and users.user_id = likes.user_id
-	and artist.artist_id = song.artist_id
-	and song.album_id = album.album_id
-group by song.song_id, song.title, artist.name, album.name, song.uploaded_date,song.song_path, song.cover_path;
+CREATE OR REPLACE VIEW likes_view AS
+ SELECT COALESCE(( SELECT sum(
+                CASE
+                    WHEN likes.islike IS TRUE THEN 1
+                    ELSE 0
+                END) AS sum
+           FROM likes
+          WHERE likes.song_id = song.song_id), 0::bigint) AS likes,
+    COALESCE(( SELECT sum(
+                CASE
+                    WHEN likes.islike IS FALSE THEN 1
+                    ELSE 0
+                END) AS sum
+           FROM likes
+          WHERE likes.song_id = song.song_id), 0::bigint) AS dislikes,
+    song.song_id,
+    song.title AS song_title,
+    artist.name AS artist_name,
+    album.name AS album_name,
+    song.uploaded_date,
+    song.song_path,
+    song.cover_path,
+    song.artist_id,
+    song.album_id
+   FROM song
+     LEFT JOIN artist ON artist.artist_id = song.artist_id
+     LEFT JOIN album ON album.album_id = song.album_id;
 
 
 
