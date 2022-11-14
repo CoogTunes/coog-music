@@ -57,4 +57,5 @@ type DatabaseRepo interface {
 	GetLikesReport(minLikes int, maxLikes int, minDislikes int, maxDislikes int) ([]models.LikesReport, error)
 	GetUsersReport(minDate string, maxDate string) ([]models.UserReport, error)
 	GetArtistReport(minDate string, maxDate string) ([]models.ArtistReport, error)
+	GetSongReport(minDate string, maxDate string, min_plays int, max_plays int) ([]models.Song, error)
 }

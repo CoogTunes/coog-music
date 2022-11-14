@@ -826,6 +826,27 @@ func (m *Repository) GetUserOrArtistReport(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+func (m *Repository) GetSongReport(w http.ResponseWriter, r *http.Request) {
+
+	r.ParseForm()
+	// get fields
+
+	min_plays, err := strconv.Atoi(r.Form.Get("min_plays"))
+	if err != nil {
+		log.Println(err)
+	}
+	max_plays, err := strconv.Atoi(r.Form.Get("max_plays"))
+	if err != nil {
+		log.Println(err)
+	}
+	minDate := r.Form.Get("min_date")
+	maxDate := r.Form.Get("max_date")
+
+	songReport, err := m.DB.GetSongReport(minDate, maxDate, min_plays, max_plays)
+	returnAsJSON(songReport, w, err)
+
+}
+
 // HELPER FUNCTIONS
 // i is the models.XYZ property
 func returnAsJSON(i interface{}, w http.ResponseWriter, err error) {

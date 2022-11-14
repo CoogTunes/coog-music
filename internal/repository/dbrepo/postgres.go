@@ -871,5 +871,39 @@ func (m *postgresDBRepo) GetArtistReport(minDate string, maxDate string) ([]mode
 	return artistReport, nil
 }
 
+func (m *postgresDBRepo) GetSongReport(minDate string, maxDate string, min_plays int, max_plays int) ([]models.Song, error) {
+	var songReport []models.Song
+
+	query := `select * from songReport 
+				where songReport.uploaded_date >= $1
+				AND songReport.uploaded_date <= $2
+				AND songReport.total_plays >= $3
+				AND songReport.total_plays <= $4`
+
+	rows, err := m.DB.Query(query, minDate, maxDate, min_plays, max_plays)
+	if err != nil {
+		log.Println(err)
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		var currentRow models.Song
+		err := rows.Scan(&currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id, &currentRow.SongPath, &currentRow.CoverPath,
+			&currentRow.Uploaded_date, &currentRow.Total_plays, &currentRow.Artist_name, &currentRow.Album)
+
+		if err != nil {
+			return nil, err
+		}
+		songReport = append(songReport, currentRow)
+	}
+	return songReport, nil
+}
+
 //add like function to increment in song
 //search function for album, artist, playlist, get every song under these params

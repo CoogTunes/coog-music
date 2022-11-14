@@ -101,3 +101,7 @@ type ArtistReport struct {
 	Total_Plays int
 	Avg_Plays   int
 }
+
+type SongReport struct {
+	Song Song
+}

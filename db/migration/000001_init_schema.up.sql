@@ -219,3 +219,9 @@ create or replace view usersReport as
 	round(avg(total_plays),0) average_plays
 	from artist, song
 	where song.artist_id = artist.artist_id group by artist.name, artist.artist_id, artist.join_date  order by artist.artist_id;
+
+CREATE OR REPLACE VIEW songReport as
+    SELECT DISTINCT SONG.*, ARTIST.name as artist_name, ALBUM.NAME as album_name FROM SONG, ARTIST, ALBUM
+    WHERE  ARTIST.name = (SELECT name from ARTIST WHERE ARTIST.Artist_id = Song.artist_id)
+    AND ALBUM.name = (SELECT name from ALBUM WHERE ALBUM.ALBUM_ID = Song.ALBUM_ID)
+    ORDER BY SONG.total_plays desc;
