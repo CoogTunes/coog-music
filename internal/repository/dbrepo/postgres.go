@@ -970,7 +970,7 @@ func(m *postgresDBRepo) CheckMessages(user_id int)([]models.Messages, error){
 }
 
 func(m *postgresDBRepo) UpdateMessage(user_id int)(error){
-	updateQuery := "UPDATE MESSAGES SET isRead = FALSE WHERE user_id = $1 and isRead = FALSE"
+	updateQuery := "UPDATE MESSAGES SET isRead = TRUE WHERE user_id = $1 and isRead = FALSE"
 
 	_, err := m.DB.Exec(updateQuery, user_id)
 	if err != nil{
