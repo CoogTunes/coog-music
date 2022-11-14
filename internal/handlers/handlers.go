@@ -166,8 +166,11 @@ func (m *Repository) GetHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) GetTopSongs(w http.ResponseWriter, r *http.Request) {
-
-	return
+	topSongs, err := m.DB.GetTopSongs()
+	if err != nil {
+		log.Println("Cannot get the top 14 songs")
+	}
+	returnAsJSON(topSongs, w, err)
 }
 
 // LOGOUT
