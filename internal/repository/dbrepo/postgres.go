@@ -290,8 +290,8 @@ func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_id int) ([]models.Display
 func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.Song, error) {
 	var songs []models.Song
 
-	query := "select * from Song where artist_id in (SELECT artist_id from artist where LOWER(name) like LOWER('$1%'))"
-	rows, err := m.DB.Query(query, artist_name)
+	query := "select * from Song where artist_id in (SELECT artist_id from artist where LOWER(name) like LOWER('" + artist_name + "%'))"
+	rows, err := m.DB.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -320,7 +320,7 @@ func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.Song, 
 func (m *postgresDBRepo) GetSongsFromAlbum(album_name string) ([]models.Song, error) {
 	var songs []models.Song
 
-	query := "SELECT * FROM SONG WHERE album_id in (SELECT album_id FROM likes_view where LOWER(album_name) LIKE LOWER('$1'))"
+	query := "SELECT * FROM SONG WHERE album_id in (SELECT album_id FROM likes_view where LOWER(album_name) LIKE LOWER('" + album_name + "%'))"
 	rows, err := m.DB.Query(query, album_name)
 	if err != nil {
 		return nil, err
