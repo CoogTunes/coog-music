@@ -78,4 +78,6 @@ type LikesReport struct {
 	Artist_name   string
 	Album_name    string
 	Uploaded_date string
+	Song_path     string
+	Cover_path    string
 }

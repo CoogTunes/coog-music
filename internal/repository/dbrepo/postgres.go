@@ -772,7 +772,8 @@ func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int, minDislikes 
 	for rows.Next() {
 		var currentRow models.LikesReport
 
-		err := rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Song_title, &currentRow.Artist_name, &currentRow.Album_name, &currentRow.Uploaded_date)
+		err := rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Song_title,
+			&currentRow.Artist_name, &currentRow.Album_name, &currentRow.Uploaded_date, &currentRow.Song_path, &currentRow.Cover_path)
 
 		if err != nil {
 			return nil, err
