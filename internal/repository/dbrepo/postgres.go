@@ -290,7 +290,7 @@ func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_id int) ([]models.Display
 func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.Song, error) {
 	var songs []models.Song
 
-	query := "select * from Song where artist_id in (SELECT artist_id from artist where name like %$1%)"
+	query := "select * from Song where artist_id in (SELECT artist_id from artist where LOWER(name) like LOWER('$1%'))"
 	rows, err := m.DB.Query(query, artist_name)
 	if err != nil {
 		return nil, err
@@ -320,7 +320,7 @@ func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.Song, 
 func (m *postgresDBRepo) GetSongsFromAlbum(album_name string) ([]models.Song, error) {
 	var songs []models.Song
 
-	query := "select song from albumsong, song where albumsong.album_id in (SELECT album_id from album where name like %$1%)"
+	query := "SELECT * FROM SONG WHERE album_id in (SELECT album_id FROM likes_view where LOWER(album_name) LIKE LOWER('$1'))"
 	rows, err := m.DB.Query(query, album_name)
 	if err != nil {
 		return nil, err
@@ -350,8 +350,13 @@ func (m *postgresDBRepo) GetSongsFromAlbum(album_name string) ([]models.Song, er
 func (m *postgresDBRepo) GetSongsByName(song_name string) ([]models.Song, error) {
 	var songs []models.Song
 
-	query := "select a.name, a.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as a, artist as ar, song as s where s.title like '%$1%' and s.artist_id = a.artist_id and s.artist_id = ar.artist_id"
-	rows, err := m.DB.Query(query, song_name)
+	// query := `select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name 
+	// from album as al, artist as ar, song as s 
+	// where s.title = $1 and s.artist_id = al.artist_id and s.artist_id = ar.artist_id`
+
+	query := "select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as al, artist as ar, song as s where LOWER(s.title) LIKE LOWER ('" + song_name + "%') and s.artist_id = al.artist_id and s.artist_id = ar.artist_id"
+
+	rows, err := m.DB.Query(query)
 	if err != nil {
 		log.Println("Cannot get any rows")
 		return nil, err
