@@ -810,7 +810,7 @@ func (m *Repository) GetLikesReport(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(likesReport, w, err)
 }
 
-func (m *Repository) GetUsersReport(w http.ResponseWriter, r *http.Request) {
+func (m *Repository) GetUserOrArtistReport(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()
 	// get fields
@@ -820,6 +820,9 @@ func (m *Repository) GetUsersReport(w http.ResponseWriter, r *http.Request) {
 	if userType == "User" || userType == "user" {
 		usersReport, err := m.DB.GetUsersReport(minDate, maxDate)
 		returnAsJSON(usersReport, w, err)
+	} else if userType == "Artist" || userType == "artist" {
+		artistReport, err := m.DB.GetArtistReport(minDate, maxDate)
+		returnAsJSON(artistReport, w, err)
 	}
 }
 

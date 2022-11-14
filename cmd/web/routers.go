@@ -72,7 +72,7 @@ func routes() http.Handler {
 	// Need to finish handlers and maybe adjust routing
 
 	mux.Post("/likesReport", handlers.Repo.GetLikesReport)
-	mux.Post("/reports", handlers.Repo.GetUsersReport)
+	mux.Post("/reports", handlers.Repo.GetUserOrArtistReport)
 
 	fileServer := http.FileServer(http.Dir("./static/"))
 

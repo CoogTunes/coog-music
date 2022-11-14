@@ -82,7 +82,7 @@ type LikesReport struct {
 	Cover_path    string
 }
 
-type UsersReport struct {
+type UserReport struct {
 	User_id        int
 	Username       string
 	First_name     string
@@ -90,4 +90,14 @@ type UsersReport struct {
 	Admin_level    int
 	JoinedDate     string
 	Playlist_count int
+}
+
+type ArtistReport struct {
+	Name        string
+	Artist_id   int
+	Join_date   string
+	Num_songs   int
+	Num_Albums  int
+	Total_Plays int
+	Avg_Plays   int
 }
