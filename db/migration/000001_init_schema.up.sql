@@ -54,9 +54,9 @@ CREATE TABLE SongPlaylist(
 
 CREATE TABLE Messages (
                         user_id int,
-                        admin_level int CHECK (admin_level >= 0 AND admin_level <= 3),
                         message varchar(500),
                         created_date date DEFAULT now(),
+                        isRead boolean default false,
                         message_id bigserial UNIQUE PRIMARY KEY
 );
 
@@ -161,9 +161,9 @@ BEGIN
     IF (artist_join_date) > new.date_added 
 		THEN 
 -- 		DELETE FROM ALBUM WHERE album.Album_id = new.album_id; (maybe use?)
-		INSERT INTO Messages select users.user_id, users.admin_level, 
+		INSERT INTO Messages select users.user_id, 
 		CONCAT('ALBUM ID ', new.album_id, ' of date ', new.date_added, ' is before artist join date of ', artist_join_date, '.') 
-		as messagex from users where users.admin_level = 3;
+		 from users where users.admin_level = 3;
     END IF;
     return new;
 END;
@@ -173,18 +173,45 @@ CREATE OR REPLACE TRIGGER CheckAlbumDate AFTER INSERT ON Album
     FOR EACH ROW EXECUTE FUNCTION CheckAlbumDate();
 
 
--- CREATE OR REPLACE FUNCTION CheckRatings() RETURNS TRIGGER AS $$
--- BEGIN
---     IF new.total_likes > 10 
---     THEN
---     INSERT INTO MESSAGES (user_id, admin_level, message) VALUES (new.artist_id, 2, 'Your song has reached 10 likes!')
---     END IF
---     return new;
--- END;
--- $$ language plpgsql
+CREATE OR REPLACE FUNCTION CheckRatings() RETURNS TRIGGER AS $$
+    DECLARE
+        messageArtistId int;
+        messageToSend varchar(500);
+        totalLikes int;
+        songTitle varchar;
+    BEGIN
+        SELECT sum(
+        CASE
+        WHEN likes.islike IS TRUE THEN 1
+        ELSE 0
+        END) into totalLikes from likes where likes.song_id=new.song_id;
 
--- CREATE OR REPLACE TRIGGER CheckRatings AFTER UPDATE ON Song
---     FOR EACH ROW EXECUTE FUCTION CheckRatings();
+        IF (totalLikes%2 = 0) THEN 
+
+            select distinct song.artist_id into messageArtistId from likes, song 
+            where likes.song_id = new.song_id and song.song_id = likes.song_id;
+
+            select distinct song.title into songTitle from likes, song 
+            where likes.song_id = new.song_id and song.song_id = likes.song_id;
+
+            messageToSend = CONCAT('Your song ', songTitle, ' has reached ', totalLikes, ' likes!' );
+                    RAISE NOTICE 'messageToSend %', messageToSend;
+
+            IF new.islike = true
+                AND NOT EXISTS (SELECT * FROM messages WHERE messages.user_id = messageArtistId and messages.message = messageToSend)
+                THEN
+
+                INSERT INTO Messages (user_id, message) values (messageArtistId, 
+                messageToSend);
+            END IF;
+
+        END IF;
+    return new;
+    END;
+$$ language plpgsql;
+
+CREATE OR REPLACE TRIGGER CheckRatings AFTER INSERT ON Likes
+    FOR EACH ROW EXECUTE FUNCTION CheckRatings();
 
 
 -- for query 2. maybe adjust return column names
