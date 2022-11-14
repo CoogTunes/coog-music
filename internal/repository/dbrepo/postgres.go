@@ -287,10 +287,10 @@ func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_id int) ([]models.Display
 	return songsInfo, nil
 }
 
-func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.Song, error) {
-	var songs []models.Song
+func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.DisplaySongInfo, error) {
+	var songsInfo []models.DisplaySongInfo
 
-	query := "select * from Song where artist_id in (SELECT artist_id from artist where LOWER(name) like LOWER('" + artist_name + "%'))"
+	query := "select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as al, artist as ar, song as s WHERE LOWER(ar.name) like LOWER('" + artist_name + "%'))"
 	rows, err := m.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -304,24 +304,23 @@ func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.Song, 
 	}(rows)
 
 	for rows.Next() {
-		var song models.Song
-
-		rows.Scan(&song.Song_id, &song.Artist_id)
+		var songInfo models.DisplaySongInfo
+		rows.Scan(&songInfo.Likes, &songInfo.Dislikes, &songInfo.SongID, &songInfo.Title, &songInfo.Artist, &songInfo.Album, &songInfo.UploadedDate, &songInfo.SongPath, &songInfo.CoverPath, &songInfo.ArtistID, &songInfo.AlbumID)
 
 		if err != nil {
-			return nil, err
+			log.Println("Cannot scan row")
+			return songsInfo, err
 		}
-
-		songs = append(songs, song)
+		songsInfo = append(songsInfo, songInfo)
 	}
-	return songs, nil
+	return songsInfo, nil
 }
 
-func (m *postgresDBRepo) GetSongsFromAlbum(album_name string) ([]models.Song, error) {
-	var songs []models.Song
+func (m *postgresDBRepo) GetSongsFromAlbum(album_name string) ([]models.DisplaySongInfo, error) {
+	var songsInfo []models.DisplaySongInfo
 
-	query := "SELECT * FROM SONG WHERE album_id in (SELECT album_id FROM likes_view where LOWER(album_name) LIKE LOWER('" + album_name + "%'))"
-	rows, err := m.DB.Query(query, album_name)
+	query := "select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as al, artist as ar, song as s LOWER(al.name) LIKE LOWER('" + album_name + "%'))"
+	rows, err := m.DB.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -334,17 +333,16 @@ func (m *postgresDBRepo) GetSongsFromAlbum(album_name string) ([]models.Song, er
 	}(rows)
 
 	for rows.Next() {
-		var song models.Song
-
-		rows.Scan(&song.Song_id, &song.Artist_id)
+		var songInfo models.DisplaySongInfo
+		rows.Scan(&songInfo.Likes, &songInfo.Dislikes, &songInfo.SongID, &songInfo.Title, &songInfo.Artist, &songInfo.Album, &songInfo.UploadedDate, &songInfo.SongPath, &songInfo.CoverPath, &songInfo.ArtistID, &songInfo.AlbumID)
 
 		if err != nil {
-			return nil, err
+			log.Println("Cannot scan row")
+			return songsInfo, err
 		}
-
-		songs = append(songs, song)
+		songsInfo = append(songsInfo, songInfo)
 	}
-	return songs, nil
+	return songsInfo, nil
 }
 
 func (m *postgresDBRepo) GetSongsByName(song_name string) ([]models.Song, error) {
