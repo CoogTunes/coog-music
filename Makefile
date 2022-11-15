@@ -1,8 +1,8 @@
 run:
 	go run ./cmd/web/.
 migrateup:
-	migrate -path db/migration -database "postgresql://root:dummypassword@localhost:5432/music?sslmode=disable" -verbose up
+	migrate -path db/migration -database "postgresql://postgres:coog2022@coogtune.ccpw7qggmv2b.us-east-2.rds.amazonaws.com:5433/music?sslmode=disable" -verbose up
 
 migratedown:
-	migrate -path db/migration -database "postgresql://root:dummypassword@localhost:5432/music?sslmode=disable" -verbose down
+	migrate -path db/migration -database "postgresql://postgres:coog2022@coogtune.ccpw7qggmv2b.us-east-2.rds.amazonaws.com:5433/music?sslmode=disable" -verbose down
 .PHONY: run migrateup migratedown
