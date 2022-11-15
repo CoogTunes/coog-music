@@ -118,10 +118,10 @@ type DisplaySongInfo struct {
 	AlbumID      int
 }
 
-type Messages struct{
-	User_id		 int
-	Message		 string
+type Messages struct {
+	User_id      int
+	Message      string
 	Created_date string
-	isRead		 bool
-	message_id	 int
+	IsRead       bool
+	Message_id   int
 }

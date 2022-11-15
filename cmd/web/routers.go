@@ -65,6 +65,7 @@ func routes() http.Handler {
 
 	// Like Page
 	mux.Get("/user/song/likes", handlers.Repo.GetSongsForLikePage)
+	mux.Put("/messages", handlers.Repo.UpdateMessages)
 
 	// Playlist
 	mux.Get("/playlist/search/", handlers.Repo.PlaylistSearch)

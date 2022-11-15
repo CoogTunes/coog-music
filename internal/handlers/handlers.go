@@ -841,6 +841,13 @@ func (m *Repository) AddOrUpdateLikeValue(w http.ResponseWriter, r *http.Request
 	}
 }
 
+func (m *Repository) UpdateMessages(w http.ResponseWriter, r *http.Request) {
+	// messages, err := m.DB.UpdateMessages(UserCache.User_id)
+	messages, err := m.DB.UpdateMessages(25)
+	returnAsJSON(messages, w, err)
+
+}
+
 // REPORTS
 func (m *Repository) GetLikesReport(w http.ResponseWriter, r *http.Request) {
 

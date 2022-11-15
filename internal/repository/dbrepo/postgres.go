@@ -348,8 +348,8 @@ func (m *postgresDBRepo) GetSongsFromAlbum(album_name string) ([]models.DisplayS
 func (m *postgresDBRepo) GetSongsByName(song_name string) ([]models.Song, error) {
 	var songs []models.Song
 
-	// query := `select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name 
-	// from album as al, artist as ar, song as s 
+	// query := `select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name
+	// from album as al, artist as ar, song as s
 	// where s.title = $1 and s.artist_id = al.artist_id and s.artist_id = ar.artist_id`
 
 	query := "select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as al, artist as ar, song as s where LOWER(s.title) LIKE LOWER ('" + song_name + "%') and s.artist_id = al.artist_id and s.artist_id = ar.artist_id"
@@ -940,27 +940,27 @@ func (m *postgresDBRepo) GetSongReport(minDate string, maxDate string, min_plays
 	return songReport, nil
 }
 
-func(m *postgresDBRepo) CheckMessages(user_id int)([]models.Messages, error){
+func (m *postgresDBRepo) UpdateMessages(user_id int) ([]models.Messages, error) {
 	var messages []models.Messages
 
-	checkQuery := "SELECT * FROM MESSAGES WHERE user_id = $1 AND isRead = FALSE"
+	checkQuery := `UPDATE MESSAGES SET isRead = TRUE WHERE user_id = $1 and isRead = FALSE RETURNING *`
 	rows, err := m.DB.Query(checkQuery, user_id)
-	if err != nil{
+	if err != nil {
 		log.Println(err)
 	}
 
-	defer func(rows *sql.Rows){
+	defer func(rows *sql.Rows) {
 		err := rows.Close()
-		if err != nil{
+		if err != nil {
 			log.Println(err)
 		}
 	}(rows)
 
-	for rows.Next(){
+	for rows.Next() {
 		var currentMessage models.Messages
-		err := rows.Scan(&currentMessage.User_id, &currentMessage.Message, &currentMessage.Created_date)
+		err := rows.Scan(&currentMessage.User_id, &currentMessage.Message, &currentMessage.Created_date, &currentMessage.IsRead, &currentMessage.Message_id)
 
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 		messages = append(messages, currentMessage)
@@ -969,15 +969,15 @@ func(m *postgresDBRepo) CheckMessages(user_id int)([]models.Messages, error){
 
 }
 
-func(m *postgresDBRepo) UpdateMessage(user_id int)(error){
-	updateQuery := "UPDATE MESSAGES SET isRead = TRUE WHERE user_id = $1 and isRead = FALSE"
+// func (m *postgresDBRepo) UpdateMessage(user_id int) error {
+// 	updateQuery := "UPDATE MESSAGES SET isRead = TRUE WHERE user_id = $1 and isRead = FALSE"
 
-	_, err := m.DB.Exec(updateQuery, user_id)
-	if err != nil{
-		log.Println(err)
-	}
-	return nil
-}
+// 	_, err := m.DB.Exec(updateQuery, user_id)
+// 	if err != nil {
+// 		log.Println(err)
+// 	}
+// 	return nil
+// }
 
 //add like function to increment in song
 //search function for album, artist, playlist, get every song under these params
