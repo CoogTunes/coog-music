@@ -32,6 +32,17 @@ img {
     border: none;
 }
 
+table,
+thead,
+tbody,
+tfoot,
+tr,
+th,
+td {
+    padding: 0;
+    border-spacing: 0;
+}
+
 /* ===== Scrollbar CSS ===== */
 /* Firefox */
 * {
@@ -726,6 +737,8 @@ body.index-home .song_side-wrapper {
     width: 100%;
     height: 1px;
     background: #131313;
+    margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 .gradient-container {
@@ -858,6 +871,33 @@ section .song_side .content p {
     margin-left: 5px;
     color: #c10d40;
 }
+
+.my-playlist-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.playlist-item-title {
+    font-size: 14px;
+    display: flex;
+    padding: 15px 0px;
+    flex: 1 auto;
+}
+
+.playlist-item > * {
+    transition: 0.3s all ease-out;
+}
+
+.playlist-item:hover > * {
+    color:rgb(231, 10, 73);
+}
+
+.playlist-item {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
 
 .content-img {
     position: relative;
@@ -1306,6 +1346,85 @@ input[type="range"]:focus::-moz-range-thumb {
 
 .temp-playlist-wrapper .search-item:first-child {
     margin-top: 40px;
+}
+
+.playlist-item.playlist-view-trigger i {
+    font-size: 12px;
+}
+
+.index-view .current-banner {
+    width: 100%;
+    margin-bottom: 30px;
+    border-radius: 5px;
+    max-height: 600px;
+    height: 100%;
+}
+
+.index-view .current-banner img {
+    border-radius: unset;
+    height: 100%;
+    object-fit: cover;
+}
+
+table.playlist-table-container {
+    width: 100%;
+    padding: 20px 40px;
+}
+
+table.playlist-table-container th {
+    text-align: left;
+    padding: 10px 15px;
+}
+
+tr.table-song-item {
+    cursor: pointer;
+    transition: 0.5s all ease-out;
+}
+
+tr.table-song-item td {
+    transition: 0.5s all ease-out;
+    padding: 0px 15px;
+}
+
+tr.table-song-item:hover {
+    background: #1c1c1c;
+}
+
+tr.table-song-item:hover td {
+    background: #1c1c1c;
+}
+
+.playlist-img-contain {
+    width: 40px;
+}
+
+.playlist-item-flex {
+    display: flex;
+    align-items: center;
+    padding: 5px 0px;
+}
+
+.song-info-item {
+    padding-left: 15px;
+}
+
+.playlist-item-flex.content-wrapper {
+    background: unset;
+    border: none;
+}
+
+.content-wrapper .buttons.playlist {
+    margin-top: unset !important;
+    bottom: unset;
+}
+
+.master-song-info {
+    color: white;
+    padding-left: 15px;
+}
+
+.master-song-artist {
+    color: #868686;
 }
 
 @keyframes fadeOutHide {

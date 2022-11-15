@@ -105,10 +105,23 @@ type ArtistReport struct {
 }
 
 type DisplaySongInfo struct {
-	SongPath   string
-	CoverPath  string
-	Title      string
-	PlaylistID int
-	AlbumID    int
-	ArtistID   int
+	SongPath     string
+	CoverPath    string
+	Title        string
+	SongID       int
+	Album        string
+	Artist       string
+	Likes        int
+	Dislikes     int
+	UploadedDate string
+	ArtistID     int
+	AlbumID      int
+}
+
+type Messages struct{
+	User_id		 int
+	Message		 string
+	Created_date string
+	isRead		 bool
+	message_id	 int
 }

@@ -28,9 +28,9 @@ type DatabaseRepo interface {
 	//SearchAlbums(album_name string) ([]models.Album, error)
 	//SearchArtists(artist_name string) ([]models.Artist, error)
 	GetSongsByName(song_name string) ([]models.Song, error)
-	GetSongsFromPlaylist(playlist_name string) ([]models.DisplaySongInfo, error)
-	GetSongsFromArtist(artist_name string) ([]models.Song, error)
-	GetSongsFromAlbum(album_name string) ([]models.Song, error)
+	GetSongsFromPlaylist(playlist_id int) ([]models.DisplaySongInfo, error)
+	GetSongsFromArtist(artist_name string) ([]models.DisplaySongInfo, error)
+	GetSongsFromAlbum(album_name string) ([]models.DisplaySongInfo, error)
 	GetSongsForLikePage(userId int) ([]models.LikesReport, error)
 
 	GetNumberOfUsers() (models.Users, error)
@@ -41,6 +41,10 @@ type DatabaseRepo interface {
 	Follow(artistId int, userId int) (models.Followers, error) //add
 	Authenticate(email string, password string) (models.Users, error)
 	AddOrUpdateLikeValue(islike bool, songId int, userId int) error
+	CheckMessages(user_id int)([]models.Messages, error)
+	UpdateMessage(user_id int)(error)
+
+
 
 	UpdateUser(user models.Users) (models.Users, error)
 	UpdateSong(song models.Song) (models.Song, error)
@@ -59,4 +63,5 @@ type DatabaseRepo interface {
 	GetUsersReport(minDate string, maxDate string) ([]models.UserReport, error)
 	GetArtistReport(minDate string, maxDate string) ([]models.ArtistReport, error)
 	GetSongReport(minDate string, maxDate string, min_plays int, max_plays int) ([]models.Song, error)
+
 }

@@ -256,17 +256,14 @@ func (m *postgresDBRepo) GetSongsForLikePage(userId int) ([]models.LikesReport, 
 	return songs, err
 }
 
-func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_name string) ([]models.DisplaySongInfo, error) {
+func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_id int) ([]models.DisplaySongInfo, error) {
 	var songsInfo []models.DisplaySongInfo
 
-	query := `SELECT s.song_path, s.title, s.cover_path, p.playlist_id, al.name, ar.name
-	FROM ALBUM as al, ARTIST AS ar, SONG AS s 
-    FULL OUTER JOIN SONGPLAYLIST AS sp ON s.song_id = sp.song_id
-	FULL OUTER JOIN PLAYLIST as p ON sp.playlist_id = p.playlist_id
-	WHERE LOWER(p.name) LIKE LOWER('%$1%') AND ar.artist_id = s.artist_id
+	query := `select * from likes_view where likes_view.song_id in (select songplaylist.song_id from songplaylist where songplaylist.playlist_id = $1)
 	`
-	rows, err := m.DB.Query(query, playlist_name)
+	rows, err := m.DB.Query(query, playlist_id)
 	if err != nil {
+		log.Println("Cannot execute query")
 		return songsInfo, err
 	}
 
@@ -279,21 +276,22 @@ func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_name string) ([]models.Di
 
 	for rows.Next() {
 		var songInfo models.DisplaySongInfo
-		rows.Scan(&songInfo.SongPath, &songInfo.Title, &songInfo.CoverPath, &songInfo.PlaylistID, &songInfo.AlbumID, &songInfo.ArtistID)
+		rows.Scan(&songInfo.Likes, &songInfo.Dislikes, &songInfo.SongID, &songInfo.Title, &songInfo.Artist, &songInfo.Album, &songInfo.UploadedDate, &songInfo.SongPath, &songInfo.CoverPath, &songInfo.ArtistID, &songInfo.AlbumID)
 
 		if err != nil {
+			log.Println("Cannot scan row")
 			return songsInfo, err
 		}
 		songsInfo = append(songsInfo, songInfo)
 	}
-	return songsInfo, err
+	return songsInfo, nil
 }
 
-func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.Song, error) {
-	var songs []models.Song
+func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.DisplaySongInfo, error) {
+	var songsInfo []models.DisplaySongInfo
 
-	query := "select * from Song where artist_id in (SELECT artist_id from artist where name like %$1%)"
-	rows, err := m.DB.Query(query, artist_name)
+	query := "select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as al, artist as ar, song as s WHERE LOWER(ar.name) like LOWER('" + artist_name + "%'))"
+	rows, err := m.DB.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -306,24 +304,23 @@ func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.Song, 
 	}(rows)
 
 	for rows.Next() {
-		var song models.Song
-
-		rows.Scan(&song.Song_id, &song.Artist_id)
+		var songInfo models.DisplaySongInfo
+		rows.Scan(&songInfo.Likes, &songInfo.Dislikes, &songInfo.SongID, &songInfo.Title, &songInfo.Artist, &songInfo.Album, &songInfo.UploadedDate, &songInfo.SongPath, &songInfo.CoverPath, &songInfo.ArtistID, &songInfo.AlbumID)
 
 		if err != nil {
-			return nil, err
+			log.Println("Cannot scan row")
+			return songsInfo, err
 		}
-
-		songs = append(songs, song)
+		songsInfo = append(songsInfo, songInfo)
 	}
-	return songs, nil
+	return songsInfo, nil
 }
 
-func (m *postgresDBRepo) GetSongsFromAlbum(album_name string) ([]models.Song, error) {
-	var songs []models.Song
+func (m *postgresDBRepo) GetSongsFromAlbum(album_name string) ([]models.DisplaySongInfo, error) {
+	var songsInfo []models.DisplaySongInfo
 
-	query := "select song from albumsong, song where albumsong.album_id in (SELECT album_id from album where name like %$1%)"
-	rows, err := m.DB.Query(query, album_name)
+	query := "select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as al, artist as ar, song as s LOWER(al.name) LIKE LOWER('" + album_name + "%'))"
+	rows, err := m.DB.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -336,24 +333,28 @@ func (m *postgresDBRepo) GetSongsFromAlbum(album_name string) ([]models.Song, er
 	}(rows)
 
 	for rows.Next() {
-		var song models.Song
-
-		rows.Scan(&song.Song_id, &song.Artist_id)
+		var songInfo models.DisplaySongInfo
+		rows.Scan(&songInfo.Likes, &songInfo.Dislikes, &songInfo.SongID, &songInfo.Title, &songInfo.Artist, &songInfo.Album, &songInfo.UploadedDate, &songInfo.SongPath, &songInfo.CoverPath, &songInfo.ArtistID, &songInfo.AlbumID)
 
 		if err != nil {
-			return nil, err
+			log.Println("Cannot scan row")
+			return songsInfo, err
 		}
-
-		songs = append(songs, song)
+		songsInfo = append(songsInfo, songInfo)
 	}
-	return songs, nil
+	return songsInfo, nil
 }
 
 func (m *postgresDBRepo) GetSongsByName(song_name string) ([]models.Song, error) {
 	var songs []models.Song
 
-	query := "select a.name, a.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as a, artist as ar, song as s where title = $1 and s.artist_id = a.artist_id and s.artist_id = ar.artist_id"
-	rows, err := m.DB.Query(query, song_name)
+	// query := `select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name 
+	// from album as al, artist as ar, song as s 
+	// where s.title = $1 and s.artist_id = al.artist_id and s.artist_id = ar.artist_id`
+
+	query := "select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as al, artist as ar, song as s where LOWER(s.title) LIKE LOWER ('" + song_name + "%') and s.artist_id = al.artist_id and s.artist_id = ar.artist_id"
+
+	rows, err := m.DB.Query(query)
 	if err != nil {
 		log.Println("Cannot get any rows")
 		return nil, err
@@ -937,6 +938,45 @@ func (m *postgresDBRepo) GetSongReport(minDate string, maxDate string, min_plays
 		songReport = append(songReport, currentRow)
 	}
 	return songReport, nil
+}
+
+func(m *postgresDBRepo) CheckMessages(user_id int)([]models.Messages, error){
+	var messages []models.Messages
+
+	checkQuery := "SELECT * FROM MESSAGES WHERE user_id = $1 AND isRead = FALSE"
+	rows, err := m.DB.Query(checkQuery, user_id)
+	if err != nil{
+		log.Println(err)
+	}
+
+	defer func(rows *sql.Rows){
+		err := rows.Close()
+		if err != nil{
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next(){
+		var currentMessage models.Messages
+		err := rows.Scan(&currentMessage.User_id, &currentMessage.Message, &currentMessage.Created_date)
+
+		if err != nil{
+			return nil, err
+		}
+		messages = append(messages, currentMessage)
+	}
+	return messages, nil
+
+}
+
+func(m *postgresDBRepo) UpdateMessage(user_id int)(error){
+	updateQuery := "UPDATE MESSAGES SET isRead = TRUE WHERE user_id = $1 and isRead = FALSE"
+
+	_, err := m.DB.Exec(updateQuery, user_id)
+	if err != nil{
+		log.Println(err)
+	}
+	return nil
 }
 
 //add like function to increment in song

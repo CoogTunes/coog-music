@@ -1,6 +1,6 @@
 class audioItem {
-  constructor(id, audio, time, playBtn, duration) {
-    this.id = id;
+  constructor(path, audio, time, playBtn, duration) {
+    this.audioPath = path;
     this.audio = audio;
     this.currentTime = time;
     this.playButton = playBtn;
@@ -15,8 +15,8 @@ class audioItem {
     return this.playButton;
   }
 
-  getID() {
-    return this.id;
+  getPath() {
+    return this.audioPath;
   }
 
   getDuration() {
@@ -237,20 +237,29 @@ function musicManager() {
     let playButton = elem;
     let musicState = isPlaying(playButton);
     let base_url = window.location.origin;
-    let audioID = playButton
+    let audioPath = playButton
         .closest(".content-wrapper")
-        .getAttribute("data-music-id");
-    let targetAudio = new Audio(base_url + musicManagerTest[audioID]);
+        .getAttribute("data-audio-path");
+    let targetAudio = new Audio(base_url + audioPath.replace('.',''));
     if (musicState == "paused") {
-      if (currentAudio.getID() == null) {
+      if (currentAudio.getPath() == null) {
         currentAudio = new audioItem(
-            audioID,
+            audioPath,
             targetAudio,
             targetAudio.currentTime,
             playButton,
             0
         );
         playControlPanel();
+        masterPlaySongInfo();
+      }
+      else if(currentAudio.getPath() != audioPath){
+        currentAudio.getAudio().pause();
+        // currentAudio.getPlayButton().firstElementChild.setAttribute('src', playSrc);
+        currentAudio.getPlayButton().parentElement.setAttribute('data-music-state', 'paused');
+        currentAudio = new audioItem(audioPath, targetAudio, targetAudio.currentTime, playButton, 0);
+        // timelineControlPanel.resetHandler();
+        masterPlaySongInfo();
       }
       currentAudio.getAudio().play();
       wave.classList.toggle('active2');
@@ -280,6 +289,15 @@ function musicManager() {
         : musicState == "paused"
             ? "paused"
             : "error";
+  }
+
+  function masterPlaySongInfo(){
+    let masterPlaycover = document.querySelector('.master-play-cover');
+    let masterSongName = document.querySelector('.master-song-title');
+    let masterArtistName = document.querySelector('.master-song-artist');
+    masterPlaycover.setAttribute('src', currentAudio.getParent().querySelector('.audio-cover img').src);
+    masterArtistName.innerHTML = currentAudio.getParent().querySelector('.song-info-artist').innerHTML;
+    masterSongName.innerHTML = currentAudio.getParent().querySelector('.song-info-title').innerHTML;
   }
 
   function playControlPanel() {
