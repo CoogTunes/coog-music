@@ -3,6 +3,7 @@ package dbrepo
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 
@@ -288,10 +289,10 @@ func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_id int) ([]models.Song, e
 	return songsInfo, nil
 }
 
-func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.DisplaySongInfo, error) {
-	var songsInfo []models.DisplaySongInfo
-
-	query := "select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as al, artist as ar, song as s WHERE LOWER(ar.name) like LOWER('" + artist_name + "%'))"
+func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.Song, error) {
+	var songsInfo []models.Song
+	fmt.Println(artist_name, "artist name")
+	query := "select * from likes_view where LOWER(likes_view.artist_name) LIKE LOWER('" + artist_name + "%')"
 	rows, err := m.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -305,14 +306,15 @@ func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.Displa
 	}(rows)
 
 	for rows.Next() {
-		var songInfo models.DisplaySongInfo
-		rows.Scan(&songInfo.Likes, &songInfo.Dislikes, &songInfo.SongID, &songInfo.Title, &songInfo.Artist, &songInfo.Album, &songInfo.UploadedDate, &songInfo.SongPath, &songInfo.CoverPath, &songInfo.ArtistID, &songInfo.AlbumID)
+		var currentRow models.Song
+		rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id,
+			&currentRow.SongPath, &currentRow.CoverPath, &currentRow.Uploaded_date, &currentRow.Total_plays, &currentRow.Duration, &currentRow.Artist_name, &currentRow.Album)
 
 		if err != nil {
 			log.Println("Cannot scan row")
 			return songsInfo, err
 		}
-		songsInfo = append(songsInfo, songInfo)
+		songsInfo = append(songsInfo, currentRow)
 	}
 	return songsInfo, nil
 }

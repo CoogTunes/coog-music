@@ -469,10 +469,17 @@ func (m *Repository) PlaylistSearch(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Cannot get songs!")
 		}
+
 		returnAsJSON(albumInfo, w, err)
 		return
-	} else {
+	} else if filter == "artist" {
+		albumInfo, err := m.DB.GetSongsFromArtist(decodedValue)
+		if err != nil {
+			log.Println("Cannot get songs!")
+		}
 
+		returnAsJSON(albumInfo, w, err)
+		return
 	}
 }
 
