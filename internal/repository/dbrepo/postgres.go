@@ -391,7 +391,7 @@ func (m *postgresDBRepo) GetSongsByName(song_name string) ([]models.Song, error)
 
 func (m *postgresDBRepo) GetTopSongs() ([]models.Song, error) {
 	var songs []models.Song
-	query := "select s.title, s.duration, s.song_path, s.cover_path,  ar.name, al.name, s.total_plays from song as s, artist as ar, album as al where s.artist_id = ar.artist_id AND s.album_id = al.album_id order by s.total_plays desc Fetch first 14 rows only"
+	query := "select * from likes_view order by total_plays desc Fetch first 14 rows only"
 	rows, err := m.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -405,14 +405,15 @@ func (m *postgresDBRepo) GetTopSongs() ([]models.Song, error) {
 	}(rows)
 
 	for rows.Next() {
-		var song models.Song
-		rows.Scan(&song.Title, &song.Duration, &song.SongPath, &song.CoverPath, &song.Artist_name, &song.Album, &song.Total_plays)
-		log.Println(song.SongPath)
+		var currentRow models.Song
+		rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id,
+			&currentRow.SongPath, &currentRow.CoverPath, &currentRow.Uploaded_date, &currentRow.Total_plays, &currentRow.Duration, &currentRow.Artist_name, &currentRow.Album)
+		log.Println(currentRow.SongPath)
 		if err != nil {
 			return nil, err
 		}
 
-		songs = append(songs, song)
+		songs = append(songs, currentRow)
 	}
 	return songs, nil
 
