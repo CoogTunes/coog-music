@@ -167,7 +167,7 @@ func (m *Repository) GetHome(w http.ResponseWriter, r *http.Request) {
 		UserData: UserCache,
 	})
 	m.GetTopSongs(w, r)
-	m.GetPlaylistsByID(w, r)
+	// m.GetPlaylistsByID(w, r)
 }
 func (m *Repository) GetTopSongs(w http.ResponseWriter, r *http.Request) {
 	topSongs, err := m.DB.GetTopSongs()
