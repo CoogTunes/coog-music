@@ -28,7 +28,7 @@ type DatabaseRepo interface {
 	//SearchAlbums(album_name string) ([]models.Album, error)
 	//SearchArtists(artist_name string) ([]models.Artist, error)
 	GetSongsByName(song_name string) ([]models.Song, error)
-	GetSongsFromPlaylist(playlist_id int) ([]models.DisplaySongInfo, error)
+	GetSongsFromPlaylist(playlist_id int) ([]models.Song, error)
 	GetSongsFromArtist(artist_name string) ([]models.DisplaySongInfo, error)
 	GetSongsFromAlbum(album_name string) ([]models.DisplaySongInfo, error)
 	GetSongsForLikePage(userId int) ([]models.Song, error)
@@ -45,7 +45,7 @@ type DatabaseRepo interface {
 	// UpdateMessage(user_id int)(error)
 
 	UpdateUser(user models.Users) (models.Users, error)
-	UpdateSong(song models.Song) (models.Song, error)
+	// UpdateSong(song models.Song) (models.Song, error)
 	UpdateSongCount(song models.Song) (models.Song, error)
 	UpdateArtist(artist models.Artist) (models.Artist, error)
 

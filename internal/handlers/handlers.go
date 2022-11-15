@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -299,14 +300,14 @@ func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
 	fullSongPath := songPath + "/" + fhSong.Filename
 	coverFile.Close()
 	dst.Close()
-	x := getMp3Duration(fullSongPath)
+	duration := getMp3Duration(fullSongPath)
 
 	songInfo := models.Song{
 		Title:     songName,
 		Artist_id: UserCache.User_id,
 		CoverPath: fullCoverPath,
 		SongPath:  fullSongPath,
-		Duration:  int(x),
+		Duration:  duration,
 	}
 	fmt.Println(songInfo)
 	err = m.DB.AddSong(songInfo)
@@ -427,7 +428,7 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 			CoverPath: fullCoverPath,
 			Artist_id: UserCache.User_id,
 			Album_id:  albumDBInfo.Album_id,
-			Duration:  int(duration),
+			Duration:  duration,
 		}
 		err = m.DB.AddSongForAlbum(songInfo)
 		if err != nil {
@@ -971,14 +972,14 @@ func splitName(titleName string) string {
 	return newString
 }
 
-func getMp3Duration(path string) float64 {
+func getMp3Duration(path string) string {
 
 	r, err := os.Open(path)
 	if err != nil {
 		fmt.Println(err)
 		// return  err
 	}
-	t := 0.0
+	tFloat := 0.0
 
 	d := mp3.NewDecoder(r)
 	var f mp3.Frame
@@ -993,9 +994,16 @@ func getMp3Duration(path string) float64 {
 			fmt.Println(err)
 		}
 
-		t = t + f.Duration().Seconds()
+		tFloat = tFloat + f.Duration().Seconds()
 	}
 	r.Close()
-	fmt.Println(`duration`, t)
-	return t
+	fmt.Println(`duration`, tFloat)
+	t := int(tFloat)
+	// min := int(math.Floor(tFloat / 60))
+	// sec := t % 60
+	minString := fmt.Sprint(math.Floor(tFloat / 60))
+	secString := fmt.Sprint(t % 60)
+	minsec := minString + ":" + secString
+	fmt.Println(minsec)
+	return minsec
 }

@@ -23,7 +23,7 @@ type Song struct {
 	Album_id      int
 	Total_plays   int
 	Artist_name   string
-	Duration      int
+	Duration      string
 }
 
 type Artist struct {
