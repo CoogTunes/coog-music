@@ -842,8 +842,7 @@ func (m *Repository) AddOrUpdateLikeValue(w http.ResponseWriter, r *http.Request
 }
 
 func (m *Repository) UpdateMessages(w http.ResponseWriter, r *http.Request) {
-	// messages, err := m.DB.UpdateMessages(UserCache.User_id)
-	messages, err := m.DB.UpdateMessages(25)
+	messages, err := m.DB.UpdateMessages(UserCache.User_id)
 	returnAsJSON(messages, w, err)
 
 }
