@@ -817,16 +817,14 @@ func (m *postgresDBRepo) AddOrUpdateLikeValue(islike bool, songId int, userId in
 }
 
 // REPORTS
-func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int, minDislikes int, maxDislikes int) ([]models.Song, error) {
+func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int) ([]models.Song, error) {
 	var likesReport []models.Song
 	query := `select * from likes_view 
 				where likes_view.likes >= $1
 				AND likes_view.likes <= $2
-				AND likes_view.dislikes >= $3
-				AND likes_view.dislikes <= $4
 				ORDER BY likes_view.likes DESC`
 
-	rows, err := m.DB.Query(query, minLikes, maxLikes, minDislikes, maxDislikes)
+	rows, err := m.DB.Query(query, minLikes, maxLikes)
 	if err != nil {
 		log.Println(err)
 	}
@@ -850,6 +848,34 @@ func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int, minDislikes 
 		likesReport = append(likesReport, currentRow)
 	}
 	return likesReport, nil
+}
+
+func (m *postgresDBRepo) GetInitialUsersReport() ([]models.UserReport, error) {
+	var usersReport []models.UserReport
+	query := `select * from usersreport FETCH FIRST 14 ROWS ONLY`
+	rows, err := m.DB.Query(query)
+	if err != nil {
+		log.Println(err)
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		var currentRow models.UserReport
+
+		err := rows.Scan(&currentRow.User_id, &currentRow.Username, &currentRow.First_name, &currentRow.Last_name, &currentRow.Admin_level, &currentRow.JoinedDate, &currentRow.Playlist_count)
+
+		if err != nil {
+			return nil, err
+		}
+		usersReport = append(usersReport, currentRow)
+	}
+	return usersReport, nil
 }
 
 func (m *postgresDBRepo) GetUsersReport(minDate string, maxDate string) ([]models.UserReport, error) {

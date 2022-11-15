@@ -1,6 +1,7 @@
 import {ajaxGetHandler, ajaxPostHandler} from './ajax.js';
 import {search} from './search.js';
 import {templateReplace} from './razer.js';
+import {updateViewPlaylist} from "./updateView.js";
 
 class playListAddManager {
     constructor() {
@@ -50,10 +51,38 @@ class playListAddManager {
 
 }
 
+function getPlayListTemplate() {
+    let tableHeaders = `<thead><tr>
+    <th>Title</th>
+    <th>Album</th>
+    <th>Date Added</th>
+    <th></th>
+    <th>Time</th>
+  </tr></thead>`;
+    let playListTemplate = `<div class="current-banner">
+                                <img src="/static/img/abstract-1.jpg">
+                                   <div class="playlist-view-wrapper">
+                                        <div class="playlist-view-info">
+                                            <div class="playlist-view-left">
+                                                <div class="playlist-view-cover"></div>
+                                            </div>               
+                                            <div class="playlist-view-right">
+                                                <div class="playlist-view-type">PUBLIC PLAYLIST</div>
+                                                <div class="playlist-view-name">{{viewName}}</div>
+                                                <div class="playlist-view-extra"><span class="playlist-user">{{User}}</span><span class="playlist-song-count">{{song-count}}</span><span class="playlist-total-time">{{total-time}}</span></div>
+                                           </div>                 
+                                        </div>
+                                   </div>
+                            </div>
+                            <table class="playlist-table-container">${tableHeaders}{{table-content}}</table>
+                            `;
+    return playListTemplate;
+}
 
 // * Playlist Add Control
 function playListControl() {
     let searchHelper = document.querySelector('.search-modal-helper');
+    let playListContainer = document.querySelector('.search-container.playlist');
     let addPlaylistManager = new playListAddManager();
     let addPlaylist = document.querySelector('.create-btn');
     let tempListWrapper = document.querySelector('.temp-playlist-wrapper');
@@ -62,7 +91,7 @@ function playListControl() {
     let mainView = document.querySelector('.music-manager-container');
     let bodyContainer = document.body;
 
-    playListSearch.addEventListener('click', function (evt) {
+    playListContainer.addEventListener('click', function (evt) {
         searchHelper.classList.add('show');
     });
 
@@ -85,7 +114,10 @@ function playListControl() {
         } else if (target.parentElement.classList.contains('playlist-view-trigger')) {
             let targetElement = target.parentElement;
             let playlistID = targetElement.getAttribute("data-playlist-id");
-            loadPlaylistIntoView(playlistID);
+            if(mainView.classList.contains('show-animation')){
+                mainView.classList.remove('show-animation');
+            }
+            loadPlaylistIntoView(playlistID, targetElement.getAttribute('data-view-name'));
         }
     });
 
@@ -131,81 +163,25 @@ function playListControl() {
                 "{{playlist-id}}": entry.Playlist_id,
                 "{{playlist-name}}": entry.Name
             }
-            let playListTemplate = `<div class="playlist-item playlist-view-trigger" data-playlist-id="{{playlist-id}}">
+            let playListTemplate = `<div class="playlist-item playlist-view-trigger" data-playlist-id="{{playlist-id}}" data-view-name="{{playlist-name}}">
             <span class="playlist-item-title">{{playlist-name}}</span>
             <i class="bi bi-chevron-double-right"></i>
         </div>`;
 
             playListTemplate = templateReplace(playListTemplate, mapObj);
-            appendToElem.insertAdjacentHTML('beforeend', playListTemplate);
+                appendToElem.insertAdjacentHTML('beforeend', playListTemplate);
         });
-    }
-
-    // * Update View with Playlist
-    function updateView(data, viewContainer){
-        viewContainer.innerHTML = '';
-
-        // Create elements
-        let currentBanner = document.createElement('div');
-        let songTable = document.createElement('table');
-
-
-        // Assign needed classes and components
-        currentBanner.classList.add('current-banner');
-        currentBanner.innerHTML = '<img src="/static/img/abstract-1.jpg">';
-        songTable.classList.add('playlist-table-container');
-        let tableHeaders = `<tr>
-    <th>Title</th>
-    <th>Album</th>
-    <th>Date Added</th>
-    <th></th>
-    <th>Time</th>
-  </tr>`;
-        songTable.insertAdjacentHTML('beforeend', tableHeaders);
-
-        // Fill the Table with Songs
-        data.forEach((entry) => {
-            let songItem = `<tr class="table-song-item">
-    <td><div class="playlist-item-flex content-wrapper" data-audio-path="{{audio}}" data-music-state="paused"><div class="playlist-img-contain audio-cover"><img src="{{cover}}"></div><div class="song-info-item"><div class="song-info-title">{{song}}</div><div class="song-info-artist">{{artist}}</div></div><div class="buttons playlist">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div></div></td>
-    <td>{{album}}</td>
-    <td>{{date}}</td>
-    <td>{{likes}}</td>
-  </tr>`;
-            const mapObj = {
-                "{{song}}": entry.Title,
-                "{{album}}": entry.Album,
-                "{{artist}}": entry.Artist,
-                "{{date}}": entry.UploadedDate,
-                "{{dislikes}}": entry.Dislikes,
-                "{{likes}}": entry.Likes,
-                "{{cover}}": entry.CoverPath,
-                "{{audio}}": entry.SongPath,
-            }
-            songItem = templateReplace(songItem, mapObj);
-            songTable.insertAdjacentHTML('beforeend', songItem);
-        });
-
-        // Add Elements To Main View & Update Body View
-        if(bodyContainer.classList.contains('index-home')){
-            bodyContainer.classList.remove('index-home');
-            bodyContainer.classList.add('index-view');
-        }
-
-        mainView.append(currentBanner);
-        mainView.append(songTable);
     }
 
     // * Load User Playlist Into View
-    function loadPlaylistIntoView(playlistID) {
+    function loadPlaylistIntoView(playlistID, viewName) {
         console.log('Loading Playlist Into View...');
         let data = new URLSearchParams({
             id: playlistID,
         });
         ajaxGetHandler('/loadPlaylist?' + data).then((data) => {
             console.log(data);
-            updateView(data, mainView);
+            updateViewPlaylist(data, mainView, viewName, bodyContainer, getPlayListTemplate());
         }).catch((error) => {
             console.log("Error trying to Load Playlist Into View...");
             console.log(error);
@@ -215,4 +191,6 @@ function playListControl() {
 
 window.addEventListener('DOMContentLoaded', function (evt) {
     playListControl();
+
+
 });
