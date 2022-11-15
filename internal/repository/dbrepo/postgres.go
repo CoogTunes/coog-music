@@ -320,7 +320,7 @@ func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.Displa
 func (m *postgresDBRepo) GetSongsFromAlbum(album_name string) ([]models.DisplaySongInfo, error) {
 	var songsInfo []models.DisplaySongInfo
 
-	query := "select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as al, artist as ar, song as s LOWER(al.name) LIKE LOWER('" + album_name + "%'))"
+	query := "select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as al, artist as ar, song as s WHERE LOWER(al.name) LIKE LOWER('" + album_name + "%')"
 	rows, err := m.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -355,7 +355,7 @@ func (m *postgresDBRepo) GetSongsByName(song_name string) ([]models.Song, error)
 
 	// query := "select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as al, artist as ar, song as s where LOWER(s.title) LIKE LOWER ('" + song_name + "%') and s.artist_id = al.artist_id and s.artist_id = ar.artist_id"
 
-	query := "select * from likes_view where  LOWER(likes_view.title) LIKE LOWER ('" + song_name + "%')"
+	query := "select * from likes_view where  LOWER(likes_view.song_title) LIKE LOWER ('" + song_name + "%')"
 	rows, err := m.DB.Query(query)
 	if err != nil {
 		log.Println("Cannot get any rows")

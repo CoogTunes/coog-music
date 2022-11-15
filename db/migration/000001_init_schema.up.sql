@@ -36,7 +36,7 @@ CREATE TABLE Song (
                         cover_path varchar,
                         uploaded_date date DEFAULT 'now()',
                         total_plays bigint DEFAULT 0,
-                        Duration   varchar(5),
+                        duration varchar(5),
                         -- total_likes bigint default 0, Getting this through count()
                         PRIMARY KEY (song_id, artist_id)
 );
