@@ -16,11 +16,11 @@
             <img class="logo-limit" src="/static/img/cootune-logo-sizeds.png" />
           </div>
           <div class="playlist">
-            <h4 class="active">
+            <h4 class="active page-load-trigger home" data-page-index="home" data-view-name="home">
               <i class="bi bi-front"></i>
               <span>Home</span>
             </h4>
-            <h4 class="active">
+            <h4 class="active page-load-trigger" data-page-index="discover">
               <i class="bi bi-vinyl"></i>
               <span>Discover</span>
             </h4>
@@ -65,13 +65,20 @@
             <ul>
               <li><i class="bi bi-chevron-double-left"></i></li>
               <li><i class="bi bi-chevron-double-right"></i></li>
-              <li>
-                DISCOVER <span></span><i class="bi bi-distribute-vertical"></i>
+              <li class="page-load-trigger" data-page-index="discover" data-view-name="Discover">
+                <span class="page-trigger-title">DISCOVER</span>
+                <span></span>
+                <i class="bi bi-distribute-vertical"></i>
+              </li>
+              <li class="page-load-trigger" data-page-index="admin" data-view-name="Admin">
+                <span class="page-trigger-title">ADMIN</span>
+                <span></span>
+                <i class="bi bi-distribute-vertical"></i>
               </li>
               <li>
                 MY LIBRARY <span></span><i class="bi bi-collection-play-fill"></i>
               </li>
-              <li style="display:none;">RADIO <span></span><i class="bi bi-broadcast"></i></li>
+{{/*              <li style="display:none;">RADIO <span></span><i class="bi bi-broadcast"></i></li>*/}}
             </ul>
             <div class="search">
               <i class="bi bi-search"></i>
@@ -114,448 +121,7 @@
             </div>
             {{end}}
           </nav>
-          <div class="song_side-wrapper music-manager-container">
-            <div class="current-banner">
-              <img src="/static/img/wakanda4ever.png" />
-            </div>
-            <div
-              class="playlist-wrapper"
-              data-playlist-id=""
-              data-playlist-name="Trending"
-            >
-              <div class="row">
-                <div class="playlist-title">
-                  Trending Playlists
-                  <i class="bi bi-layers-fill playlist-icon"></i>
-                </div>
-              </div>
-              <div class="row cards-wrapper">
-                <div class="content">
-                  <div
-                    class="content-wrapper"
-                    data-music-id="zX3mtNS60AxOHLQ"
-                    data-music-state="paused"
-                  >
-                    <div class="content-img">
-                      <img src="/static/img/sza-sized.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Today's Top Hits</h1>
-                    <p class="truncate-txt">SZA is on top of the Hottest 50!</p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/drake.jpg" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>RapCaviar</h1>
-                    <p class="truncate-txt">New music from Drake and 21 Savage</p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/2010.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>All Out 2010's</h1>
-                    <p>The biggest songs of the 2010s.</p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/sza-sized.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Rock Classics</h1>
-                    <p class="truncate-txt">
-                      Rock legends & epic songs that continue to inspire
-                      generations. Celebrating 30 years of Rage Against The
-                      Machine
-                    </p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/chill.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Chill Hits</h1>
-                    <p class="truncate-txt">
-                      Kick back to the best new and recent chill hits.
-                    </p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div
-                    class="content-wrapper"
-                    data-music-id="zX3mtNS60AxOHLQ"
-                    data-music-state="paused"
-                  >
-                    <div class="content-img">
-                      <img src="/static/img/bad-bunny.jpg" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Viva Latino</h1>
-                    <p class="truncate-txt">
-                      Today's top Latin hits, elevando nuestra música.
-                    </p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/ariana.jpg" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Mega Hit Mix</h1>
-                    <p class="truncate-txt">
-                      A mega mix of 75 favorites from the last few years!
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="playlist-wrapper"
-              data-playlist-id=""
-              data-playlist-name="Focus"
-            >
-              <div class="row">
-                <div class="playlist-title">
-                  Focus <i class="bi bi-layers-fill playlist-icon"></i>
-                </div>
-              </div>
-              <div class="row cards-wrapper">
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/sza-sized.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Today's Top Hits</h1>
-                    <p class="truncate-txt">SZA is on top of the Hottest 50!</p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/drake.jpg" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>RapCaviar</h1>
-                    <p class="truncate-txt">New music from Drake and 21 Savage</p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/2010.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>All Out 2010's</h1>
-                    <p>The biggest songs of the 2010s.</p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/sza-sized.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Rock Classics</h1>
-                    <p class="truncate-txt">
-                      Rock legends & epic songs that continue to inspire
-                      generations. Celebrating 30 years of Rage Against The
-                      Machine
-                    </p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/chill.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Chill Hits</h1>
-                    <p class="truncate-txt">
-                      Kick back to the best new and recent chill hits.
-                    </p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/bad-bunny.jpg" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Viva Latino</h1>
-                    <p class="truncate-txt">
-                      Today's top Latin hits, elevando nuestra música.
-                    </p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/ariana.jpg" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Mega Hit Mix</h1>
-                    <p class="truncate-txt">
-                      A mega mix of 75 favorites from the last few years!
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="playlist-wrapper"
-              data-playlist-id=""
-              data-playlist-name="Mood"
-            >
-              <div class="row">
-                <div class="playlist-title">
-                  Mood <i class="bi bi-layers-fill playlist-icon"></i>
-                </div>
-              </div>
-              <div class="row cards-wrapper">
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/sza-sized.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Today's Top Hits</h1>
-                    <p class="truncate-txt">SZA is on top of the Hottest 50!</p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/drake.jpg" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>RapCaviar</h1>
-                    <p class="truncate-txt">New music from Drake and 21 Savage</p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/2010.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>All Out 2010's</h1>
-                    <p>The biggest songs of the 2010s.</p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/sza-sized.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Rock Classics</h1>
-                    <p class="truncate-txt">
-                      Rock legends & epic songs that continue to inspire
-                      generations. Celebrating 30 years of Rage Against The
-                      Machine
-                    </p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/chill.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Chill Hits</h1>
-                    <p class="truncate-txt">
-                      Kick back to the best new and recent chill hits.
-                    </p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/bad-bunny.jpg" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Viva Latino</h1>
-                    <p class="truncate-txt">
-                      Today's top Latin hits, elevando nuestra música.
-                    </p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/ariana.jpg" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Mega Hit Mix</h1>
-                    <p class="truncate-txt">
-                      A mega mix of 75 favorites from the last few years!
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="playlist-wrapper"
-              data-playlist-id=""
-              data-playlist-name="New Releases"
-            >
-              <div class="row">
-                <div class="playlist-title">
-                  New releases <i class="bi bi-layers-fill playlist-icon"></i>
-                </div>
-              </div>
-              <div class="row cards-wrapper">
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/sza-sized.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Today's Top Hits</h1>
-                    <p class="truncate-txt">SZA is on top of the Hottest 50!</p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/drake.jpg" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>RapCaviar</h1>
-                    <p class="truncate-txt">New music from Drake and 21 Savage</p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/2010.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>All Out 2010's</h1>
-                    <p>The biggest songs of the 2010s.</p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/sza-sized.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Rock Classics</h1>
-                    <p class="truncate-txt">
-                      Rock legends & epic songs that continue to inspire
-                      generations. Celebrating 30 years of Rage Against The
-                      Machine
-                    </p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/chill.png" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Chill Hits</h1>
-                    <p class="truncate-txt">
-                      Kick back to the best new and recent chill hits.
-                    </p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/bad-bunny.jpg" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Viva Latino</h1>
-                    <p class="truncate-txt">
-                      Today's top Latin hits, elevando nuestra música.
-                    </p>
-                  </div>
-                </div>
-                <div class="content">
-                  <div class="content-wrapper">
-                    <div class="content-img">
-                      <img src="/static/img/ariana.jpg" />
-                      <div class="buttons">
-                        <button><i class="bi bi-play-fill play-btn"></i></button>
-                      </div>
-                    </div>
-                    <h1>Mega Hit Mix</h1>
-                    <p class="truncate-txt">
-                      A mega mix of 75 favorites from the last few years!
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div class="song_side-wrapper music-manager-container"></div>
         </div>
         <div class="master_play">
           <div class="wave">
@@ -744,12 +310,17 @@
     {{define "js"}}
       <script type="module" src="/static/js/helpers.js"></script>
       <script type="module" src="/static/js/ajax.js"></script>
+      <script type="module" src="/static/js/date.js"></script>
+      <script type="module" src="/static/js/updateView.js"></script>
       <script type="module" src="/static/js/razer.js"></script>
       <script type="module" src="/static/js/search.js"></script>
+      <script type="module" src="/static/js/filter.js"></script>
+      <script type="module" src="/static/js/like.js"></script>
       <script src="/static/js/modals.js"></script>
       <script src="/static/js/coogtunes.js"></script>
       <script src="/static/js/musicplayer.js"></script>
       <script src="/static/js/uploadFile.js"></script>
+      <script type="module" src="/static/js/pageLoad.js"></script>
       <script type="module" src="/static/js/playlist.js"></script>
     {{end}}
 
