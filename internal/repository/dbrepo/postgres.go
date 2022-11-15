@@ -202,9 +202,9 @@ func (m *postgresDBRepo) Authenticate(email string, password string) (models.Use
 
 // SONG
 func (m *postgresDBRepo) AddSong(res models.Song) error {
-	query := "insert into song (title, artist_id, song_path, cover_path, uploaded_date) values ($1, $2, $3, $4, to_date($5, 'YYYY-MM-DD'))"
+	query := "insert into song (title, artist_id, song_path, cover_path, uploaded_date, duration) values ($1, $2, $3, $4, to_date($5, 'YYYY-MM-DD'), $6)"
 
-	_, err := m.DB.Exec(query, res.Title, res.Artist_id, res.SongPath, res.CoverPath, time.Now())
+	_, err := m.DB.Exec(query, res.Title, res.Artist_id, res.SongPath, res.CoverPath, time.Now(), res.Duration)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -214,9 +214,9 @@ func (m *postgresDBRepo) AddSong(res models.Song) error {
 
 // SONGS
 func (m *postgresDBRepo) AddSongForAlbum(res models.Song) error {
-	query := "insert into song (title, artist_id, album_id, song_path, cover_path, uploaded_date) values ($1, $2, $3, $4, $5, to_date($6, 'YYYY-MM-DD'))"
+	query := "insert into song (title, artist_id, album_id, song_path, cover_path, uploaded_date,duration) values ($1, $2, $3, $4, $5, to_date($6, 'YYYY-MM-DD'), $7)"
 
-	_, err := m.DB.Exec(query, res.Title, res.Artist_id, res.Album_id, res.SongPath, res.CoverPath, time.Now())
+	_, err := m.DB.Exec(query, res.Title, res.Artist_id, res.Album_id, res.SongPath, res.CoverPath, time.Now(), res.Duration)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -224,11 +224,11 @@ func (m *postgresDBRepo) AddSongForAlbum(res models.Song) error {
 	return nil
 }
 
-func (m *postgresDBRepo) GetSongsForLikePage(userId int) ([]models.LikesReport, error) {
-	var songs []models.LikesReport
+func (m *postgresDBRepo) GetSongsForLikePage(userId int) ([]models.Song, error) {
+	var songs []models.Song
 	query := `select * from likes_view 
 					where likes_view.song_id in (select likes.song_id from likes where user_id = $1 and likes.islike = true) 
-					order by artist_name, album_name, song_title;`
+					order by artist_name, album_name, title;`
 
 	rows, err := m.DB.Query(query, userId)
 	if err != nil {
@@ -243,10 +243,10 @@ func (m *postgresDBRepo) GetSongsForLikePage(userId int) ([]models.LikesReport, 
 	}(rows)
 
 	for rows.Next() {
-		var currentRow models.LikesReport
+		var currentRow models.Song
 
-		err := rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Song_title,
-			&currentRow.Artist_name, &currentRow.Album_name, &currentRow.Uploaded_date, &currentRow.Song_path, &currentRow.Cover_path, &currentRow.Artist_id, &currentRow.Album_id)
+		err := rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id,
+			&currentRow.SongPath, &currentRow.CoverPath, &currentRow.Uploaded_date, &currentRow.Total_plays, &currentRow.Duration, &currentRow.Artist_name, &currentRow.Album)
 
 		if err != nil {
 			return nil, err
@@ -813,8 +813,8 @@ func (m *postgresDBRepo) AddOrUpdateLikeValue(islike bool, songId int, userId in
 }
 
 // REPORTS
-func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int, minDislikes int, maxDislikes int) ([]models.LikesReport, error) {
-	var likesReport []models.LikesReport
+func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int, minDislikes int, maxDislikes int) ([]models.Song, error) {
+	var likesReport []models.Song
 	query := `select * from likes_view 
 				where likes_view.likes >= $1
 				AND likes_view.likes <= $2
@@ -835,10 +835,10 @@ func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int, minDislikes 
 	}(rows)
 
 	for rows.Next() {
-		var currentRow models.LikesReport
+		var currentRow models.Song
 
-		err := rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Song_title,
-			&currentRow.Artist_name, &currentRow.Album_name, &currentRow.Uploaded_date, &currentRow.Song_path, &currentRow.Cover_path, &currentRow.Artist_id, &currentRow.Album_id)
+		err := rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id,
+			&currentRow.SongPath, &currentRow.CoverPath, &currentRow.Uploaded_date, &currentRow.Total_plays, &currentRow.Duration, &currentRow.Artist_name, &currentRow.Album)
 
 		if err != nil {
 			return nil, err
@@ -930,7 +930,7 @@ func (m *postgresDBRepo) GetSongReport(minDate string, maxDate string, min_plays
 	for rows.Next() {
 		var currentRow models.Song
 		err := rows.Scan(&currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id, &currentRow.SongPath, &currentRow.CoverPath,
-			&currentRow.Uploaded_date, &currentRow.Total_plays, &currentRow.Artist_name, &currentRow.Album)
+			&currentRow.Uploaded_date, &currentRow.Total_plays, &currentRow.Duration, &currentRow.Artist_name, &currentRow.Album)
 
 		if err != nil {
 			return nil, err

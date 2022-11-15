@@ -31,7 +31,7 @@ type DatabaseRepo interface {
 	GetSongsFromPlaylist(playlist_id int) ([]models.DisplaySongInfo, error)
 	GetSongsFromArtist(artist_name string) ([]models.DisplaySongInfo, error)
 	GetSongsFromAlbum(album_name string) ([]models.DisplaySongInfo, error)
-	GetSongsForLikePage(userId int) ([]models.LikesReport, error)
+	GetSongsForLikePage(userId int) ([]models.Song, error)
 
 	GetNumberOfUsers() (models.Users, error)
 	GetNumberOfSongs() (models.Song, error)
@@ -57,7 +57,7 @@ type DatabaseRepo interface {
 	RemoveSongFromAlbum(song_id int, album_id int) error
 	RemoveSongFromPlaylist(song_id int, playlist_id int) error
 
-	GetLikesReport(minLikes int, maxLikes int, minDislikes int, maxDislikes int) ([]models.LikesReport, error)
+	GetLikesReport(minLikes int, maxLikes int, minDislikes int, maxDislikes int) ([]models.Song, error)
 	GetUsersReport(minDate string, maxDate string) ([]models.UserReport, error)
 	GetArtistReport(minDate string, maxDate string) ([]models.ArtistReport, error)
 	GetSongReport(minDate string, maxDate string, min_plays int, max_plays int) ([]models.Song, error)

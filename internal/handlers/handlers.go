@@ -23,6 +23,8 @@ import (
 
 	"github.com/CoogTunes/coog-music/internal/repository"
 	"github.com/CoogTunes/coog-music/internal/repository/dbrepo"
+
+	"github.com/tcolgate/mp3"
 )
 
 // Repo the repository used by the handlers
@@ -288,7 +290,6 @@ func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	_, err = io.Copy(dst2, songFile)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -298,14 +299,16 @@ func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
 	fullSongPath := songPath + "/" + fhSong.Filename
 	coverFile.Close()
 	dst.Close()
+	x := getMp3Duration(fullSongPath)
 
 	songInfo := models.Song{
 		Title:     songName,
 		Artist_id: UserCache.User_id,
 		CoverPath: fullCoverPath,
 		SongPath:  fullSongPath,
+		Duration:  int(x),
 	}
-
+	fmt.Println(songInfo)
 	err = m.DB.AddSong(songInfo)
 	if err != nil {
 		log.Println("Cannot add song to the database")
@@ -416,6 +419,7 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 		title := strings.ReplaceAll(fileHeader.Filename, filepath.Ext(fileHeader.Filename), "")
 		newTitle := splitName(title)
 		songPath := filePath + "/" + fileHeader.Filename
+		duration := getMp3Duration(songPath)
 		songInfo := models.Song{
 			Title:     newTitle,
 			Album:     albumName,
@@ -423,6 +427,7 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 			CoverPath: fullCoverPath,
 			Artist_id: UserCache.User_id,
 			Album_id:  albumDBInfo.Album_id,
+			Duration:  int(duration),
 		}
 		err = m.DB.AddSongForAlbum(songInfo)
 		if err != nil {
@@ -815,7 +820,8 @@ func (m *Repository) Follow(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) GetSongsForLikePage(w http.ResponseWriter, r *http.Request) {
-	likedSongs, err := m.DB.GetSongsForLikePage(UserCache.User_id)
+	// likedSongs, err := m.DB.GetSongsForLikePage(UserCache.User_id)
+	likedSongs, err := m.DB.GetSongsForLikePage(1)
 	returnAsJSON(likedSongs, w, err)
 }
 
@@ -963,4 +969,33 @@ func splitName(titleName string) string {
 	splitString := strings.Split(titleName, "_")
 	newString := strings.Join(splitString, " ")
 	return newString
+}
+
+func getMp3Duration(path string) float64 {
+
+	r, err := os.Open(path)
+	if err != nil {
+		fmt.Println(err)
+		// return  err
+	}
+	t := 0.0
+
+	d := mp3.NewDecoder(r)
+	var f mp3.Frame
+	skipped := 0
+
+	for {
+
+		if err := d.Decode(&f, &skipped); err != nil {
+			if err == io.EOF {
+				break
+			}
+			fmt.Println(err)
+		}
+
+		t = t + f.Duration().Seconds()
+	}
+	r.Close()
+	fmt.Println(`duration`, t)
+	return t
 }

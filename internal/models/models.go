@@ -11,6 +11,8 @@ type Users struct {
 }
 
 type Song struct {
+	Likes         int
+	Dislikes      int
 	Song_id       int
 	Title         string
 	Artist_id     int
@@ -20,8 +22,8 @@ type Song struct {
 	Album         string
 	Album_id      int
 	Total_plays   int
-	Total_likes   int
 	Artist_name   string
+	Duration      int
 }
 
 type Artist struct {
@@ -70,19 +72,19 @@ type Followers struct {
 	Artist_id int
 }
 
-type LikesReport struct {
-	Likes         int
-	Dislikes      int
-	Song_id       int
-	Song_title    string
-	Artist_name   string
-	Album_name    string
-	Uploaded_date string
-	Song_path     string
-	Cover_path    string
-	Artist_id     int
-	Album_id      int
-}
+// type LikesReport struct {      // Just using song struct instead
+// 	Likes         int
+// 	Dislikes      int
+// 	Song_id       int
+// 	Song_title    string
+// 	Artist_name   string
+// 	Album_name    string
+// 	Uploaded_date string
+// 	Song_path     string
+// 	Cover_path    string
+// 	Artist_id     int
+// 	Album_id      int
+// }
 
 type UserReport struct {
 	User_id        int

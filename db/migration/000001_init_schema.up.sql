@@ -36,6 +36,7 @@ CREATE TABLE Song (
                         cover_path varchar,
                         uploaded_date date DEFAULT 'now()',
                         total_plays bigint DEFAULT 0,
+                        Duration   int NOT NULL,
                         -- total_likes bigint default 0, Getting this through count()
                         PRIMARY KEY (song_id, artist_id)
 );
@@ -216,7 +217,7 @@ CREATE OR REPLACE TRIGGER CheckRatings AFTER INSERT ON Likes
 
 -- for query 2. maybe adjust return column names
 CREATE OR REPLACE VIEW likes_view AS
- SELECT COALESCE(( SELECT sum(
+  SELECT COALESCE(( SELECT sum(
                 CASE
                     WHEN likes.islike IS TRUE THEN 1
                     ELSE 0
@@ -230,15 +231,10 @@ CREATE OR REPLACE VIEW likes_view AS
                 END) AS sum
            FROM likes
           WHERE likes.song_id = song.song_id), 0::bigint) AS dislikes,
-    song.song_id,
-    song.title AS song_title,
+    song.*,
     artist.name AS artist_name,
-    album.name AS album_name,
-    song.uploaded_date,
-    song.song_path,
-    song.cover_path,
-    song.artist_id,
-    song.album_id
+    album.name AS album_name
+    
    FROM song
      LEFT JOIN artist ON artist.artist_id = song.artist_id
      LEFT JOIN album ON album.album_id = song.album_id;

@@ -23,6 +23,7 @@ require (
 	github.com/jackc/pgtype v1.12.0 // indirect
 	github.com/justinas/nosurf v1.1.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/tcolgate/mp3 v0.0.0-20170426193717-e79c5a46d300
 	golang.org/x/crypto v0.0.0-20220926161630-eccd6366d1be // indirect
 	golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1 // indirect
 	golang.org/x/text v0.3.7 // indirect
