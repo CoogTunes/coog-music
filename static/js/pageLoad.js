@@ -1,4 +1,4 @@
-import {ajaxGetHandler} from './ajax.js';
+import {ajaxGetHandler, ajaxPutHandler} from './ajax.js';
 import {updateViewDiscover, updateViewAdminControl, updateViewHomeControl} from "./updateView.js";
 import {filterControl} from './filter.js';
 
@@ -105,6 +105,21 @@ function pageLoadManager(){
                 mainView.classList.remove('show-animation');
             }
             loadPage(targetPage, parent.getAttribute('data-view-name'));
+            ajaxPutHandler('/messages')
+            .then((data) => {
+                let returnData = []
+                if (data != null) {
+                    alert(data[0].Message)
+                    // data.foreach(data => returnData.push(data.Message))
+                    // alert(data[0].Message)
+                }
+                // alert('hello')
+            })
+            .catch((error) => {
+                console.log("Retrieving page error...");
+                console.log(error);
+            });
+    
         }
     });
     function loadPage(targetPage, viewName, path = '/pageLoad?', ){

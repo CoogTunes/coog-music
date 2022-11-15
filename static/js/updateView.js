@@ -69,15 +69,19 @@ export function updateViewPlaylist(data, viewContainer, viewName, bodyContainer,
     let tableHTML = '';
     data.forEach((entry) => {
         const mapObj = {
-            "{{song}}": entry.Title,
-            "{{album}}": entry.Album,
-            "{{artist}}": entry.Artist ?? entry.Artist_name,
-            "{{date}}": dateParse((entry.UploadedDate ?? entry.Uploaded_date)),
-            "{{dislikes}}": entry.Dislikes ?? "",
             "{{likes}}": entry.Likes ?? entry.Total_likes,
-            "{{cover}}": entry.CoverPath,
-            "{{audio}}": entry.SongPath,
-            "{{songID}}" : entry.SongID,
+            "{{dislikes}}": entry.Dislikes ?? "",
+            "{{songID}}" : entry.Song_id,
+            "{{song}}" : entry.Title,
+            "{{artistId}}" : entry.Artist_id,
+            "{{songPath}}" : entry.SongPath,
+            "{{coverPath}}" : entry.CoverPath,
+            "{{date}}": dateParse((entry.UploadedDate ?? entry.Uploaded_date)),
+            "{{album}}": entry.Album,
+            "{{albumId}}": entry.Album_id,
+            "{{totalPlays}}": entry.Total_plays,
+            "{{artist}}": entry.Artist ?? entry.Artist_name,
+            "{{duration}}": entry.Duration,
         }
         let songItem = `<tr class="table-song-item" data-song-id="{{songID}}">
     <td><div class="playlist-item-flex content-wrapper" data-audio-path="{{audio}}" data-music-state="paused"><div class="playlist-img-contain audio-cover"><img src="{{cover}}"></div><div class="song-info-item"><div class="song-info-title">{{song}}</div><div class="song-info-artist">{{artist}}</div></div><div class="buttons playlist">

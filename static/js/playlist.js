@@ -69,7 +69,7 @@ function getPlayListTemplate() {
                                             <div class="playlist-view-right">
                                                 <div class="playlist-view-type">PUBLIC PLAYLIST</div>
                                                 <div class="playlist-view-name">{{viewName}}</div>
-                                                <div class="playlist-view-extra"><span class="playlist-user">{{User}}</span><span class="playlist-song-count">{{song-count}}</span><span class="playlist-total-time">{{total-time}}</span></div>
+                                                <div class="playlist-view-extra"><span class="playlist-user"></span><span class="playlist-song-count">{{song-count}}</span><span class="playlist-total-time"></span></div>
                                            </div>                 
                                         </div>
                                    </div>
