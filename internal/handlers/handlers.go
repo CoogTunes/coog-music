@@ -897,6 +897,7 @@ func (m *Repository) Filter(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(plays)
 	artists := r.URL.Query().Get("artists")
 	users := r.URL.Query().Get("users")
+	fmt.Println("in filter")
 	if likes == "true" && plays != "true" {
 		m.GetLikesReport(w, r)
 		return
@@ -904,9 +905,10 @@ func (m *Repository) Filter(w http.ResponseWriter, r *http.Request) {
 		m.GetSongReport(w, r)
 		return
 	} else if users == "true" && artists != "true" {
+		fmt.Println("in filter users")
 		m.GetUserReport(w, r)
 	} else if artists == "true" && users != "true" {
-		m.GetUserReport(w, r)
+		m.GetArtistReport(w, r)
 	}
 }
 
@@ -938,16 +940,17 @@ func (m *Repository) GetLikesReport(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) GetUserReport(w http.ResponseWriter, r *http.Request) {
-	minDate := r.Form.Get("min")
-	maxDate := r.Form.Get("max")
+
+	minDate := r.URL.Query().Get("start")
+	maxDate := r.URL.Query().Get("end")
 	usersReport, err := m.DB.GetUsersReport(minDate, maxDate)
 	returnAsJSON(usersReport, w, err)
 
 }
 
 func (m *Repository) GetArtistReport(w http.ResponseWriter, r *http.Request) {
-	minDate := r.URL.Query().Get("min")
-	maxDate := r.URL.Query().Get("max")
+	minDate := r.URL.Query().Get("start")
+	maxDate := r.URL.Query().Get("end")
 	artistReport, err := m.DB.GetArtistReport(minDate, maxDate)
 	returnAsJSON(artistReport, w, err)
 }
