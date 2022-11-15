@@ -148,6 +148,10 @@ function musicManager() {
           formatTime(time);
     },
 
+    resetHandler: function (){
+      timelineControlPanel.handlerMovement = 0;
+    },
+
     setRatio: function () {
       timelineControlPanel.ratio =
           parseFloat(
@@ -204,6 +208,7 @@ function musicManager() {
   let playControl = document.querySelector(".icon :nth-child(2)");
   let currentAudio = new audioItem(null, null, null, null, null);
   let wave = document.querySelector('.wave');
+  let currentVolume = null;
 
   timelineControlPanel.init();
   timelineControlPanel.initLogs();
@@ -255,19 +260,23 @@ function musicManager() {
       }
       else if(currentAudio.getPath() != audioPath){
         currentAudio.getAudio().pause();
-        // currentAudio.getPlayButton().firstElementChild.setAttribute('src', playSrc);
-        currentAudio.getPlayButton().parentElement.setAttribute('data-music-state', 'paused');
+        currentAudio.getPlayButton().classList.remove("bi-pause-fill");
+        currentAudio.getPlayButton().classList.add("bi-play-fill");
+        currentAudio.getParent().setAttribute('data-music-state', 'paused');
         currentAudio = new audioItem(audioPath, targetAudio, targetAudio.currentTime, playButton, 0);
-        // timelineControlPanel.resetHandler();
+        timelineControlPanel.resetHandler();
         masterPlaySongInfo();
+        wave.classList.toggle('active2');
       }
-      currentAudio.getAudio().play();
+      masterPlaySongInfo();
       wave.classList.toggle('active2');
       currentAudio.getPlayButton().classList.remove("bi-play-fill");
       currentAudio.getPlayButton().classList.add("bi-pause-fill");
       currentAudio.getParent().setAttribute("data-music-state", "playing");
       playControl.dispatchEvent(updatePlayControl);
       timelineControlPanel.playbackProgress.dispatchEvent(timeLineTrigger);
+      currentAudio.getAudio().play();
+      currentAudio.getAudio().volume = currentVolume;
 
     } else if (musicState == "playing") {
       currentAudio.getAudio().pause();
@@ -356,6 +365,8 @@ function musicManager() {
   function volumeControlPanel() {
     let masterVolume = document.querySelector(".master-volume");
     let volumeBackground = document.querySelector(".vol_bar");
+    currentVolume = masterVolume.value * 0.01;
+    console.log(masterVolume.value);
 
     masterVolume.setAttribute("value", masterVolume.value);
     volumeBackground.style.width = masterVolume.value + "%";
@@ -366,6 +377,7 @@ function musicManager() {
       masterVolume.setAttribute("value", target.value);
       if (currentAudio.getAudio() != null)
         currentAudio.getAudio().volume = target.value * 0.01;
+        currentVolume = target.value * 0.01;
     });
   }
 

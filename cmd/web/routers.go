@@ -50,6 +50,7 @@ func routes() http.Handler {
 
 	mux.Post("/follow", handlers.Repo.Follow)
 
+	mux.Get("/pageLoad", handlers.Repo.PageLoad)
 	// Register and Login Handlers
 	mux.Get("/login", handlers.Repo.GetLogin)
 	mux.Post("/login", handlers.Repo.PostLogin)
@@ -66,7 +67,7 @@ func routes() http.Handler {
 	// Like Page
 	mux.Get("/user/song/likes", handlers.Repo.GetSongsForLikePage)
 	mux.Put("/messages", handlers.Repo.UpdateMessages)
-
+	mux.Get("/filters", handlers.Repo.Filter)
 	// Playlist
 	mux.Get("/playlist/search/", handlers.Repo.PlaylistSearch)
 	mux.Post("/addPlaylist", handlers.Repo.InsertPlaylist)
@@ -77,7 +78,7 @@ func routes() http.Handler {
 	//Reports
 	mux.Post("/like", handlers.Repo.AddOrUpdateLikeValue) // use this for all insert/update like value. Send isLike:null to delete
 	mux.Post("/likesReport", handlers.Repo.GetLikesReport)
-	mux.Post("/reports", handlers.Repo.GetUserOrArtistReport)
+	//mux.Post("/reports", handlers.Repo.GetUserOrArtistReport)
 	mux.Post("/songReport", handlers.Repo.GetSongReport)
 
 	fileServer := http.FileServer(http.Dir("./static/"))

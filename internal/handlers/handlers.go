@@ -134,6 +134,29 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+func (m *Repository) PageLoad(w http.ResponseWriter, r *http.Request) {
+	idx := r.URL.Query().Get("index")
+	if idx == "discover" {
+		m.GetTopSongs(w, r)
+		return
+	} else if idx == "admin" {
+		m.GetTopUserReport(w, r)
+		return
+	} else if idx == "home" {
+		m.GetTopSongs(w, r)
+		return
+	}
+
+}
+
+func (m *Repository) GetTopUserReport(w http.ResponseWriter, r *http.Request) {
+	userReport, err := m.DB.GetInitialUsersReport()
+	if err != nil {
+		log.Println(err)
+	}
+	returnAsJSON(userReport, w, err)
+}
+
 // END LOGIN/SIGNUP--------------------------------------------------------------------------------------
 
 // ADD ARTIST -------------------------------------------------------------------------------------------
@@ -163,7 +186,7 @@ func (m *Repository) GetHome(w http.ResponseWriter, r *http.Request) {
 		Form:     forms.New(nil),
 		UserData: UserCache,
 	})
-	m.GetTopSongs(w, r)
+
 	m.GetPlaylistsByID(w, r)
 }
 func (m *Repository) GetTopSongs(w http.ResponseWriter, r *http.Request) {
@@ -819,23 +842,29 @@ func (m *Repository) GetSongsForLikePage(w http.ResponseWriter, r *http.Request)
 	returnAsJSON(likedSongs, w, err)
 }
 
-func (m *Repository) AddOrUpdateLikeValue(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	// get fields
+type AddLike struct {
+	Check  string `json:"check"`
+	SongID string `json:"songID"`
+}
 
-	isLike, err := strconv.ParseBool(r.Form.Get("is_like"))
+func (m *Repository) AddOrUpdateLikeValue(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	var likeStruct AddLike
+	err := decoder.Decode(&likeStruct)
+
+	// get fields
+	//fmt.Println(r.URL.Query().Get("check"))
+	//fmt.Println(r.URL.Query().Get("songID"))
+	isLike, err := strconv.ParseBool(likeStruct.Check)
 	if err != nil {
 		log.Println(err)
 	}
-	song_id, err := strconv.Atoi(r.Form.Get("song_id"))
+	song_id, err := strconv.Atoi(likeStruct.SongID)
 	if err != nil {
 		log.Println(err)
 	}
-	user_id, err := strconv.Atoi(r.Form.Get("user_id"))
-	if err != nil {
-		log.Println(err)
-	}
-	err2 := m.DB.AddOrUpdateLikeValue(isLike, song_id, user_id)
+	//
+	err2 := m.DB.AddOrUpdateLikeValue(isLike, song_id, UserCache.User_id)
 	if err2 != nil {
 		log.Println(err)
 	}
@@ -847,64 +876,82 @@ func (m *Repository) UpdateMessages(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (m *Repository) Filter(w http.ResponseWriter, r *http.Request) {
+	likes := r.URL.Query().Get("likes")
+	fmt.Println(likes)
+	plays := r.URL.Query().Get("plays")
+	fmt.Println(plays)
+	artists := r.URL.Query().Get("artists")
+	users := r.URL.Query().Get("users")
+	if likes == "true" && plays != "true" {
+		m.GetLikesReport(w, r)
+		return
+	} else if plays == "true" && likes != "true" {
+		m.GetSongReport(w, r)
+		return
+	} else if users == "true" && artists != "true" {
+		m.GetUserReport(w, r)
+	} else if artists == "true" && users != "true" {
+		m.GetUserReport(w, r)
+	}
+}
+
 // REPORTS
 func (m *Repository) GetLikesReport(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()
 	// get fields
 
-	minLikes, err := strconv.Atoi(r.Form.Get("min_likes"))
+	minLikes, err := strconv.Atoi(r.URL.Query().Get("min"))
 	if err != nil {
 		log.Println(err)
 	}
-	maxLikes, err := strconv.Atoi(r.Form.Get("max_likes"))
+	maxLikes, err := strconv.Atoi(r.Form.Get("max"))
 	if err != nil {
 		log.Println(err)
 	}
-	minDislikes, err := strconv.Atoi(r.Form.Get("min_dislikes"))
-	if err != nil {
-		log.Println(err)
-	}
-	maxDislikes, err := strconv.Atoi(r.Form.Get("max_dislikes"))
-	if err != nil {
-		log.Println(err)
-	}
+	//minDislikes, err := strconv.Atoi(r.Form.Get("min_dislikes"))
+	//if err != nil {
+	//	log.Println(err)
+	//}
+	//maxDislikes, err := strconv.Atoi(r.Form.Get("max_dislikes"))
+	//if err != nil {
+	//	log.Println(err)
+	//}
 
-	likesReport, err := m.DB.GetLikesReport(minLikes, maxLikes, minDislikes, maxDislikes)
+	likesReport, err := m.DB.GetLikesReport(minLikes, maxLikes)
 	returnAsJSON(likesReport, w, err)
 }
 
-func (m *Repository) GetUserOrArtistReport(w http.ResponseWriter, r *http.Request) {
+func (m *Repository) GetUserReport(w http.ResponseWriter, r *http.Request) {
+	minDate := r.Form.Get("min")
+	maxDate := r.Form.Get("max")
+	usersReport, err := m.DB.GetUsersReport(minDate, maxDate)
+	returnAsJSON(usersReport, w, err)
 
-	r.ParseForm()
-	// get fields
-	userType := r.Form.Get("user_type")
-	minDate := r.Form.Get("min_date")
-	maxDate := r.Form.Get("max_date")
-	if userType == "User" || userType == "user" {
-		usersReport, err := m.DB.GetUsersReport(minDate, maxDate)
-		returnAsJSON(usersReport, w, err)
-	} else if userType == "Artist" || userType == "artist" {
-		artistReport, err := m.DB.GetArtistReport(minDate, maxDate)
-		returnAsJSON(artistReport, w, err)
-	}
+}
+
+func (m *Repository) GetArtistReport(w http.ResponseWriter, r *http.Request) {
+	minDate := r.URL.Query().Get("min")
+	maxDate := r.URL.Query().Get("max")
+	artistReport, err := m.DB.GetArtistReport(minDate, maxDate)
+	returnAsJSON(artistReport, w, err)
 }
 
 func (m *Repository) GetSongReport(w http.ResponseWriter, r *http.Request) {
 
-	r.ParseForm()
 	// get fields
 
-	min_plays, err := strconv.Atoi(r.Form.Get("min_plays"))
+	min_plays, err := strconv.Atoi(r.URL.Query().Get("min"))
 	if err != nil {
 		log.Println(err)
 	}
-	max_plays, err := strconv.Atoi(r.Form.Get("max_plays"))
+	max_plays, err := strconv.Atoi(r.URL.Query().Get("max"))
 	if err != nil {
 		log.Println(err)
 	}
-	minDate := r.Form.Get("min_date")
-	maxDate := r.Form.Get("max_date")
+	minDate := r.URL.Query().Get("start")
+	maxDate := r.URL.Query().Get("end")
 
 	songReport, err := m.DB.GetSongReport(minDate, maxDate, min_plays, max_plays)
 	returnAsJSON(songReport, w, err)
