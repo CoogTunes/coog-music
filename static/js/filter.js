@@ -10,7 +10,7 @@ class filterList {
         this.filterList.set(id, elem);
     }
 
-    // * Get Filters
+    // * Get Filters -> Re-work to get the current selected filters
     getFilters(){
         return this.filterList;
     }
@@ -30,8 +30,6 @@ export let filterControl = {
     filterControlInit : function filterControlInit(){
         filterControl.filterManager =  new filterList();
         filterControl.mainView = document.querySelector('.music-manager-container');
-        filterControl.tableContainer = this.mainView.querySelector('.playlist-table-container');
-        filterControl.total = this.mainView.querySelector('.playlist-song-count');
     },
 
     filterListen: function filterListen(){
@@ -69,7 +67,8 @@ export let filterControl = {
         let data = filterControl.parseFilterData(filterControl.filterManager.getFilters());
         ajaxGetHandler('/filters?' + new URLSearchParams(data)).then((data) => {
             console.log(data);
-            updateTableView(data, filterControl.tableContainer, filterControl.total, filterControl.filterManager.getFilters(), filterControl.mainView);
+            filterControl.setTableContainer();
+            updateTableView(data, filterControl.tableContainer, filterControl.total, filterControl.filterManager.getFilters());
         }).catch((error) => {
             console.log("Error trying to Load Playlist Into View...");
             console.log(error);
@@ -98,78 +97,14 @@ export let filterControl = {
             return true;
         }
         return false;
-    }
+    },
+
+    setTableContainer: function setTableContainer(){
+        filterControl.tableContainer = this.mainView.querySelector('.playlist-table-container');
+    },
+
+    setTotalCount: function setTotalCount(){
+        filterControl.total = this.mainView.querySelector('.playlist-song-count');
+    },
 };
 
-
-// export function filterControl(){
-//     let filterManager = new filterList();
-//     let mainView = document.querySelector('.music-manager-container');
-//     let tableContainer = mainView.querySelector('.playlist-table-container');
-//     let songTotal = mainView.querySelector('.playlist-song-count');
-//     document.addEventListener('click', function (evt){
-//         let target = evt.target;
-//
-//         if(target.classList.contains('filter-item')){
-//             let parent = target;
-//             let filterType = parent.querySelector('span').innerHTML;
-//             toggleSelection(parent);
-//             if(parentContains(parent)){
-//                 filterManager.add(filterType, parent);
-//             }
-//             else
-//                 filterManager.remove(filterType);
-//         }
-//         else if(target.parentElement.classList.contains('filter-item') && target.tagName.toLowerCase() != 'input'){
-//             let parent = target.parentElement;
-//             let filterType = parent.querySelector('span').innerHTML;
-//             toggleSelection(parent);
-//             if(filterControl.parentContains(parent)){
-//                 filterManager.add(filterType, parent);
-//             }
-//             else
-//                 filterManager.remove(filterType);
-//         }
-//         else if(target.classList.contains('submit-filter')){
-//             getFilterData();
-//         }
-//     });
-//
-//
-//     function getFilterData(){
-//         console.log('Loading Filter Data Into View...');
-//         let data = parseFilterData(filterManager.getFilters());
-//         ajaxGetHandler('/filters?' + new URLSearchParams(data)).then((data) => {
-//             console.log(data);
-//             updateTableView(data, tableContainer, songTotal);
-//         }).catch((error) => {
-//             console.log("Error trying to Load Playlist Into View...");
-//             console.log(error);
-//         });
-//     }
-//
-//     function parseFilterData(filterData){
-//         let data = {};
-//         filterData.forEach((value, key) => {
-//             let input = value.querySelector('input');
-//             if(input)
-//                 data[key] = input.value;
-//             else
-//                 data[key] = "true";
-//
-//         });
-//         filterElements['data'] = data;
-//         return data;
-//     }
-//
-//     function toggleSelection(target){
-//         target.classList.toggle('selected');
-//     }
-//
-//     function parentContains(parent){
-//         if(parent.classList.contains('selected')){
-//             return true;
-//         }
-//         return false;
-//     }
-// }

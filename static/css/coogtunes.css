@@ -82,12 +82,11 @@ section {
     flex-wrap: wrap;
 }
 
-section .menu_side,
-.song_side {
+section .menu_side, .song_side {
     position: fixed;
     width: 280px;
     height: 100%;
-    background-color: #000;
+    background-color: #080808;
     box-shadow: 5px 0px 2px #090f1f;
     color: #ffffff;
 }
@@ -123,7 +122,7 @@ section .master_play {
     z-index: 100;
     bottom: 0;
     left: 0;
-    background-color: #1a1919;
+    background-color: #181818;
     border-top: 1px solid #1c1c1c;
 }
 
@@ -498,7 +497,7 @@ section .song_side nav {
     justify-content: space-between;
     position: sticky;
     top: 0;
-    background-color: rgba(11, 11, 11, 0.9);
+    background-color: rgba(11, 11, 11, 0.62);
     padding: 0px 40px;
     z-index: 999;
     border-left: 3px solid #b91121;
@@ -512,10 +511,11 @@ section .song_side nav ul li {
     position: relative;
     list-style-type: none;
     font-size: 12px;
-    color: #4c5262;
+    color: #9f9f9f;
     margin-right: 25px;
     cursor: pointer;
     transition: 0.3s linear;
+    user-select: none;
 }
 
 section .song_side nav ul li:hover {
@@ -555,14 +555,14 @@ section .song_side nav .search {
 }
 
 section .song_side nav .search::before {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
-    background: rgba(21, 21, 21, 0.9);
-    backdrop-filter: blur(5px);
-    z-index: -1;
+	content: "";
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	border-radius: 20px;
+	background: rgba(255, 255, 255, 1);
+	backdrop-filter: blur(5px);
+	z-index: -1;
 }
 
 section .song_side nav .search .bi {
@@ -573,14 +573,16 @@ section .song_side nav .search .bi {
 }
 
 section .song_side nav .search input {
-    backdrop-filter: none;
-    outline: none;
-    border: none;
-    padding: 0px 10px;
-    color: #999;
-    font-size: 12px;
-    width: 90%;
-    background: transparent;
+	backdrop-filter: none;
+	outline: none;
+	border: none;
+	padding: 0px 10px;
+	color: #0f0f0f;
+	font-size: 12px;
+	width: 90%;
+	background: transparent;
+	position: relative;
+	z-index: 2;
 }
 
 section .song_side nav img {
@@ -760,9 +762,9 @@ body.index-home .song_side-wrapper {
 }
 
 .content-wrapper {
-    background: #131313;
+    background: #121212;
     border-radius: 5px;
-    padding: 20px 20px;
+    padding: 13px 13px;
     /* margin-right: 15px; */
     position: relative;
     transition: 0.3s ease-out;
@@ -777,6 +779,10 @@ body.index-home .song_side-wrapper {
 
 .cards-wrapper {
     gap: 20px;
+    /* display: flex; */
+    /* flex-wrap: wrap; */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 }
 
 .content-img img {
@@ -936,9 +942,11 @@ section .song_side .content p {
     font-size: 25px;
 }
 
-section .song_side .content {
-    flex: 1 1 calc(14.28% - 20px);
-}
+/*section .song_side .content {*/
+/*    flex: 0 1 calc(14.28% - 20px);*/
+/*}*/
+
+
 
 section .song_side nav ul li span+i {
     margin-left: 5px;
@@ -1133,7 +1141,7 @@ input[type="range"]:focus::-moz-range-thumb {
     display: flex;
     align-items: center;
     position: relative;
-    color: #4c5262;
+    color: #9f9f9f;
 }
 
 .dp-flex {
@@ -1521,8 +1529,7 @@ span.playlist-song-count::after {
 }
 
 .show-animation {
-    animation: fadeInshow;
-    animation: fadeInShow .6s;
+    animation: fadeInShow .5s;
 }
 
 .content-wrapper .buttons.playlist button i {
@@ -1536,8 +1543,9 @@ span.playlist-song-count::after {
 }
 
 .filter-container {
-    margin: 0px 40px;
+    margin: 0px 30px;
     display: flex;
+    flex-wrap: wrap;
 }
 
 .filter-item {
@@ -1552,6 +1560,7 @@ span.playlist-song-count::after {
     display: flex;
     align-items: center;
     font-family: "Heebo", sans-serif;
+    margin-top: 10px;
 }
 
 .filter-item:hover, .submit-filter:hover {
@@ -1594,6 +1603,7 @@ span.date-filter-span {
     align-items: center;
     font-family: "Heebo", sans-serif;
     user-select: none;
+    margin-top: 10px;
 }
 
 .like-container {
@@ -1623,6 +1633,11 @@ table.playlist-table-container thead tr th {
     padding-bottom: 15px;
 }
 
+.song-info-artist {
+	color: #9f9f9f;
+	font-size: 14px;
+}
+
 @keyframes fadeOutHide {
     0% {
         opacity: 1;
@@ -1642,6 +1657,15 @@ table.playlist-table-container thead tr th {
     100% {
         opacity: 1;
         transform: scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
     }
 }
 

@@ -263,7 +263,7 @@ func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("Could not parse multipart forms")
 	}
 
-	artistName := concatenateName(r.Form.Get("artist_name"))
+	artistName := concatenateName(getArtistName(UserCache.First_name, UserCache.Last_name))
 	songName := r.Form.Get("music_name")
 	fmt.Println("Passes through the songName")
 	coverFile, fhCover, err := r.FormFile("music_cover")
@@ -347,7 +347,7 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal("Could not parse multipart forms")
 	}
-	artistName := concatenateName(r.Form.Get("artist_name"))
+	artistName := concatenateName(getArtistName(UserCache.First_name, UserCache.Last_name))
 	albumName := r.Form.Get("music_name")
 	pathAlbumName := concatenateName(albumName)
 	coverFile, fhCover, err := r.FormFile("music_cover")
@@ -605,52 +605,6 @@ func (m *Repository) GetUser(w http.ResponseWriter, r *http.Request) {
 
 // END USERS -------------------------------------------------------------------
 
-// ARTISTS
-//
-//	func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
-//		r.ParseForm()
-//		// get fields
-//		name := r.Form.Get("name")
-//		artist_id := r.Form.Get("artist_id")
-//		location := r.Form.Get("location")
-//		join_date := r.Form.Get("join_date")
-//		var songs []models.Song
-//
-//		int_artist_id, err := strconv.Atoi(artist_id)
-//		if err != nil {
-//			log.Println(err)
-//		}
-//		// joindate and songs[] should be empty to start.
-//		artistToAdd := models.Artist{Name: name, Artist_id: int_artist_id, Location: location, Join_date: join_date, Songs: songs}
-//
-//		addedArtist, err := m.DB.AddArtist(artistToAdd)
-//
-//		returnAsJSON(addedArtist, w, err)
-//
-// }
-// ARTISTS
-//
-//	func (m *Repository) AddArtist(w http.ResponseWriter, r *http.Request) {
-//		r.ParseForm()
-//		// get fields
-//		name := r.Form.Get("name")
-//		artist_id := r.Form.Get("artist_id")
-//		location := r.Form.Get("location")
-//		join_date := r.Form.Get("join_date")
-//		var songs []models.Song
-//
-//		int_artist_id, err := strconv.Atoi(artist_id)
-//		if err != nil {
-//			log.Println(err)
-//		}
-//		// joindate and songs[] should be empty to start.
-//		artistToAdd := models.Artist{Name: name, Artist_id: int_artist_id, Location: location, Join_date: join_date, Songs: songs}
-//
-//		addedArtist, err := m.DB.AddArtist(artistToAdd)
-//
-//		returnAsJSON(addedArtist, w, err)
-//
-// }
 func (m *Repository) GetArtists(w http.ResponseWriter, r *http.Request) {
 	artists, err := m.DB.GetArtists()
 
@@ -683,112 +637,24 @@ func (m *Repository) UpdateArtist(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(addedUser, w, err)
 }
 
-// ALBUMS
+type UpdateCount struct {
+	SongId string `json:"songID"`
+}
 
-//func (m *Repository) AddAlbum(w http.ResponseWriter, r *http.Request) {
-//	var album models.Album
-//	var err error
-//	r.ParseForm()
-//	// get fields
-//	album.Artist_id, err = strconv.Atoi(r.Form.Get("artist_id"))
-//	if err != nil {
-//		log.Println(err)
-//	}
-//	album.Name = r.Form.Get("album_name")
-//	album.Date_added = r.Form.Get("album_date")
-//	addedAlbum, err := m.DB.AddAlbum(album)
-//
-//	returnAsJSON(addedAlbum, w, err)
-//}
-
-// SONGS
-
-//func (m *Repository) AddSong(w http.ResponseWriter, r *http.Request) {
-//	r.ParseForm()
-//	// get fields
-//	title := r.Form.Get("title")
-//	release_date := r.Form.Get("release_date")
-//	duration := r.Form.Get("duration")
-//	artist_id_string := r.Form.Get("artist_id")
-//	album_id_string := r.Form.Get("album_id")
-//
-//	artist_id, err := strconv.Atoi(artist_id_string)
-//	if err != nil {
-//
-//	}
-//	album_id, err := strconv.Atoi(album_id_string)
-//	if err != nil {
-//
-//	}
-//	songToAdd := models.Song{
-//		Title:        title,
-//		Release_date: release_date,
-//		Duration:     duration,
-//		Album_id:     album_id,
-//		Artist_id:    artist_id,
-//	}
-//
-//	addedSong, err := m.DB.AddSong(songToAdd)
-//	if err != nil {
-//		log.Println(err)
-//	}
-//
-//	addedSong.Artist_name, err = m.DB.GetArtistName(artist_id)
-//	if err != nil {
-//		log.Println(err)
-//	}
-//	returnAsJSON(addedSong, w, err)
-//}
-
-//func (m *Repository) GetSongs(w http.ResponseWriter, r *http.Request) {
-//	songs, err := m.DB.GetSongs()
-//
-//	returnAsJSON(songs, w, err)
-//}
-//
-
-//func (m *Repository) GetSong(w http.ResponseWriter, r *http.Request) {
-//	x := chi.URLParam(r, "id")
-//	song, err := m.DB.GetSong(x)
-//	returnAsJSON(song, w, err)
-//}
-
-//func (m *Repository) UpdateSong(w http.ResponseWriter, r *http.Request) {
-//	r.ParseForm()
-//	// get fields
-//	title := r.Form.Get("title")
-//	duration := r.Form.Get("duration")
-//	song_id_string := r.Form.Get("song_id")
-//
-//	song_id, err := strconv.Atoi(song_id_string)
-//	if err != nil {
-//		log.Println(err)
-//	}
-//
-//	songToUpdate := models.Song{
-//		Title:    title,
-//		Duration: duration,
-//		Song_id:  song_id,
-//	}
-//
-//	updatedSong, err := m.DB.UpdateSong(songToUpdate)
-//	if err != nil {
-//		log.Println(err)
-//	}
-//
-//	returnAsJSON(updatedSong, w, err)
-//}
-
-//func (m *Repository) UpdateSongCount(w http.ResponseWriter, r *http.Request) {
-//	idString := chi.URLParam(r, "id")
-//	id, err := strconv.Atoi(idString)
-//	if err != nil {
-//		log.Println(err)
-//	}
-//	var songWithId models.Song = models.Song{Song_id: id}
-//	song, err := m.DB.UpdateSongCount(songWithId)
-//	returnAsJSON(song, w, err)
-//}
+func (m *Repository) UpdateSongCount(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	var updateC UpdateCount
+	err := decoder.Decode(&updateC)
+	if err != nil {
+		log.Println("Cannot decode the json object")
+	}
+	id, err := strconv.Atoi(updateC.SongId)
+	if err != nil {
+		log.Println(err)
+	}
+	song, err := m.DB.UpdateSongCount(id)
+	returnAsJSON(song, w, err)
+}
 
 func (m *Repository) AddSongToPlaylist(w http.ResponseWriter, r *http.Request) {
 	return
@@ -851,43 +717,48 @@ func (m *Repository) Follow(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) GetSongsForLikePage(w http.ResponseWriter, r *http.Request) {
-	// likedSongs, err := m.DB.GetSongsForLikePage(UserCache.User_id)
-	likedSongs, err := m.DB.GetSongsForLikePage(1)
+	likedSongs, err := m.DB.GetSongsForLikePage(UserCache.User_id)
+	// likedSongs, err := m.DB.GetSongsForLikePage(1)
 	returnAsJSON(likedSongs, w, err)
 }
 
 type AddLike struct {
 	Check  string `json:"check"`
-	SongID string `json:"songID"`
+	SongId string `json:"songID"`
 }
 
 func (m *Repository) AddOrUpdateLikeValue(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var likeStruct AddLike
 	err := decoder.Decode(&likeStruct)
+	if err != nil {
+		log.Println("Cannot decode the json")
+	}
 
-	// get fields
-	//fmt.Println(r.URL.Query().Get("check"))
-	//fmt.Println(r.URL.Query().Get("songID"))
 	isLike, err := strconv.ParseBool(likeStruct.Check)
 	if err != nil {
 		log.Println(err)
 	}
-	song_id, err := strconv.Atoi(likeStruct.SongID)
+	song_id, err := strconv.Atoi(likeStruct.SongId)
+
 	if err != nil {
 		log.Println(err)
 	}
-	//
 	err2 := m.DB.AddOrUpdateLikeValue(isLike, song_id, UserCache.User_id)
 	if err2 != nil {
 		log.Println(err)
 	}
+
+	songList, err3 := m.DB.SendUpdatedLikeValue(song_id)
+	if err3 != nil {
+		log.Println("Cannot get the updated song like")
+	}
+	returnAsJSON(songList, w, err3)
 }
 
 func (m *Repository) UpdateMessages(w http.ResponseWriter, r *http.Request) {
 	messages, err := m.DB.UpdateMessages(UserCache.User_id)
 	returnAsJSON(messages, w, err)
-
 }
 
 func (m *Repository) Filter(w http.ResponseWriter, r *http.Request) {

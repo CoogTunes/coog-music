@@ -464,14 +464,14 @@ func (m *postgresDBRepo) GetTopSongs() ([]models.Song, error) {
 //
 //}
 
-func (m *postgresDBRepo) UpdateSongCount(songWithId models.Song) (models.Song, error) {
+func (m *postgresDBRepo) UpdateSongCount(id int) (models.Song, error) {
 	var song models.Song
 
 	query := "UPDATE Song SET total_plays = total_plays + 1 where song_id = $1 returning *"
 
-	row := m.DB.QueryRow(query, songWithId.Song_id)
+	row := m.DB.QueryRow(query, id)
 
-	row.Scan(&song.Song_id, &song.Title, &song.Artist_id, &song.Album, &song.Total_plays)
+	row.Scan(&song.Song_id, &song.Title, &song.Album_id, &song.Artist_id, &song.SongPath, &song.CoverPath, &song.Uploaded_date, &song.Total_plays, &song.Duration)
 
 	return song, nil
 
@@ -810,13 +810,27 @@ func (m *postgresDBRepo) GetNumberOfPlaylists() (models.Playlist, error) {
 }
 
 func (m *postgresDBRepo) AddOrUpdateLikeValue(islike bool, songId int, userId int) error {
-	query := "insert into likes (islike,song_id,user_id) values ($1,$2,$3)"
-
+	query := "insert into likes (islike,song_id,user_id) values ($1,$2,$3) RETURNING *"
 	_, err := m.DB.Exec(query, islike, songId, userId)
 	if err != nil {
 		log.Println(err)
+		return err
 	}
+
 	return nil
+}
+
+func (m *postgresDBRepo) SendUpdatedLikeValue(songID int) (models.Song, error) {
+	var currentRow models.Song
+	query := "select * from likes_view where likes_view.song_id = $1"
+	row := m.DB.QueryRow(query, songID)
+	err := row.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id,
+		&currentRow.SongPath, &currentRow.CoverPath, &currentRow.Uploaded_date, &currentRow.Total_plays, &currentRow.Duration, &currentRow.Artist_name, &currentRow.Album)
+	if err != nil {
+		log.Println(err)
+		return currentRow, err
+	}
+	return currentRow, nil
 }
 
 // REPORTS

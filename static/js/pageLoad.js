@@ -85,7 +85,7 @@ function getHomeControlTemplate() {
                             <div class="row">   
                                 <div class="playlist-title">Top songs<i class="bi bi-layers-fill playlist-icon"></i></div>
                             </div>
-                            <div class="row cards-wrapper">
+                            <div class="cards-wrapper">
                                 {{song-content}}
                             </div>
                         </div>`;
@@ -95,6 +95,8 @@ function getHomeControlTemplate() {
 function pageLoadManager(){
     let mainView = document.querySelector('.music-manager-container');
     let bodyContainer = document.body;
+    filterControl.filterControlInit();
+    filterControl.filterListen();
 
     document.addEventListener('click', function (evt) {
         let target = evt.target;
@@ -135,17 +137,12 @@ function pageLoadManager(){
                 mainView.classList.add(viewSelector);
                 if(targetPage === 'discover'){
                     updateViewDiscover(data, mainView, viewName, bodyContainer, getDiscoverTemplate());
-                    filterControl.filterControlInit();
-                    filterControl.filterListen();
                 }
                 else if (targetPage === 'admin') {
-                    updateViewAdminControl(data, mainView, viewName, bodyContainer, getAdminControlTemplate())
-                    filterControl.filterControlInit();
-                    filterControl.filterListen();
-
+                    updateViewAdminControl(data, mainView, viewName, bodyContainer, getAdminControlTemplate());
                 }
                 else if (targetPage === 'home'){
-                    updateViewHomeControl(data, mainView, viewName, bodyContainer, getHomeControlTemplate())
+                    updateViewHomeControl(data, mainView, viewName, bodyContainer, getHomeControlTemplate());
                 }
             })
             .catch((error) => {

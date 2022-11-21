@@ -5,9 +5,9 @@ function likeControl() {
         let target = evt.target;
 
         if(target.classList.contains('bi-heart')){
-            let songTarget = target.closest('.table-song-item');
+            let songTarget = target.closest('.content-wrapper') ?? target.closest('.table-song-item');
+            console.log(songTarget.getAttribute('data-song-id'));
             updateLike(songTarget.getAttribute('data-song-id'), target.parentElement);
-            console.log(target);
         }
     });
 
@@ -19,7 +19,7 @@ function likeControl() {
         }
         ajaxPostHandler('/like', data).then((data) => {
             console.log('Like added to song...');
-            //updateSongCount(parentElement, data);
+            updateSongCount(parentElement, data.Likes);
         }).catch((error) => {
             console.log('Error adding like to song...');
             console.log(error);

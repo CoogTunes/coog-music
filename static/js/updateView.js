@@ -49,13 +49,13 @@ function tableItemTemplates(filterValue){
         case 'artist':
             return "";
         default:
-            return `<tr class="table-song-item">
-    <td><div class="playlist-item-flex content-wrapper" data-audio-path="{{audio}}" data-music-state="paused"><div class="playlist-img-contain audio-cover"><img src="{{cover}}"></div><div class="song-info-item"><div class="song-info-title">{{song}}</div><div class="song-info-artist">{{artist}}</div></div><div class="buttons playlist">
+            return `<tr class="table-song-item" data-audio-id="{{songID}}">
+    <td><div class="playlist-item-flex content-wrapper" data-audio-path="{{audio}}" data-music-state="paused" data-audio-id="{{songID}}"><div class="playlist-img-contain audio-cover"><img src="{{cover}}"></div><div class="song-info-item"><div class="song-info-title">{{song}}</div><div class="song-info-artist">{{artist}}</div></div><div class="buttons playlist">
                         <button><i class="bi bi-play-fill play-btn"></i></button>
                       </div></div></td>
     <td>{{album}}</td>
     <td>{{date}}</td>
-    <td>{{likes}}</td>
+    <td class="song-play-count">{{totalPlays}}</td>
     <td>Time</td>
   </tr>`;
 
@@ -74,8 +74,8 @@ export function updateViewPlaylist(data, viewContainer, viewName, bodyContainer,
             "{{songID}}" : entry.Song_id,
             "{{song}}" : entry.Title,
             "{{artistId}}" : entry.Artist_id,
-            "{{songPath}}" : entry.SongPath,
-            "{{coverPath}}" : entry.CoverPath,
+            "{{audio}}" : entry.SongPath,
+            "{{cover}}" : entry.CoverPath,
             "{{date}}": dateParse((entry.UploadedDate ?? entry.Uploaded_date)),
             "{{album}}": entry.Album,
             "{{albumId}}": entry.Album_id,
@@ -84,13 +84,13 @@ export function updateViewPlaylist(data, viewContainer, viewName, bodyContainer,
             "{{duration}}": entry.Duration,
         }
         let songItem = `<tr class="table-song-item" data-song-id="{{songID}}">
-    <td><div class="playlist-item-flex content-wrapper" data-audio-path="{{audio}}" data-music-state="paused"><div class="playlist-img-contain audio-cover"><img src="{{cover}}"></div><div class="song-info-item"><div class="song-info-title">{{song}}</div><div class="song-info-artist">{{artist}}</div></div><div class="buttons playlist">
+    <td><div class="playlist-item-flex content-wrapper" data-audio-path="{{audio}}" data-music-state="paused" data-song-id="{{songID}}"><div class="playlist-img-contain audio-cover"><img src="{{cover}}"></div><div class="song-info-item"><div class="song-info-title">{{song}}</div><div class="song-info-artist">{{artist}}</div></div><div class="buttons playlist">
                         <button><i class="bi bi-play-fill play-btn"></i></button>
                       </div></div></td>
     <td>{{album}}</td>
     <td>{{date}}</td>
     <td><div class="like-container"><i class="bi bi-heart"></i><div class="current-likes">{{likes}}</div></div></td>
-    <td>Time</td>
+    <td>{{duration}}</td>
   </tr>`;
         songItem = templateReplace(songItem, mapObj);
         tableHTML += songItem;
@@ -117,23 +117,28 @@ export function updateViewDiscover(data, viewContainer, viewName, bodyContainer,
     let tableHTML = '';
     data.forEach((entry) => {
         const mapObj = {
-            "{{song}}": entry.Title,
-            "{{album}}": entry.Album,
-            "{{artist}}": entry.Artist ?? entry.Artist_name,
-            "{{date}}": dateParse((entry.UploadedDate ?? entry.Uploaded_date)),
-            "{{dislikes}}": entry.Dislikes ?? "",
             "{{likes}}": entry.Likes ?? entry.Total_likes,
-            "{{cover}}": entry.CoverPath,
-            "{{audio}}": entry.SongPath,
+            "{{dislikes}}": entry.Dislikes ?? "",
+            "{{songID}}" : entry.Song_id,
+            "{{song}}" : entry.Title,
+            "{{artistId}}" : entry.Artist_id,
+            "{{audio}}" : entry.SongPath,
+            "{{cover}}" : entry.CoverPath,
+            "{{date}}": dateParse((entry.UploadedDate ?? entry.Uploaded_date)),
+            "{{album}}": entry.Album,
+            "{{albumId}}": entry.Album_id,
+            "{{totalPlays}}": entry.Total_plays,
+            "{{artist}}": entry.Artist ?? entry.Artist_name,
+            "{{duration}}": entry.Duration,
         }
-        let songItem = `<tr class="table-song-item">
-    <td><div class="playlist-item-flex content-wrapper" data-audio-path="{{audio}}" data-music-state="paused"><div class="playlist-img-contain audio-cover"><img src="{{cover}}"></div><div class="song-info-item"><div class="song-info-title">{{song}}</div><div class="song-info-artist">{{artist}}</div></div><div class="buttons playlist">
+        let songItem = `<tr class="table-song-item" data-song-id="{{songID}}">
+    <td><div class="playlist-item-flex content-wrapper" data-audio-path="{{audio}}" data-music-state="paused" data-song-id="{{songID}}"><div class="playlist-img-contain audio-cover"><img src="{{cover}}"></div><div class="song-info-item"><div class="song-info-title">{{song}}</div><div class="song-info-artist">{{artist}}</div></div><div class="buttons playlist">
                         <button><i class="bi bi-play-fill play-btn"></i></button>
                       </div></div></td>
     <td>{{album}}</td>
     <td>{{date}}</td>
-    <td>{{likes}}</td>
-    <td>Time</td>
+    <td class="song-play-count">{{totalPlays}}</td>
+    <td>{{duration}}</td>
   </tr>`;
         songItem = templateReplace(songItem, mapObj);
         tableHTML += songItem;
@@ -153,7 +158,7 @@ export function updateViewDiscover(data, viewContainer, viewName, bodyContainer,
     viewContainer.classList.add('show-animation');
 }
 
-export function updateTableView(data, tableContainer, songTotal, filterList, mainView){
+export function updateTableView(data, tableContainer, songTotal, filterList){
     if(songTotal)
         songTotal.innerHTML = songCount(data);
     tableContainer.innerHTML = '';
@@ -166,15 +171,19 @@ export function updateTableView(data, tableContainer, songTotal, filterList, mai
 
     data.forEach((entry) => {
         const mapObj = {
-            "{{song}}": entry.Title ?? entry.Song_title ?? "",
-            "{{album}}": entry.Album ?? entry.Album_name ?? "",
-            "{{artist}}": entry.Artist ?? entry.Artist_name ?? "",
-            "{{date}}": dateParse((entry.UploadedDate ?? entry.Uploaded_date ?? "")),
+            "{{likes}}": entry.Likes ?? entry.Total_likes,
             "{{dislikes}}": entry.Dislikes ?? "",
-            "{{likes}}": entry.Likes ?? entry.Total_likes ?? "",
-            "{{cover}}": entry.CoverPath ?? entry.Cover_path ?? "",
-            "{{audio}}": entry.SongPath ?? entry.Song_path ?? "",
-            "{{time}}": entry.duration ?? "",
+            "{{songID}}" : entry.Song_id,
+            "{{song}}" : entry.Title,
+            "{{artistId}}" : entry.Artist_id,
+            "{{audio}}" : entry.SongPath,
+            "{{cover}}" : entry.CoverPath,
+            "{{date}}": dateParse((entry.UploadedDate ?? entry.Uploaded_date)),
+            "{{album}}": entry.Album,
+            "{{albumId}}": entry.Album_id,
+            "{{totalPlays}}": entry.Total_plays,
+            "{{artist}}": entry.Artist ?? entry.Artist_name,
+            "{{duration}}": entry.Duration,
         }
         let songItem = tableItemTemplates(filterValue);
         songItem = templateReplace(songItem, mapObj);
@@ -256,9 +265,10 @@ export function updateViewHomeControl(data, viewContainer, viewName, bodyContain
             "{{likes}}": entry.Likes ?? entry.Total_likes,
             "{{cover}}": entry.CoverPath,
             "{{audio}}": entry.SongPath,
+            "{{songID}}" : entry.Song_id,
         }
         let songItem = `<div class="content">
-                  <div class="content-wrapper" data-audio-path="{{audio}}" data-music-state="paused">
+                  <div class="content-wrapper" data-audio-path="{{audio}}" data-music-state="paused" data-song-id="{{songID}}">
                     <div class="content-img audio-cover">
                       <img src="{{cover}}">
                       <div class="buttons">
