@@ -265,6 +265,8 @@ func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
 
 	artistName := concatenateName(r.Form.Get("artist_name"))
 	songName := r.Form.Get("music_name")
+	songDate := r.Form.Get("song_date")
+
 	fmt.Println("Passes through the songName")
 	coverFile, fhCover, err := r.FormFile("music_cover")
 	if err != nil {
@@ -326,11 +328,12 @@ func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
 	duration := getMp3Duration(fullSongPath)
 
 	songInfo := models.Song{
-		Title:     songName,
-		Artist_id: UserCache.User_id,
-		CoverPath: fullCoverPath,
-		SongPath:  fullSongPath,
-		Duration:  duration,
+		Title:         songName,
+		Artist_id:     UserCache.User_id,
+		CoverPath:     fullCoverPath,
+		SongPath:      fullSongPath,
+		Duration:      duration,
+		Uploaded_date: songDate,
 	}
 	fmt.Println(songInfo)
 	err = m.DB.AddSong(songInfo)

@@ -205,7 +205,10 @@ func (m *postgresDBRepo) Authenticate(email string, password string) (models.Use
 func (m *postgresDBRepo) AddSong(res models.Song) error {
 	query := "insert into song (title, artist_id, song_path, cover_path, uploaded_date, duration) values ($1, $2, $3, $4, to_date($5, 'YYYY-MM-DD'), $6)"
 
-	_, err := m.DB.Exec(query, res.Title, res.Artist_id, res.SongPath, res.CoverPath, time.Now(), res.Duration)
+	if res.Uploaded_date == "" {
+		res.Uploaded_date = time.Now().String()
+	}
+	_, err := m.DB.Exec(query, res.Title, res.Artist_id, res.SongPath, res.CoverPath, res.Uploaded_date, res.Duration)
 	if err != nil {
 		log.Println(err)
 		return err
