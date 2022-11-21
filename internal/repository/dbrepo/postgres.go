@@ -871,7 +871,8 @@ func (m *postgresDBRepo) GetInitialUsersReport() ([]models.UserReport, error) {
 	for rows.Next() {
 		var currentRow models.UserReport
 
-		err := rows.Scan(&currentRow.User_id, &currentRow.Username, &currentRow.First_name, &currentRow.Last_name, &currentRow.Admin_level, &currentRow.JoinedDate, &currentRow.Playlist_count)
+		err := rows.Scan(&currentRow.User_id, &currentRow.Username, &currentRow.First_name, &currentRow.Last_name, &currentRow.Admin_level, &currentRow.JoinedDate, &currentRow.Playlist_count,
+			&currentRow.Liked_songs_count, &currentRow.Common_artist)
 
 		if err != nil {
 			return nil, err
@@ -900,7 +901,8 @@ func (m *postgresDBRepo) GetUsersReport(minDate string, maxDate string) ([]model
 	for rows.Next() {
 		var currentRow models.UserReport
 
-		err := rows.Scan(&currentRow.User_id, &currentRow.Username, &currentRow.First_name, &currentRow.Last_name, &currentRow.Admin_level, &currentRow.JoinedDate, &currentRow.Playlist_count)
+		err := rows.Scan(&currentRow.User_id, &currentRow.Username, &currentRow.First_name, &currentRow.Last_name, &currentRow.Admin_level, &currentRow.JoinedDate, &currentRow.Playlist_count,
+			&currentRow.Liked_songs_count, &currentRow.Common_artist)
 
 		if err != nil {
 			return nil, err
@@ -929,7 +931,7 @@ func (m *postgresDBRepo) GetArtistReport(minDate string, maxDate string) ([]mode
 	for rows.Next() {
 		var currentRow models.ArtistReport
 
-		err := rows.Scan(&currentRow.Name, &currentRow.Artist_id, &currentRow.Join_date, &currentRow.Num_songs, &currentRow.Num_Albums, &currentRow.Total_Plays, &currentRow.Avg_Plays)
+		err := rows.Scan(&currentRow.Name, &currentRow.Artist_id, &currentRow.Join_date, &currentRow.Num_songs, &currentRow.Num_Albums, &currentRow.Total_Plays, &currentRow.Avg_Plays, &currentRow.Most_liked_song)
 
 		if err != nil {
 			return nil, err
@@ -939,14 +941,14 @@ func (m *postgresDBRepo) GetArtistReport(minDate string, maxDate string) ([]mode
 	return artistReport, nil
 }
 
-func (m *postgresDBRepo) GetSongReport(minDate string, maxDate string, min_plays int, max_plays int) ([]models.Song, error) {
+func (m *postgresDBRepo) GetPlaysReport(minDate string, maxDate string, min_plays int, max_plays int) ([]models.Song, error) {
 	var songReport []models.Song
 
-	query := `select * from songReport 
-				where songReport.uploaded_date >= $1
-				AND songReport.uploaded_date <= $2
-				AND songReport.total_plays >= $3
-				AND songReport.total_plays <= $4`
+	query := `select * from likes_view 
+				where likes_view.uploaded_date >= $1
+				AND likes_view.uploaded_date <= $2
+				AND likes_view.total_plays >= $3
+				AND likes_view.total_plays <= $4`
 
 	rows, err := m.DB.Query(query, minDate, maxDate, min_plays, max_plays)
 	if err != nil {
@@ -962,8 +964,8 @@ func (m *postgresDBRepo) GetSongReport(minDate string, maxDate string, min_plays
 
 	for rows.Next() {
 		var currentRow models.Song
-		err := rows.Scan(&currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id, &currentRow.SongPath, &currentRow.CoverPath,
-			&currentRow.Uploaded_date, &currentRow.Total_plays, &currentRow.Duration, &currentRow.Artist_name, &currentRow.Album)
+		err := rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id,
+			&currentRow.SongPath, &currentRow.CoverPath, &currentRow.Uploaded_date, &currentRow.Total_plays, &currentRow.Duration, &currentRow.Artist_name, &currentRow.Album)
 
 		if err != nil {
 			return nil, err
