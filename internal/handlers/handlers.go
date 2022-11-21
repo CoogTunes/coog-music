@@ -831,6 +831,49 @@ func (m *Repository) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(addedUser, w, err)
 }
 
+func (m *Repository) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	userId, err := strconv.Atoi(r.URL.Query().Get("user_id"))
+	if err != nil {
+		log.Println(err)
+	}
+	m.DB.RemoveUser(userId)
+}
+
+func (m *Repository) DeleteSongFromPlaylist(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	songId, err := strconv.Atoi(r.URL.Query().Get("song_id"))
+	if err != nil {
+		log.Println(err)
+	}
+
+	playlistId, err := strconv.Atoi(r.URL.Query().Get("playlist_id"))
+	if err != nil {
+		log.Println(err)
+	}
+	m.DB.RemoveSongFromPlaylist(songId, playlistId)
+}
+
+func (m *Repository) DeletePlaylist(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	playlistId, err := strconv.Atoi(r.URL.Query().Get("playlist_id"))
+	if err != nil {
+		log.Println(err)
+	}
+	m.DB.RemovePlaylist(playlistId)
+}
+
+func (m *Repository) DeleteSong(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	songId, err := strconv.Atoi(r.URL.Query().Get("song_id"))
+	if err != nil {
+		log.Println(err)
+	}
+	m.DB.RemoveSong(songId)
+}
+
 func (m *Repository) Follow(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	// get fields

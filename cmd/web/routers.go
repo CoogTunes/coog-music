@@ -75,6 +75,11 @@ func routes() http.Handler {
 	// Profile page handlers
 	mux.Get("/profile", handlers.Repo.GetProfile)
 	mux.Get("/loadPlaylists", handlers.Repo.GetPlaylists)
+	// Delete
+	mux.Delete("/playlist", handlers.Repo.DeletePlaylist)
+	mux.Delete("/playlist/song", handlers.Repo.DeleteSongFromPlaylist)
+	mux.Delete("/user", handlers.Repo.DeleteUser)
+	mux.Delete("/song", handlers.Repo.DeleteSong)
 	//Reports
 	mux.Post("/like", handlers.Repo.AddOrUpdateLikeValue) // use this for all insert/update like value. Send isLike:null to delete
 	mux.Post("/likesReport", handlers.Repo.GetLikesReport)
