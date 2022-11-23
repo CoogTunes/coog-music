@@ -155,25 +155,24 @@ CREATE OR REPLACE TRIGGER onLikeInsert BEFORE INSERT ON Likes
     FOR EACH ROW EXECUTE FUNCTION onLikeInsert();
 
 
--- alerts all admin if a bad album date is added
-CREATE OR REPLACE FUNCTION CheckAlbumDate() RETURNS TRIGGER AS $$
+-- alerts all admin if a bad song date is added
+CREATE OR REPLACE FUNCTION AlertSongDateBeforeArtistDate() RETURNS TRIGGER AS $$
 DECLARE 
     artist_join_date date;
 BEGIN
-	SELECT join_date into artist_join_date FROM ARTIST, ALBUM WHERE ARTIST.artist_id = new.artist_id AND album.album_id = new.album_id;
-    IF (artist_join_date) > new.date_added 
+	SELECT join_date into artist_join_date FROM ARTIST, SONG WHERE ARTIST.artist_id = new.artist_id AND SONG.song_id = new.song_id;
+    IF (artist_join_date) > new.uploaded_date 
 		THEN 
--- 		DELETE FROM ALBUM WHERE album.Album_id = new.album_id; (maybe use?)
 		INSERT INTO Messages select users.user_id, 
-		CONCAT('ALBUM ID ', new.album_id, ' of date ', new.date_added, ' is before artist join date of ', artist_join_date, '.') 
+		CONCAT('Song ID ', new.song_id, ' of date ', new.uploaded_date, ' is before artist join date of ', artist_join_date, '.') 
 		 from users where users.admin_level = 3;
     END IF;
     return new;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER CheckAlbumDate AFTER INSERT ON Album
-    FOR EACH ROW EXECUTE FUNCTION CheckAlbumDate();
+CREATE OR REPLACE TRIGGER AlertSongDateBeforeArtistDate AFTER INSERT ON Song
+    FOR EACH ROW EXECUTE FUNCTION AlertSongDateBeforeArtistDate();
 
 
 CREATE OR REPLACE FUNCTION CheckRatings() RETURNS TRIGGER AS $$
