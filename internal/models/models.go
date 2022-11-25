@@ -1,13 +1,14 @@
 package models
 
 type Users struct {
-	User_id     int
-	Username    string
-	Password    string
-	First_name  string
-	Last_name   string
-	Admin_level int
-	JoinedDate  string
+	User_id           int
+	Username          string
+	Password          string
+	First_name        string
+	Last_name         string
+	Concatenated_name string
+	Admin_level       int
+	JoinedDate        string
 }
 
 type Song struct {
@@ -87,23 +88,26 @@ type Followers struct {
 // }
 
 type UserReport struct {
-	User_id        int
-	Username       string
-	First_name     string
-	Last_name      string
-	Admin_level    int
-	JoinedDate     string
-	Playlist_count int
+	User_id           int
+	Username          string
+	First_name        string
+	Last_name         string
+	Admin_level       int
+	JoinedDate        string
+	Playlist_count    int
+	Liked_songs_count int
+	Common_artist     string
 }
 
 type ArtistReport struct {
-	Name        string
-	Artist_id   int
-	Join_date   string
-	Num_songs   int
-	Num_Albums  int
-	Total_Plays int
-	Avg_Plays   int
+	Name            string
+	Artist_id       int
+	Join_date       string
+	Num_songs       int
+	Num_Albums      int
+	Total_Plays     int
+	Avg_Plays       int
+	Most_liked_song string
 }
 
 type DisplaySongInfo struct {

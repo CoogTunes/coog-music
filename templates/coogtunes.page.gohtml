@@ -20,24 +20,24 @@
               <i class="bi bi-front"></i>
               <span>Home</span>
             </h4>
-            <h4 class="active page-load-trigger" data-page-index="discover">
+            <h4 class="active page-load-trigger" data-view-name="Discover" data-page-index="discover">
               <i class="bi bi-vinyl"></i>
-              <span>Discover</span>
+              <span class="page-trigger-title">Discover</span>
             </h4>
             {{if (gt .UserData.Admin_level 0)}}
-            <h4 class="active">
-              <i class="bi bi-collection"></i>
-              <span>My Playlist</span>
-            </h4>
+{{/*            <h4 class="active">*/}}
+{{/*              <i class="bi bi-collection"></i>*/}}
+{{/*              <span>My Playlist</span>*/}}
+{{/*            </h4>*/}}
             <div class="playlist-bottom">
               <h4 class="active create-playlist-btn" data-target-modal="playListModal">
                 <i class="bi bi-plus-square"></i>
                 <span>Create Playlist</span>
               </h4>
-              <h4 class="active">
-                <i class="bi bi-box2-heart"></i>
-                <span>Liked Songs</span>
-              </h4>
+{{/*              <h4 class="active">*/}}
+{{/*                <i class="bi bi-box2-heart"></i>*/}}
+{{/*                <span>Liked Songs</span>*/}}
+{{/*              </h4>*/}}
             </div>
             {{end}}
             <div class="divider"></div>
@@ -70,26 +70,28 @@
                 <span></span>
                 <i class="bi bi-distribute-vertical"></i>
               </li>
+              {{if (eq .UserData.Admin_level 3)}}
               <li class="page-load-trigger" data-page-index="admin" data-view-name="Admin">
                 <span class="page-trigger-title">ADMIN</span>
                 <span></span>
                 <i class="bi bi-distribute-vertical"></i>
               </li>
-              <li>
-                MY LIBRARY <span></span><i class="bi bi-collection-play-fill"></i>
-              </li>
+              {{end}}
+{{/*              <li>*/}}
+{{/*                MY LIBRARY <span></span><i class="bi bi-collection-play-fill"></i>*/}}
+{{/*              </li>*/}}
 {{/*              <li style="display:none;">RADIO <span></span><i class="bi bi-broadcast"></i></li>*/}}
             </ul>
-            <div class="search">
-              <i class="bi bi-search"></i>
-              <input type= "text" placeholder="What do you want to listen to?" />
-            </div>
+{{/*            <div class="search">*/}}
+{{/*              <i class="bi bi-search"></i>*/}}
+{{/*              <input type= "text" placeholder="What do you want to listen to?" />*/}}
+{{/*            </div>*/}}
             {{if eq .UserData.Admin_level 2}}
             <div class="artist-control control-actions">
               <ul>
                 <li>
                   <div class="dp-flex" data-target-modal="artistModal">
-                    <div>Upload</div>
+                    <div>UPLOAD</div>
                     <span></span>
                     <i class="bi bi-plus-square-dotted"></i>
                   </div>
@@ -99,7 +101,7 @@
              {{end}}
             {{if (gt .UserData.Admin_level 0)}}
             <div class="auth-user-control">
-              <img src="/static/img/account.png" alt="user_pic" onclick="toggleMenu()" />
+              <img src="/static/img/account.png" class="user-control" alt="user_pic" />
               <div class="user" id="subMenu">
                 <div class="sub-menu">
                   <div class="user-info">
@@ -107,9 +109,11 @@
                     {{.UserData.First_name}} {{.UserData.Last_name}}
                   </div>
                   <hr />
-                  <a href="#Account" class="sub-menu-link">Account</a>
-                  <a href="/profile" class="sub-menu-link">Profile</a>
-                  <a href="#Settings" class="sub-menu-link">Settings</a>
+{{/*                  <a href="#Account" class="sub-menu-link">Account</a>*/}}
+                  {{if (eq .UserData.Admin_level 2)}}
+                  <a href="#" class="sub-menu-link control-playlist-item go-to-artist table-view" data-artist-id={{.UserData.User_id}} data-artist-name={{.UserData.Concatenated_name}}>Profile</a>
+                  {{end}}
+                  {{/*                  <a href="#Settings" class="sub-menu-link">Settings</a>*/}}
                   <a href="/logout"  class="sub-menu-link">Log Out</a>
                 </div>
               </div>
@@ -121,23 +125,21 @@
             </div>
             {{end}}
           </nav>
-          <div class="song_side-wrapper music-manager-container"></div>
-        </div>
-        <div class="master_play">
+                  <div class="master_play">
           <div class="wave">
             <div class="wave1"></div>
             <div class="wave1"></div>
             <div class="wave1"></div>
           </div>
-          <img class="master-play-cover" src="" alt="" />
+          <img class="master-play-cover" alt="" />
           <div class="master-song-info">
-            <div class="master-song-title">Love in the Dark</div>
-            <div class="master-song-artist">Adele</div>
+            <div class="master-song-title"></div>
+            <div class="master-song-artist"></div>
           </div>
           <div class="yfitops-wrapper">
             <div class="icon">
               <i class="bi bi-skip-start-fill"></i>
-              <i class="bi bi-play-fill"></i>
+              <i class="bi bi-play-circle-fill"></i>
               <i class="bi bi-skip-end-fill"></i>
             </div>
             <div class="music-bar">
@@ -154,6 +156,11 @@
               <div class="music-time-duration"><span>0:00</span></div>
             </div>
           </div>
+          <div class="queue-wrapper">
+            <i class="bi bi-list-columns queue-show-trigger"></i>
+            <div class="queue-container">
+            </div>
+          </div>
           <div class="volume">
             <i class="bi bi-volume-down-fill"></i>
             <div class="volume-bar-wrapper">
@@ -167,64 +174,8 @@
             <div class="vol_bar"></div>
             </div>
           </div>
-          <div class="menu_song">
-            <div class="queue-container">
-              <div class="songItem">
-                <span>01</span>
-                <img src="/static/img/adele.jpg" alt="Adele" />
-                <h5>
-                  Love in the Dark
-                  <div class="subtitle">Adele</div>
-                </h5>
-                <i class="bi playListPlay bi-play-circle-fill" id="1"></i>
-              </div>
-              <div class="songItem">
-                <span>02</span>
-                <img src="/static/img/adele.jpg" alt="Adele" />
-                <h5>
-                  Love in the Dark
-                  <div class="subtitle">Adele</div>
-                </h5>
-                <i class="bi playListPlay bi-play-circle-fill" id="2"></i>
-              </div>
-              <div class="songItem">
-                <span>03</span>
-                <img src="/static/img/adele.jpg" alt="Adele" />
-                <h5>
-                  Love in the Dark
-                  <div class="subtitle">Adele</div>
-                </h5>
-                <i class="bi playListPlay bi-play-circle-fill" id="3"></i>
-              </div>
-              <div class="songItem">
-                <span>04</span>
-                <img src="/static/img/adele.jpg" alt="Adele" />
-                <h5>
-                  Love in the Dark
-                  <div class="subtitle">Adele</div>
-                </h5>
-                <i class="bi playListPlay bi-play-circle-fill" id="4"></i>
-              </div>
-              <div class="songItem">
-                <span>05</span>
-                <img src="/static/img/adele.jpg" alt="Adele" />
-                <h5>
-                  Love in the Dark
-                  <div class="subtitle">Adele</div>
-                </h5>
-                <i class="bi playListPlay bi-play-circle-fill" id="5"></i>
-              </div>
-              <div class="songItem">
-                <span>06</span>
-                <img src="/static/img/adele.jpg" alt="Adele" />
-                <h5>
-                  Love in the Dark
-                  <div class="subtitle">Adele</div>
-                </h5>
-                <i class="bi playListPlay bi-play-circle-fill" id="6"></i>
-              </div>
-            </div>
-          </div>
+        </div>
+          <div class="song_side-wrapper music-manager-container"></div>
         </div>
         <div class="modals-container">
           <div id="artistModal" class="modal-container">
@@ -243,6 +194,7 @@
                       <option value="song">Song</option>
                     </select>
                     <input type="text" class="" name="music_name"placeholder="Song or Album Name">
+                    <input type="date" class="" name="released_date">
                     <label for="music_cover" class="file-upload-cover upload-label">
                       <input id="music_cover" type="file" class="" name="music_cover">
                       <i class="bi bi-upload"></i><span>Upload Cover</span>
@@ -308,6 +260,7 @@
 
 
     {{define "js"}}
+      <script type="module" src="/static/js/redirects.js"></script>
       <script type="module" src="/static/js/helpers.js"></script>
       <script type="module" src="/static/js/ajax.js"></script>
       <script type="module" src="/static/js/date.js"></script>
@@ -324,5 +277,15 @@
       <script type="module" src="/static/js/pageLoad.js"></script>
       <script type="module" src="/static/js/playlist.js"></script>
       <script type="module" src="/static/js/playTotals.js"></script>
+      <script type="module" src="/static/js/playlistControl.js"></script>
+      <script type="module" src="/static/js/playListSongDelete.js"></script>
+      <script type="module" src="/static/js/playListDelete.js"></script>
+      <script type="module" src="/static/js/playlistAdd.js"></script>
+      <script src="/static/js/tabs.js"></script>
+      <script src="/static/js/queueControl.js"></script>
+      {{if (eq .UserData.Admin_level 3)}}
+        <script type="module" src="/static/js/removeUser.js"></script>
+      {{end}}
+      <script type="module" src="/static/js/artistPage.js"></script>
     {{end}}
 

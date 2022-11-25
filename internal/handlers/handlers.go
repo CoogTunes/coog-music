@@ -83,9 +83,8 @@ func (m *Repository) PostLogin(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-
 	UserCache = userInfo
-	//m.GetPlaylistsByID(w, r)
+	UserCache.Concatenated_name = getArtistName(userInfo.First_name, userInfo.Last_name)
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
@@ -130,6 +129,8 @@ func (m *Repository) PostRegistration(w http.ResponseWriter, r *http.Request) {
 
 	UserCache = users
 
+	UserCache.Concatenated_name = getArtistName(users.First_name, users.Last_name)
+
 	if lvl == 2 {
 		m.AddArtist(firstName, lastName)
 	}
@@ -156,6 +157,11 @@ func (m *Repository) GetTopUserReport(w http.ResponseWriter, r *http.Request) {
 	userReport, err := m.DB.GetInitialUsersReport()
 	if err != nil {
 		log.Println(err)
+	}
+	if len(userReport) == 0 {
+		uReport := []models.UserReport{}
+		returnAsJSON(uReport, w, err)
+		return
 	}
 	returnAsJSON(userReport, w, err)
 }
@@ -196,6 +202,11 @@ func (m *Repository) GetTopSongs(w http.ResponseWriter, r *http.Request) {
 	topSongs, err := m.DB.GetTopSongs()
 	if err != nil {
 		log.Println("Cannot get the top 14 songs")
+	}
+	if len(topSongs) == 0 {
+		tSongs := []models.Song{}
+		returnAsJSON(tSongs, w, err)
+		return
 	}
 	returnAsJSON(topSongs, w, err)
 }
@@ -265,6 +276,7 @@ func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
 
 	artistName := concatenateName(getArtistName(UserCache.First_name, UserCache.Last_name))
 	songName := r.Form.Get("music_name")
+	date := r.Form.Get("released_date")
 	fmt.Println("Passes through the songName")
 	coverFile, fhCover, err := r.FormFile("music_cover")
 	if err != nil {
@@ -326,11 +338,12 @@ func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
 	duration := getMp3Duration(fullSongPath)
 
 	songInfo := models.Song{
-		Title:     songName,
-		Artist_id: UserCache.User_id,
-		CoverPath: fullCoverPath,
-		SongPath:  fullSongPath,
-		Duration:  duration,
+		Title:         songName,
+		Artist_id:     UserCache.User_id,
+		CoverPath:     fullCoverPath,
+		SongPath:      fullSongPath,
+		Duration:      duration,
+		Uploaded_date: date,
 	}
 	fmt.Println(songInfo)
 	err = m.DB.AddSong(songInfo)
@@ -343,12 +356,13 @@ func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseMultipartForm(32 << 20)
+	err := r.ParseMultipartForm(200 << 20)
 	if err != nil {
 		log.Fatal("Could not parse multipart forms")
 	}
 	artistName := concatenateName(getArtistName(UserCache.First_name, UserCache.Last_name))
 	albumName := r.Form.Get("music_name")
+	date := r.Form.Get("released_date")
 	pathAlbumName := concatenateName(albumName)
 	coverFile, fhCover, err := r.FormFile("music_cover")
 	if err != nil {
@@ -445,13 +459,14 @@ func (m *Repository) UploadAlbum(w http.ResponseWriter, r *http.Request) {
 		songPath := filePath + "/" + fileHeader.Filename
 		duration := getMp3Duration(songPath)
 		songInfo := models.Song{
-			Title:     newTitle,
-			Album:     albumName,
-			SongPath:  songPath,
-			CoverPath: fullCoverPath,
-			Artist_id: UserCache.User_id,
-			Album_id:  albumDBInfo.Album_id,
-			Duration:  duration,
+			Title:         newTitle,
+			Album:         albumName,
+			SongPath:      songPath,
+			CoverPath:     fullCoverPath,
+			Artist_id:     UserCache.User_id,
+			Album_id:      albumDBInfo.Album_id,
+			Duration:      duration,
+			Uploaded_date: date,
 		}
 		err = m.DB.AddSongForAlbum(songInfo)
 		if err != nil {
@@ -559,6 +574,11 @@ func (m *Repository) GetPlaylistSongs(w http.ResponseWriter, r *http.Request) {
 	}
 	displaySongs, err := m.DB.GetSongsFromPlaylist(playlistID)
 
+	if len(displaySongs) == 0 {
+		disSong := []models.Song{}
+		returnAsJSON(disSong, w, err)
+		return
+	}
 	returnAsJSON(displaySongs, w, err)
 }
 
@@ -656,8 +676,66 @@ func (m *Repository) UpdateSongCount(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(song, w, err)
 }
 
+type SongToPlaylist struct {
+	PlaylistID string `json:"playlistID"`
+	SongID     string `json:"songID"`
+}
+
 func (m *Repository) AddSongToPlaylist(w http.ResponseWriter, r *http.Request) {
-	return
+	decoder := json.NewDecoder(r.Body)
+	var songToPlaylist SongToPlaylist
+	err := decoder.Decode(&songToPlaylist)
+	if err != nil {
+		log.Println("Cannot decode SongToPlaylist json")
+	}
+	sID, err := strconv.Atoi(songToPlaylist.SongID)
+	if err != nil {
+		log.Println("Cannot change song ID to int")
+	}
+	pID, err := strconv.Atoi(songToPlaylist.PlaylistID)
+	if err != nil {
+		log.Println("Cannot change playlist ID to int")
+	}
+	err = m.DB.AddPlaylistSong(sID, pID)
+	if err != nil {
+		log.Println("Cannot add song to playlist")
+	}
+
+	var sMessage SuccessMessage
+
+	sMessage.Message = "success"
+
+	returnAsJSON(sMessage, w, err)
+
+}
+
+func (m *Repository) GetArtistInfo(w http.ResponseWriter, r *http.Request) {
+	artistID := r.URL.Query().Get("artistID")
+	artistName := r.URL.Query().Get("artistName")
+	decodedValue, err := url.QueryUnescape(artistName)
+	if err != nil {
+		log.Println("Cannot get artistName")
+	}
+	aID, err := strconv.Atoi(artistID)
+	if err != nil {
+		log.Println("Cannot decode the artist id")
+	}
+
+	artistAlbums, err := m.DB.GetSongsFromArtistByID(decodedValue, aID)
+	if err != nil {
+		log.Println("Cannot get the artist albums")
+	}
+
+	returnAsJSON(artistAlbums, w, err)
+}
+
+func (m *Repository) GetArtistsSongsAndAlbums(w http.ResponseWriter, r *http.Request) {
+	artistName := r.URL.Query().Get("artistName")
+	artistSongsAndAlbums, err := m.DB.GetSongsFromArtist(artistName)
+	if err != nil {
+		log.Println("Cannot get songs and albums from artist")
+	}
+	returnAsJSON(artistSongsAndAlbums, w, err)
 }
 
 func (m *Repository) AddSongToAlbum(w http.ResponseWriter, r *http.Request) {
@@ -668,6 +746,24 @@ func (m *Repository) GetAlbums(w http.ResponseWriter, r *http.Request) {
 	albums, err := m.DB.GetAlbums()
 
 	returnAsJSON(albums, w, err)
+}
+
+func (m *Repository) GetAlbumInfo(w http.ResponseWriter, r *http.Request) {
+	albumID := r.URL.Query().Get("albumID")
+	albumName := r.URL.Query().Get("albumName")
+	decodedValue, err := url.QueryUnescape(albumName)
+	if err != nil {
+		log.Println("Cannot get artistName")
+	}
+	aID, err := strconv.Atoi(albumID)
+	if err != nil {
+		log.Println("Cannot decode the album id")
+	}
+	albumSongs, err := m.DB.GetSongsFromAlbumByID(decodedValue, aID)
+	if err != nil {
+		log.Println("Cannot get songs from album")
+	}
+	returnAsJSON(albumSongs, w, err)
 }
 
 func (m *Repository) UpdateUser(w http.ResponseWriter, r *http.Request) {
@@ -767,6 +863,7 @@ func (m *Repository) Filter(w http.ResponseWriter, r *http.Request) {
 	plays := r.URL.Query().Get("plays")
 	fmt.Println(plays)
 	artists := r.URL.Query().Get("artists")
+	log.Println(artists)
 	users := r.URL.Query().Get("users")
 	fmt.Println("in filter")
 	if likes == "true" && plays != "true" {
@@ -807,6 +904,11 @@ func (m *Repository) GetLikesReport(w http.ResponseWriter, r *http.Request) {
 	//}
 
 	likesReport, err := m.DB.GetLikesReport(minLikes, maxLikes)
+	if len(likesReport) == 0 {
+		lReport := []models.Song{}
+		returnAsJSON(lReport, w, err)
+		return
+	}
 	returnAsJSON(likesReport, w, err)
 }
 
@@ -815,6 +917,11 @@ func (m *Repository) GetUserReport(w http.ResponseWriter, r *http.Request) {
 	minDate := r.URL.Query().Get("start")
 	maxDate := r.URL.Query().Get("end")
 	usersReport, err := m.DB.GetUsersReport(minDate, maxDate)
+	if len(usersReport) == 0 {
+		lReport := []models.UserReport{}
+		returnAsJSON(lReport, w, err)
+		return
+	}
 	returnAsJSON(usersReport, w, err)
 
 }
@@ -823,6 +930,11 @@ func (m *Repository) GetArtistReport(w http.ResponseWriter, r *http.Request) {
 	minDate := r.URL.Query().Get("start")
 	maxDate := r.URL.Query().Get("end")
 	artistReport, err := m.DB.GetArtistReport(minDate, maxDate)
+	if len(artistReport) == 0 {
+		lReport := []models.ArtistReport{}
+		returnAsJSON(lReport, w, err)
+		return
+	}
 	returnAsJSON(artistReport, w, err)
 }
 
@@ -842,8 +954,101 @@ func (m *Repository) GetSongReport(w http.ResponseWriter, r *http.Request) {
 	maxDate := r.URL.Query().Get("end")
 
 	songReport, err := m.DB.GetSongReport(minDate, maxDate, min_plays, max_plays)
+	if len(songReport) == 0 {
+		sReport := []models.Song{}
+		returnAsJSON(sReport, w, err)
+		return
+	}
 	returnAsJSON(songReport, w, err)
+}
 
+type DeletingSong struct {
+	SongID     string `json:"songID"`
+	PlaylistID string `json:"playlistID"`
+}
+
+type SuccessMessage struct {
+	Message string
+}
+
+func (m *Repository) DeleteSong(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	var songDelete DeletingSong
+	err := decoder.Decode(&songDelete)
+	if err != nil {
+		log.Println("Cannot decode DeletingSong json")
+	}
+	sID, err := strconv.Atoi(songDelete.SongID)
+	if err != nil {
+		log.Println("Cannot convert strig to int for songID")
+	}
+	pID, err := strconv.Atoi(songDelete.PlaylistID)
+	if err != nil {
+		log.Println("Cannot convert strig to int for playlistID")
+	}
+
+	err = m.DB.RemoveSongFromPlaylist(sID, pID)
+	if err != nil {
+		log.Println("Cannot remove song from playlist")
+	}
+	var sMessage SuccessMessage
+
+	sMessage.Message = "success"
+
+	returnAsJSON(sMessage, w, err)
+}
+
+type DeletingPlaylist struct {
+	Playlist string `json:"playlistID"`
+}
+
+func (m *Repository) DeletePlaylist(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	var playlistDelete DeletingPlaylist
+	err := decoder.Decode(&playlistDelete)
+	if err != nil {
+		log.Println("Cannot decode DeletingPlaylist json")
+	}
+	pID, err := strconv.Atoi(playlistDelete.Playlist)
+	if err != nil {
+		log.Println("Cannot convert strig to int for playlistID")
+	}
+
+	err = m.DB.RemovePlaylist(pID)
+	if err != nil {
+		log.Println("Cannot delete playlist")
+	}
+	var sMessage SuccessMessage
+
+	sMessage.Message = "success"
+
+	returnAsJSON(sMessage, w, err)
+}
+
+type DeletingUser struct {
+	User string `json:"userID"`
+}
+
+func (m *Repository) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	var userDelete DeletingUser
+	err := decoder.Decode(&userDelete)
+	if err != nil {
+		log.Println("Cannot decode DeletingUser json")
+	}
+	uID, err := strconv.Atoi(userDelete.User)
+	if err != nil {
+		log.Println("Cannot convert strig to int for userID")
+	}
+	err = m.DB.RemoveUser(uID)
+	if err != nil {
+		log.Println("Cannot delete user")
+	}
+	var sMessage SuccessMessage
+
+	sMessage.Message = "success"
+
+	returnAsJSON(sMessage, w, err)
 }
 
 // HELPER FUNCTIONS
@@ -931,6 +1136,9 @@ func getMp3Duration(path string) string {
 	// sec := t % 60
 	minString := fmt.Sprint(math.Floor(tFloat / 60))
 	secString := fmt.Sprint(t % 60)
+	if len(secString) == 1 {
+		secString = "0" + secString
+	}
 	minsec := minString + ":" + secString
 	fmt.Println(minsec)
 	return minsec

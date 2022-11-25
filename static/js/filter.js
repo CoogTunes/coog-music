@@ -65,6 +65,7 @@ export let filterControl = {
     getFilterData : function getFilterData(){
         console.log('Loading Filter Data Into View...');
         let data = filterControl.parseFilterData(filterControl.filterManager.getFilters());
+        console.log(data);
         ajaxGetHandler('/filters?' + new URLSearchParams(data)).then((data) => {
             console.log(data);
             filterControl.setTableContainer();

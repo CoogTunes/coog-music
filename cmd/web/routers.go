@@ -30,12 +30,13 @@ func routes() http.Handler {
 
 	//mux.Post("/artist", handlers.Repo.AddArtist)
 	mux.Get("/artists", handlers.Repo.GetArtists)
-	mux.Put("/artist", handlers.Repo.UpdateArtist)
+	mux.Get("/artistPage", handlers.Repo.GetArtistInfo)
+	// mux.Put("/artist", handlers.Repo.UpdateArtist)
 	//mux.Get("/artists-songs", handlers.Repo.GetArtistsAndSongs)
 
 	//mux.Post("/album", handlers.Repo.AddAlbum)
 	mux.Get("/albums", handlers.Repo.GetAlbums)
-
+	mux.Get("/albumPage", handlers.Repo.GetAlbumInfo)
 	//mux.Post("/song", handlers.Repo.AddSong)
 	//mux.Get("/song/{id}", handlers.Repo.GetSong)
 	//mux.Get("/songs", handlers.Repo.GetSongs)
@@ -84,6 +85,12 @@ func routes() http.Handler {
 	mux.Post("/songReport", handlers.Repo.GetSongReport)
 
 	mux.Post("/updatePlays", handlers.Repo.UpdateSongCount)
+
+	mux.Post("/addSong", handlers.Repo.AddSongToPlaylist)
+	mux.Get("/artist", handlers.Repo.GetArtistsSongsAndAlbums)
+	mux.Post("/deleteSong", handlers.Repo.DeleteSong)
+	mux.Post("/deletePlaylist", handlers.Repo.DeletePlaylist)
+	mux.Post("/deleteUser", handlers.Repo.DeleteUser)
 
 	fileServer := http.FileServer(http.Dir("./static/"))
 

@@ -1,3 +1,85 @@
+import { templateReplace } from "./razer.js";
+
+class musicQueue {
+  constructor(queueContainer) {
+    this.songQueue = new Array();
+    this.songElements = new Array();
+    this.counter = 0;
+    this.queueContainer = queueContainer;
+  }
+
+  setSongQueue(songList){
+    this.songQueue = songList;
+  }
+
+  createSongElements(){
+    this.songQueue.forEach(entry => {
+      console.log(entry);
+      const albumSongInfo = {
+        "{{songID}}" : entry.songID,
+        "{{audioPath}}" : entry.audioPath,
+        "{{cover}}" : entry.cover,
+        "{{artistName}}" : entry.artistName,
+        "{{songTitle}}" : entry.songTitle,
+      }
+
+      let songTemplate = `
+      <div class="playlist-item-flex content-wrapper" data-audio-path="{{audioPath}}" data-music-state="paused" data-song-id="{{songID}}">
+        <div class="playlist-img-contain audio-cover">
+          <img src="{{cover}}">
+        </div>
+        <div class="song-info-item">
+          <div class="song-info-title">{{songTitle}}</div>
+          <div class="song-info-artist">{{artistName}}</div>
+        </div>
+        <div class="buttons playlist">
+          <button><i class="bi bi-play-fill play-btn"></i></button>
+        </div>
+      </div>
+      `;
+      songTemplate = templateReplace(songTemplate, albumSongInfo);
+      this.songElements.unshift(songTemplate);
+    });
+  }
+
+  getSongElements(){
+    return this.songElements;
+  }
+
+  insertElements(container){
+    this.getSongElements().forEach(entry => {
+      container.insertAdjacentHTML("afterbegin", entry);
+    });
+  }
+
+  resetQueue(){
+    this.songQueue = null;
+    this.songElements = new Array();
+  }
+
+  getCounter(){
+    return this.counter;
+  }
+
+  nextCounter(){
+    if(this.counter < this.queueContainer.childElementCount-1)
+      this.counter+=1;
+    console.log("Next Counter:" + this.counter);
+  }
+
+  prevCounter(){
+    if(this.counter > 0)
+      this.counter-=1;
+    console.log("Previous Counter:" + this.counter);
+  }
+
+  triggerQueue(queueContainer){
+    let songContainer = queueContainer.querySelectorAll('.playlist-item-flex.content-wrapper')[this.getCounter()];
+    let playButton = songContainer.querySelector('.buttons.playlist button').firstChild;
+    playButton.click();
+  }
+}
+
 class audioItem {
   constructor(path, audio, time, playBtn, duration) {
     this.audioPath = path;
@@ -39,33 +121,6 @@ class audioItem {
     return this.playButton.closest(".content-wrapper");
   }
 }
-
-let musicManagerTest = {
-  KYqAYsujixMlfw7:
-      "/media/artist/lil_baby/albums/its_only_me/songs/Lil_Baby-Real_Spill.mp3",
-  zX3mtNS60AxOHLQ:
-      "/media/artist/bad_bunny/albums/un_verano_sin_ti/songs/Bad_Bunny-Moscow_Mule.mp3",
-  tv2j4ayyyUyUZI3:
-      "/media/artist/beyonce/albums/renaissance/songs/Beyonce-Cozy.mp3",
-  "8M06h9HcaWHS1Ya":
-      "/media/artist/morgan_allen/albums/dangerous/songs/Morgan_Wallen-Dangerous.mp3",
-  UyTInzO6jCD1j2X:
-      "/media/artist/stray_kids/albums/maxident/songs/Stray_Kids-Super_Board.mp3",
-  fBRiFzGIVST51kD:
-      "/media/artist/the_weeknd/albums/the_highlights/songs/The_Weeknd_&_Ariana_Grande-Save_Your_Tears.mp3",
-  g7vtS4I1sZDY099:
-      "/media/artist/harry_style/albums/harrys_house/songs/Harry_Styles-As_It_Was.mp3",
-  tZM5ee4bCLQEmaM:
-      "/media/artist/quavo_takeoff/albums/only_built_for_infinity_links/songs/Quavo_&_Takeoff-2.30.mp3",
-  ChLf0BDpj8egdsm:
-      "/media/artist/zach_bryan/albums/american_heartbreak/songs/Zach_Bryan-Something_In_The_Orange.mp3",
-  pKixQhRYiWwFRod:
-      "/media/artist/g_herbo/albums/survivors_remorse/songs/G_Herbo-4_Minutes_of_Hell.mp3",
-  fX8LYvcQR3PziKl:
-      "/media/artist/charlie_puth/albums/charlie/songs/Charlie_Puth-Left_And_Right_ft._Jungkook_of_BTS.mp3",
-  "1jnOsMvleMc1zUa":
-      "/media/artist/rod_wave/albums/beautiful_mind/songs/Rod_Wave-Yungen_ft._Jack_Harlow.mp3",
-};
 
 function musicManager() {
   const updatePlayControl = new CustomEvent("updatePlayControl");
@@ -138,10 +193,6 @@ function musicManager() {
       timelineControlPanel.handlerMovement = handlerMovement;
     },
 
-    setHandlerMovement: function (handlerMovement) {
-      timelineControlPanel.handlerMovement = handlerMovement;
-    },
-
     setMusicDuration: function () {
       let time = getTime(timelineControlPanel.maxDuration);
       timelineControlPanel.musicDuration.firstChild.innerHTML =
@@ -200,15 +251,19 @@ function musicManager() {
       audioTarget.addEventListener("loadedmetadata", function (e) {
         currentAudio.setDuration(audioTarget.duration);
       });
-      setTimeout(() => resolve("Loaded Metadata..."), 100);
+      setTimeout(() => resolve("Loaded Metadata..."), 30);
     });
   };
 
   let coogtuneContainer = document.querySelector(".music-manager-container");
+  let queueContainer = document.querySelector(".queue-container");
   let playControl = document.querySelector(".icon :nth-child(2)");
   let currentAudio = new audioItem(null, null, null, null, null);
+  let songQueue = new musicQueue(queueContainer);
   let wave = document.querySelector('.wave');
   let currentVolume = null;
+  let playIcon = "bi-play-fill";
+  let pauseIcon = "bi-pause-fill";
 
   timelineControlPanel.init();
   timelineControlPanel.initLogs();
@@ -216,10 +271,14 @@ function musicManager() {
   // * Volume Control
   volumeControlPanel();
 
+  // * Next Song Control
+  nextSong();
+
+  // * Previous Song Control
+  previousSong();
+
   // * TimeLine Trigger
-  timelineControlPanel.playbackProgress.addEventListener(
-      "timeLineTrigger",
-      function (e) {
+  timelineControlPanel.playbackProgress.addEventListener("timeLineTrigger", function (e) {
         console.log("Triggered TimeLine Event");
         loadMetaData(currentAudio.getAudio()).then(function (res) {
           timelineControlPanel.setMaxDuration(currentAudio.getAudio().duration);
@@ -234,17 +293,25 @@ function musicManager() {
   coogtuneContainer.addEventListener("click", function (evt) {
     let elem = evt.target;
     if (elem.classList.contains("play-btn")) {
-      playButtonControl(elem);
+      queueHelper(elem);
+      playButtonControl();
     }
   });
 
-  function playButtonControl(elem) {
-    let playButton = elem;
+  queueContainer.addEventListener("click", function (evt) {
+    let elem = evt.target;
+    if (elem.classList.contains("play-btn")) {
+      playButtonControl();
+    }
+  });
+
+  function playButtonControl() {
+    let songContainer = queueContainer.querySelectorAll('.playlist-item-flex.content-wrapper')[songQueue.getCounter()];
+    let playButton = songContainer.querySelector('.buttons.playlist button').firstChild;
     let musicState = isPlaying(playButton);
     let base_url = window.location.origin;
-    let audioPath = playButton
-        .closest(".content-wrapper")
-        .getAttribute("data-audio-path");
+    let audioPath = songContainer.getAttribute('data-audio-path');
+
     let targetAudio = new Audio(base_url + audioPath.replace('.',''));
     if (musicState == "paused") {
       if (currentAudio.getPath() == null) {
@@ -260,8 +327,8 @@ function musicManager() {
       }
       else if(currentAudio.getPath() != audioPath){
         currentAudio.getAudio().pause();
-        currentAudio.getPlayButton().classList.remove("bi-pause-fill");
-        currentAudio.getPlayButton().classList.add("bi-play-fill");
+        currentAudio.getPlayButton().classList.remove(pauseIcon);
+        currentAudio.getPlayButton().classList.add(playIcon);
         currentAudio.getParent().setAttribute('data-music-state', 'paused');
         currentAudio = new audioItem(audioPath, targetAudio, targetAudio.currentTime, playButton, 0);
         timelineControlPanel.resetHandler();
@@ -269,9 +336,9 @@ function musicManager() {
         wave.classList.toggle('active2');
       }
       masterPlaySongInfo();
-      wave.classList.toggle('active2');
-      currentAudio.getPlayButton().classList.remove("bi-play-fill");
-      currentAudio.getPlayButton().classList.add("bi-pause-fill");
+      wave.classList.add('active2');
+      currentAudio.getPlayButton().classList.remove(playIcon);
+      currentAudio.getPlayButton().classList.add(pauseIcon);
       currentAudio.getParent().setAttribute("data-music-state", "playing");
       playControl.dispatchEvent(updatePlayControl);
       timelineControlPanel.playbackProgress.dispatchEvent(timeLineTrigger);
@@ -280,15 +347,63 @@ function musicManager() {
 
     } else if (musicState == "playing") {
       currentAudio.getAudio().pause();
-      wave.classList.toggle('active2');
-      currentAudio.getPlayButton().classList.remove("bi-pause-fill");
-      currentAudio.getPlayButton().classList.add("bi-play-fill");
+      wave.classList.remove('active2');
+      currentAudio.getPlayButton().classList.remove(pauseIcon);
+      currentAudio.getPlayButton().classList.add(playIcon);
       currentAudio.getParent().setAttribute("data-music-state", "paused");
       playControl.dispatchEvent(updatePauseControl);
     }
+
+    songEnded(currentAudio.getAudio())
+
+    function songEnded(audio){
+      audio.addEventListener('ended', function () {
+        songQueue.nextCounter();
+        songQueue.triggerQueue(queueContainer);
+      });
+    }
   }
 
-  // * Helper Function
+  // * Helper Functions
+  function isAlbum(playButton){
+    if(playButton.closest(".content-wrapper").getAttribute("data-audio-path"))
+      return false;
+    else
+      return true;
+  }
+
+  function queueHelper(playButton){
+    let parent = playButton.closest(".content-wrapper");
+    if(isAlbum(playButton)){
+      console.log('This is an album.');
+      let songList = parent.getAttribute("data-album-songs");
+      songQueue.setSongQueue(JSON.parse(songList));
+      songQueue.createSongElements();
+      songQueue.insertElements(queueContainer);
+      songQueue.resetQueue();
+    }
+    else {
+      console.log('This is a song.');
+      let audio_path = parent.getAttribute("data-audio-path");
+      let cover_path = playButton.closest(".content-wrapper").querySelector('.audio-cover img').src;
+      let artist_name = playButton.closest(".content-wrapper").querySelector('.song-info-artist').innerHTML;
+      let song_title = playButton.closest(".content-wrapper").querySelector('.song-info-title').innerHTML;
+      let song_id = playButton.closest(".content-wrapper").getAttribute("data-song-id");
+
+      const songObject = {
+        songID : song_id,
+        audioPath : audio_path,
+        cover : cover_path,
+        artistName: artist_name,
+        songTitle: song_title,
+      }
+      songQueue.setSongQueue([songObject]);
+      songQueue.createSongElements();
+      songQueue.insertElements(queueContainer);
+      songQueue.resetQueue();
+    }
+  }
+
   function isPlaying(playBtn) {
     let musicState = playBtn
         .closest(".content-wrapper")
@@ -310,20 +425,18 @@ function musicManager() {
   }
 
   function playControlPanel() {
-    let playIcon = "bi-play-fill";
-    let pauseIcon = "bi-pause-fill";
+    let controlPlayIcon = "bi-play-circle-fill";
+    let controlPauseIcon = "bi-pause-circle-fill";
     let iconChild = playControl;
 
-    console.log(iconChild);
-
     function playToPause() {
-      iconChild.classList.remove(playIcon);
-      iconChild.classList.add(pauseIcon);
+      iconChild.classList.remove(controlPlayIcon);
+      iconChild.classList.add(controlPauseIcon);
     }
 
     function pauseToPlay() {
-      iconChild.classList.remove(pauseIcon);
-      iconChild.classList.add(playIcon);
+      iconChild.classList.remove(controlPauseIcon);
+      iconChild.classList.add(controlPlayIcon);
     }
 
     playControl.addEventListener("click", function () {
@@ -332,15 +445,15 @@ function musicManager() {
       if (musicState == "paused") {
         currentAudio.getAudio().play();
         wave.classList.toggle('active2');
-        currentAudio.getPlayButton().classList.remove("bi-play-fill");
-        currentAudio.getPlayButton().classList.add("bi-pause-fill");
+        currentAudio.getPlayButton().classList.remove(playIcon);
+        currentAudio.getPlayButton().classList.add(pauseIcon);
         currentAudio.getParent().setAttribute("data-music-state", "playing");
         playToPause();
       } else if (musicState == "playing") {
         currentAudio.getAudio().pause();
         wave.classList.toggle('active2');
-        currentAudio.getPlayButton().classList.remove("bi-pause-fill");
-        currentAudio.getPlayButton().classList.add("bi-play-fill");
+        currentAudio.getPlayButton().classList.remove(pauseIcon);
+        currentAudio.getPlayButton().classList.add(playIcon);
         currentAudio.setCurrentTime(currentAudio.getAudio().currentTime);
         currentAudio.getParent().setAttribute("data-music-state", "paused");
         pauseToPlay();
@@ -360,6 +473,8 @@ function musicManager() {
       currentAudio.getPlayButton().classList.remove("bi-pause-fill");
       currentAudio.getPlayButton().classList.add("bi-play-fill");
     });
+
+    playControl
   }
 
   function volumeControlPanel() {
@@ -381,7 +496,6 @@ function musicManager() {
     });
   }
 
-  // Time Formatter
   function formatTime(time) {
     let finalTime = "";
     if (time.hours > 0) {
@@ -393,7 +507,6 @@ function musicManager() {
     return finalTime;
   }
 
-  // Time Split
   function getTime(time) {
     let hours = Math.floor(time / 3600);
     time = time - hours * 3600;
@@ -401,6 +514,41 @@ function musicManager() {
     let seconds = Math.floor(time - minutes * 60);
     return { hours, minutes, seconds };
   }
+
+  function setSeeker(evt){
+    const width = this.clientWidth;
+    const clickX = evt.offsetX;
+    const audioDuration = currentAudio.getDuration();
+    let seekTarget = (clickX / width) * audioDuration;
+
+    currentAudio.setCurrentTime(seekTarget);
+  }
+
+  function previousSong(){
+    let prevContainer = document.querySelector('.bi.bi-skip-start-fill');
+
+    prevContainer.addEventListener('click', function () {
+      console.log('Previous song...')
+      songQueue.prevCounter(queueContainer);
+      songQueue.triggerQueue(queueContainer);
+    });
+  }
+
+  function nextSong(){
+    let nextContainer = document.querySelector('.bi.bi-skip-end-fill');
+
+    nextContainer.addEventListener('click', function () {
+      console.log('Next song...')
+      songQueue.nextCounter(queueContainer);
+      songQueue.triggerQueue(queueContainer);
+    });
+  }
+
+  // * Implement click event for seeker on progress bar
+  // * Implement songEnded ended event on currentAudio to go to next song
+  // * Implement nextSong
+  // * Implement previousSong
+  // * Implement music queue
 }
 
 window.addEventListener("DOMContentLoaded", function (evt) {
