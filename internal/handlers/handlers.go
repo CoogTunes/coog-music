@@ -265,6 +265,8 @@ func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
 
 	artistName := concatenateName(getArtistName(UserCache.First_name, UserCache.Last_name))
 	songName := r.Form.Get("music_name")
+	songDate := r.Form.Get("song_date")
+
 	fmt.Println("Passes through the songName")
 	coverFile, fhCover, err := r.FormFile("music_cover")
 	if err != nil {
@@ -326,11 +328,12 @@ func (m *Repository) UploadSong(w http.ResponseWriter, r *http.Request) {
 	duration := getMp3Duration(fullSongPath)
 
 	songInfo := models.Song{
-		Title:     songName,
-		Artist_id: UserCache.User_id,
-		CoverPath: fullCoverPath,
-		SongPath:  fullSongPath,
-		Duration:  duration,
+		Title:         songName,
+		Artist_id:     UserCache.User_id,
+		CoverPath:     fullCoverPath,
+		SongPath:      fullSongPath,
+		Duration:      duration,
+		Uploaded_date: songDate,
 	}
 	fmt.Println(songInfo)
 	err = m.DB.AddSong(songInfo)
@@ -697,6 +700,49 @@ func (m *Repository) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(addedUser, w, err)
 }
 
+func (m *Repository) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	userId, err := strconv.Atoi(r.URL.Query().Get("user_id"))
+	if err != nil {
+		log.Println(err)
+	}
+	m.DB.RemoveUser(userId)
+}
+
+func (m *Repository) DeleteSongFromPlaylist(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	songId, err := strconv.Atoi(r.URL.Query().Get("song_id"))
+	if err != nil {
+		log.Println(err)
+	}
+
+	playlistId, err := strconv.Atoi(r.URL.Query().Get("playlist_id"))
+	if err != nil {
+		log.Println(err)
+	}
+	m.DB.RemoveSongFromPlaylist(songId, playlistId)
+}
+
+func (m *Repository) DeletePlaylist(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	playlistId, err := strconv.Atoi(r.URL.Query().Get("playlist_id"))
+	if err != nil {
+		log.Println(err)
+	}
+	m.DB.RemovePlaylist(playlistId)
+}
+
+func (m *Repository) DeleteSong(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	songId, err := strconv.Atoi(r.URL.Query().Get("song_id"))
+	if err != nil {
+		log.Println(err)
+	}
+	m.DB.RemoveSong(songId)
+}
+
 func (m *Repository) Follow(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	// get fields
@@ -773,7 +819,7 @@ func (m *Repository) Filter(w http.ResponseWriter, r *http.Request) {
 		m.GetLikesReport(w, r)
 		return
 	} else if plays == "true" && likes != "true" {
-		m.GetSongReport(w, r)
+		m.GetPlaysReport(w, r)
 		return
 	} else if users == "true" && artists != "true" {
 		fmt.Println("in filter users")
@@ -826,7 +872,7 @@ func (m *Repository) GetArtistReport(w http.ResponseWriter, r *http.Request) {
 	returnAsJSON(artistReport, w, err)
 }
 
-func (m *Repository) GetSongReport(w http.ResponseWriter, r *http.Request) {
+func (m *Repository) GetPlaysReport(w http.ResponseWriter, r *http.Request) {
 
 	// get fields
 
@@ -841,7 +887,7 @@ func (m *Repository) GetSongReport(w http.ResponseWriter, r *http.Request) {
 	minDate := r.URL.Query().Get("start")
 	maxDate := r.URL.Query().Get("end")
 
-	songReport, err := m.DB.GetSongReport(minDate, maxDate, min_plays, max_plays)
+	songReport, err := m.DB.GetPlaysReport(minDate, maxDate, min_plays, max_plays)
 	returnAsJSON(songReport, w, err)
 
 }

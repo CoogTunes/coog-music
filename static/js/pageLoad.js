@@ -109,13 +109,11 @@ function pageLoadManager(){
             loadPage(targetPage, parent.getAttribute('data-view-name'));
             ajaxPutHandler('/messages')
             .then((data) => {
-                let returnData = []
                 if (data != null) {
-                    alert(data[0].Message)
-                    // data.foreach(data => returnData.push(data.Message))
-                    // alert(data[0].Message)
+                    let returnData = []
+                    data.forEach(data => returnData.push(data.Message))
+                    alert(returnData.join("\n"));
                 }
-                // alert('hello')
             })
             .catch((error) => {
                 console.log("Retrieving page error...");
