@@ -3,13 +3,16 @@ import {updateViewDiscover, updateViewAdminControl, updateViewHomeControl} from 
 import {filterControl} from './filter.js';
 
 function getDiscoverTemplate(){
-    let tableHeaders = `<thead><tr>
+    let tableHeaders = `<thead>
+    <tr>
     <th>Title</th>
     <th>Album</th>
     <th>Date Added</th>
-    <th></th>
+    <th>Plays</th>
     <th>Time</th>
-  </tr></thead>`;
+    <th></th>
+  </tr>
+  </thead>`;
     let template = `<div class="current-banner">
                                 <img src="/static/img/abstract-2-sized.jpg">
                                    <div class="playlist-view-wrapper">
@@ -48,6 +51,8 @@ function getAdminControlTemplate() {
     <th>Admin Level</th>
     <th>Joined Date</th>
     <th>Playlist Count</th>
+    <th>Liked Songs Count</th>
+    <th>Common Artist</th>
     <th></th>
   </tr></thead>`;
         let template = `<div class="current-banner">
@@ -107,19 +112,6 @@ function pageLoadManager(){
                 mainView.classList.remove('show-animation');
             }
             loadPage(targetPage, parent.getAttribute('data-view-name'));
-            ajaxPutHandler('/messages')
-            .then((data) => {
-                if (data != null) {
-                    let returnData = []
-                    data.forEach(data => returnData.push(data.Message))
-                    alert(returnData.join("\n"));
-                }
-            })
-            .catch((error) => {
-                console.log("Retrieving page error...");
-                console.log(error);
-            });
-    
         }
     });
     function loadPage(targetPage, viewName, path = '/pageLoad?', ){
@@ -146,8 +138,56 @@ function pageLoadManager(){
             .catch((error) => {
                 console.log("Retrieving page error...");
                 console.log(error);
+            }).then(() => {
+                ajaxPutHandler('/messages')
+                .then((data) => {
+                    if (data != null) {
+                        console.log(data);
+                        handleMessages(data).then((result) => console.log(result))
+                    }
+                })
+                .catch((error) => {
+                    console.log("Retrieving page error...");
+                    console.log(error);
+                });
             });
     }
+}
+
+async function handleMessages(data, time = 3000){
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve, reject) => {
+        for(let i = 0, p = Promise.resolve(); i < data.length; i++){
+            p = p.then(() => delay(time))
+                .then(() => {
+                    sendMessage(data[i].Message).then(result => deleteMessage(result)).then((result) => {
+                        console.log(result);
+                    });
+                });
+        }
+        resolve('All messages sent...');
+    });
+}
+
+async function sendMessage(message){
+    return new Promise((resolve, reject) => {
+        let messageElem = document.createElement('div');
+        messageElem.classList.add('message-container');
+        messageElem.innerHTML = message;
+        document.body.append(messageElem);
+        messageElem.classList.add('show');
+        console.log('Sending message...');
+        setTimeout(() => resolve(messageElem), 1000);
+    });
+}
+
+async function deleteMessage(messageElem){
+    return new Promise((resolve, reject) => {
+        messageElem.classList.remove('show');
+        document.body.removeChild(messageElem);
+        console.log('Deleting message...');
+        setTimeout(() => resolve('Wait...'), 1000);
+    });
 }
 
 window.addEventListener('DOMContentLoaded', function () {

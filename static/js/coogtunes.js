@@ -1,4 +1,13 @@
-let subMenu = document.getElementById("subMenu");
 function toggleMenu() {
-    subMenu.classList.toggle("open-menu")
+    let subMenu = document.getElementById("subMenu");
+    let userControl = document.querySelector('.user-control');
+
+    userControl.addEventListener('click', function (evt) {
+        subMenu.classList.toggle("open-menu");
+        evt.preventDefault();
+    });
 }
+
+window.addEventListener('DOMContentLoaded', function () {
+    toggleMenu();
+});

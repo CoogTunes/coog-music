@@ -1,13 +1,14 @@
 package models
 
 type Users struct {
-	User_id     int
-	Username    string
-	Password    string
-	First_name  string
-	Last_name   string
-	Admin_level int
-	JoinedDate  string
+	User_id           int
+	Username          string
+	Password          string
+	First_name        string
+	Last_name         string
+	Concatenated_name string
+	Admin_level       int
+	JoinedDate        string
 }
 
 type Song struct {

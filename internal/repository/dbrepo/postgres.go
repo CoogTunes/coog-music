@@ -205,9 +205,6 @@ func (m *postgresDBRepo) Authenticate(email string, password string) (models.Use
 func (m *postgresDBRepo) AddSong(res models.Song) error {
 	query := "insert into song (title, artist_id, song_path, cover_path, uploaded_date, duration) values ($1, $2, $3, $4, to_date($5, 'YYYY-MM-DD'), $6)"
 
-	if res.Uploaded_date == "" {
-		res.Uploaded_date = time.Now().String()
-	}
 	_, err := m.DB.Exec(query, res.Title, res.Artist_id, res.SongPath, res.CoverPath, res.Uploaded_date, res.Duration)
 	if err != nil {
 		log.Println(err)
@@ -220,7 +217,7 @@ func (m *postgresDBRepo) AddSong(res models.Song) error {
 func (m *postgresDBRepo) AddSongForAlbum(res models.Song) error {
 	query := "insert into song (title, artist_id, album_id, song_path, cover_path, uploaded_date,duration) values ($1, $2, $3, $4, $5, to_date($6, 'YYYY-MM-DD'), $7)"
 
-	_, err := m.DB.Exec(query, res.Title, res.Artist_id, res.Album_id, res.SongPath, res.CoverPath, time.Now(), res.Duration)
+	_, err := m.DB.Exec(query, res.Title, res.Artist_id, res.Album_id, res.SongPath, res.CoverPath, res.Uploaded_date, res.Duration)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -292,10 +289,71 @@ func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_id int) ([]models.Song, e
 	return songsInfo, nil
 }
 
-func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.Song, error) {
-	var songsInfo []models.Song
+func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) (map[string][]models.Song, error) {
+	// var songsInfo []models.Song
+	songsInfo := make(map[string][]models.Song)
 	fmt.Println(artist_name, "artist name")
 	query := "select * from likes_view where LOWER(likes_view.artist_name) LIKE LOWER('" + artist_name + "%')"
+	rows, err := m.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		var currentRow models.Song
+		rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id,
+			&currentRow.SongPath, &currentRow.CoverPath, &currentRow.Uploaded_date, &currentRow.Total_plays, &currentRow.Duration, &currentRow.Artist_name, &currentRow.Album)
+
+		if err != nil {
+			log.Println("Cannot scan row")
+			return songsInfo, err
+		}
+
+		songsInfo[currentRow.Album] = append(songsInfo[currentRow.Album], currentRow)
+	}
+	return songsInfo, nil
+}
+
+func (m *postgresDBRepo) GetSongsFromArtistByID(artist_name string, artistID int) (map[string][]models.Song, error) {
+	songsInfo := make(map[string][]models.Song)
+	query := "select * from likes_view where LOWER(likes_view.artist_name) LIKE LOWER('" + artist_name + "%') and likes_view.artist_id = $1"
+	rows, err := m.DB.Query(query, artistID)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		var currentRow models.Song
+		rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id,
+			&currentRow.SongPath, &currentRow.CoverPath, &currentRow.Uploaded_date, &currentRow.Total_plays, &currentRow.Duration, &currentRow.Artist_name, &currentRow.Album)
+
+		if err != nil {
+			log.Println("Cannot scan row")
+			return songsInfo, err
+		}
+		songsInfo[currentRow.Album] = append(songsInfo[currentRow.Album], currentRow)
+	}
+	return songsInfo, nil
+}
+
+func (m *postgresDBRepo) GetSongsFromAlbum(album_name string) ([]models.Song, error) {
+	var songsInfo []models.Song
+
+	query := "select * from likes_view where LOWER(likes_view.album_name) LIKE LOWER ('" + album_name + "%')"
 	rows, err := m.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -322,11 +380,11 @@ func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) ([]models.Song, 
 	return songsInfo, nil
 }
 
-func (m *postgresDBRepo) GetSongsFromAlbum(album_name string) ([]models.Song, error) {
+func (m *postgresDBRepo) GetSongsFromAlbumByID(album_name string, albumID int) ([]models.Song, error) {
 	var songsInfo []models.Song
 
-	query := "select * from likes_view where LOWER(likes_view.album_name) LIKE LOWER ('" + album_name + "%')"
-	rows, err := m.DB.Query(query)
+	query := "select * from likes_view where LOWER(likes_view.album_name) LIKE LOWER ('" + album_name + "%') and likes_view.album_id = $1"
+	rows, err := m.DB.Query(query, albumID)
 	if err != nil {
 		return nil, err
 	}
@@ -872,7 +930,7 @@ func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int) ([]models.So
 
 func (m *postgresDBRepo) GetInitialUsersReport() ([]models.UserReport, error) {
 	var usersReport []models.UserReport
-	query := `select * from usersreport FETCH FIRST 14 ROWS ONLY`
+	query := `select * from usersreport where admin_level = 1 or admin_level = 2 FETCH FIRST 14 ROWS ONLY`
 	rows, err := m.DB.Query(query)
 	if err != nil {
 		log.Println(err)
@@ -901,7 +959,7 @@ func (m *postgresDBRepo) GetInitialUsersReport() ([]models.UserReport, error) {
 
 func (m *postgresDBRepo) GetUsersReport(minDate string, maxDate string) ([]models.UserReport, error) {
 	var usersReport []models.UserReport
-	query := `select * from usersreport where join_date > to_date($1, 'YYYY-MM-DD') AND join_date < to_date($2, 'YYYY-MM-DD') ORDER BY join_date`
+	query := `select * from usersreport where (join_date >= to_date($1, 'YYYY-MM-DD') AND join_date <= to_date($2, 'YYYY-MM-DD')) and (admin_level = 1 or admin_level = 2) ORDER BY join_date`
 
 	rows, err := m.DB.Query(query, minDate, maxDate)
 	if err != nil {
@@ -931,7 +989,7 @@ func (m *postgresDBRepo) GetUsersReport(minDate string, maxDate string) ([]model
 
 func (m *postgresDBRepo) GetArtistReport(minDate string, maxDate string) ([]models.ArtistReport, error) {
 	var artistReport []models.ArtistReport
-	query := `select * from artistsReport where join_date > to_date($1, 'YYYY-MM-DD') AND join_date < to_date($2, 'YYYY-MM-DD') ORDER BY join_date`
+	query := `select * from artistsReport where join_date >= to_date($1, 'YYYY-MM-DD') AND join_date <= to_date($2, 'YYYY-MM-DD') ORDER BY join_date`
 
 	rows, err := m.DB.Query(query, minDate, maxDate)
 	if err != nil {
@@ -958,10 +1016,10 @@ func (m *postgresDBRepo) GetArtistReport(minDate string, maxDate string) ([]mode
 	return artistReport, nil
 }
 
-func (m *postgresDBRepo) GetPlaysReport(minDate string, maxDate string, min_plays int, max_plays int) ([]models.Song, error) {
+func (m *postgresDBRepo) GetSongReport(minDate string, maxDate string, min_plays int, max_plays int) ([]models.Song, error) {
 	var songReport []models.Song
 
-	query := `select * from likes_view 
+	query := `select * from likes_view
 				where likes_view.uploaded_date >= $1
 				AND likes_view.uploaded_date <= $2
 				AND likes_view.total_plays >= $3

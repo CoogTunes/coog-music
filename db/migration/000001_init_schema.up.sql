@@ -1,15 +1,15 @@
 CREATE TABLE Users (
-                        user_id bigserial UNIQUE NOT NULL,
-                        username varchar UNIQUE,
-                        password varchar,
-                        first_name varchar,
-                        last_name varchar,
-                        admin_level int CHECK (admin_level >= 0 AND admin_level <= 3),
-                        join_date date DEFAULT 'now()',
-                        -- 1 = basic
-                        -- 2 = artist
-                        -- 3 = admin
-                        PRIMARY KEY (user_id, username)
+                       user_id bigserial UNIQUE NOT NULL,
+                       username varchar UNIQUE,
+                       password varchar,
+                       first_name varchar,
+                       last_name varchar,
+                       admin_level int CHECK (admin_level >= 0 AND admin_level <= 3),
+                       join_date date DEFAULT 'now()',
+    -- 1 = basic
+    -- 2 = artist
+    -- 3 = admin
+                       PRIMARY KEY (user_id, username)
 );
 
 CREATE TABLE Artist (
@@ -21,51 +21,51 @@ CREATE TABLE Artist (
 );
 
 CREATE TABLE Album (
-                        name varchar,
-                        artist_id integer,
-                        album_id bigserial UNIQUE PRIMARY KEY,
-                        date_added date DEFAULT 'now()'
+                       name varchar,
+                       artist_id integer,
+                       album_id bigserial UNIQUE PRIMARY KEY,
+                       date_added date DEFAULT 'now()'
 );
 
 CREATE TABLE Song (
-                        song_id bigserial UNIQUE NOT NULL,
-                        title varchar,
-                        album_id int NOT NULL,
-                        artist_id int,
-                        song_path varchar,
-                        cover_path varchar,
-                        uploaded_date date DEFAULT 'now()',
-                        total_plays bigint DEFAULT 0,
-                        duration varchar(10) DEFAULT 'XX:YY',
-                        -- total_likes bigint default 0, Getting this through count()
-                        PRIMARY KEY (song_id, artist_id)
+                      song_id bigserial UNIQUE NOT NULL,
+                      title varchar,
+                      album_id int NOT NULL,
+                      artist_id int,
+                      song_path varchar,
+                      cover_path varchar,
+                      uploaded_date date DEFAULT 'now()',
+                      total_plays bigint DEFAULT 0,
+                      duration varchar(10) DEFAULT 'XX:YY',
+    -- total_likes bigint default 0, Getting this through count()
+                      PRIMARY KEY (song_id, artist_id)
 );
 
 CREATE TABLE Playlist (
-                        user_id integer,
-                        name varchar,
-                        playlist_id bigserial UNIQUE PRIMARY KEY
+                          user_id integer,
+                          name varchar,
+                          playlist_id bigserial UNIQUE PRIMARY KEY
 );
 
 CREATE TABLE SongPlaylist(
-                        song_id integer,
-                        playlist_id integer,
-                        PRIMARY KEY (playlist_id, song_id)
+                             song_id integer,
+                             playlist_id integer,
+                             PRIMARY KEY (playlist_id, song_id)
 );
 
 CREATE TABLE Messages (
-                        user_id int,
-                        message varchar(500),
-                        created_date date DEFAULT now(),
-                        isRead boolean default false,
-                        message_id bigserial UNIQUE PRIMARY KEY
+                          user_id int,
+                          message varchar(500),
+                          created_date date DEFAULT now(),
+                          isRead boolean default false,
+                          message_id bigserial UNIQUE PRIMARY KEY
 );
 
 CREATE TABLE Likes (
-                        user_id int,
-                        song_id int,
-                        isLike boolean,
-                        PRIMARY KEY (user_id, song_id)
+                       user_id int,
+                       song_id int,
+                       isLike boolean,
+                       PRIMARY KEY (user_id, song_id)
 );
 
 
@@ -144,7 +144,7 @@ CREATE OR REPLACE TRIGGER addAlbumIfSingle BEFORE INSERT ON Song
 CREATE OR REPLACE FUNCTION onLikeInsert() RETURNS trigger AS $$
 BEGIN
 		IF EXISTS (select likes.user_id from likes where likes.user_id = new.user_id AND likes.song_id = new.song_id) THEN
-			DELETE FROM likes WHERE likes.user_id = new.user_id AND likes.song_id = new.song_id; 
+DELETE FROM likes WHERE likes.user_id = new.user_id AND likes.song_id = new.song_id;
 END IF;
 
 return new;
@@ -157,17 +157,17 @@ CREATE OR REPLACE TRIGGER onLikeInsert BEFORE INSERT ON Likes
 
 -- alerts all admin if a bad song date is added
 CREATE OR REPLACE FUNCTION AlertSongDateBeforeArtistDate() RETURNS TRIGGER AS $$
-DECLARE 
-    artist_join_date date;
+DECLARE
+artist_join_date date;
 BEGIN
-	SELECT join_date into artist_join_date FROM ARTIST, SONG WHERE ARTIST.artist_id = new.artist_id AND SONG.song_id = new.song_id;
-    IF (artist_join_date) > new.uploaded_date 
-		THEN 
-		INSERT INTO Messages select users.user_id, 
-		CONCAT('Song ID ', new.song_id, ' of date ', new.uploaded_date, ' is before artist join date of ', artist_join_date, '.') 
-		 from users where users.admin_level = 3;
-    END IF;
-    return new;
+SELECT join_date into artist_join_date FROM ARTIST, SONG WHERE ARTIST.artist_id = new.artist_id AND SONG.song_id = new.song_id;
+IF (artist_join_date) > new.uploaded_date
+		THEN
+		INSERT INTO Messages select users.user_id,
+                                    CONCAT('Song ID ', new.song_id, ' of date ', new.uploaded_date, ' is before artist join date of ', artist_join_date, '.')
+                             from users where users.admin_level = 3;
+END IF;
+return new;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -177,26 +177,26 @@ CREATE OR REPLACE TRIGGER AlertSongDateBeforeArtistDate AFTER INSERT ON Song
 
 CREATE OR REPLACE FUNCTION CheckRatings() RETURNS TRIGGER AS $$
     DECLARE
-        messageArtistId int;
+messageArtistId int;
         messageToSend varchar(500);
         totalLikes int;
         songTitle varchar;
-    BEGIN
-        SELECT sum(
-        CASE
-        WHEN likes.islike IS TRUE THEN 1
-        ELSE 0
-        END) into totalLikes from likes where likes.song_id=new.song_id;
+BEGIN
+SELECT sum(
+               CASE
+                   WHEN likes.islike IS TRUE THEN 1
+                   ELSE 0
+                   END) into totalLikes from likes where likes.song_id=new.song_id;
 
-        IF (totalLikes%2 = 0) THEN 
+IF (totalLikes%2 = 0) THEN
 
-            select distinct song.artist_id into messageArtistId from likes, song 
-            where likes.song_id = new.song_id and song.song_id = likes.song_id;
+select distinct song.artist_id into messageArtistId from likes, song
+where likes.song_id = new.song_id and song.song_id = likes.song_id;
 
-            select distinct song.title into songTitle from likes, song 
-            where likes.song_id = new.song_id and song.song_id = likes.song_id;
+select distinct song.title into songTitle from likes, song
+where likes.song_id = new.song_id and song.song_id = likes.song_id;
 
-            messageToSend = CONCAT('Your song ', songTitle, ' has reached ', totalLikes, ' likes!' );
+messageToSend = CONCAT('Your song ', songTitle, ' has reached ', totalLikes, ' likes!' );
                     RAISE NOTICE 'messageToSend %', messageToSend;
 
             IF new.islike = true
@@ -205,11 +205,11 @@ CREATE OR REPLACE FUNCTION CheckRatings() RETURNS TRIGGER AS $$
 
                 INSERT INTO Messages (user_id, message) values (messageArtistId, 
                 messageToSend);
-            END IF;
+END IF;
 
-        END IF;
-    return new;
-    END;
+END IF;
+return new;
+END;
 $$ language plpgsql;
 
 CREATE OR REPLACE TRIGGER CheckRatings AFTER INSERT ON Likes
@@ -232,87 +232,87 @@ CREATE OR REPLACE TRIGGER CheckRatings AFTER INSERT ON Likes
 
 -- for query 2. maybe adjust return column names
 CREATE OR REPLACE VIEW likes_view AS
-  SELECT COALESCE(( SELECT sum(
-                CASE
-                    WHEN likes.islike IS TRUE THEN 1
-                    ELSE 0
-                END) AS sum
-           FROM likes
-          WHERE likes.song_id = song.song_id), 0::bigint) AS likes,
-    COALESCE(( SELECT sum(
-                CASE
-                    WHEN likes.islike IS FALSE THEN 1
-                    ELSE 0
-                END) AS sum
-           FROM likes
-          WHERE likes.song_id = song.song_id), 0::bigint) AS dislikes,
-    song.*,
-    artist.name AS artist_name,
-    album.name AS album_name
-    
-   FROM song
-     LEFT JOIN artist ON artist.artist_id = song.artist_id
-     LEFT JOIN album ON album.album_id = song.album_id;
+SELECT COALESCE(( SELECT sum(
+                                 CASE
+                                     WHEN likes.islike IS TRUE THEN 1
+                                     ELSE 0
+                                     END) AS sum
+                FROM likes
+                WHERE likes.song_id = song.song_id), 0::bigint) AS likes,
+       COALESCE(( SELECT sum(
+                                 CASE
+                                     WHEN likes.islike IS FALSE THEN 1
+                                     ELSE 0
+                                     END) AS sum
+                FROM likes
+                WHERE likes.song_id = song.song_id), 0::bigint) AS dislikes,
+       song.*,
+       artist.name AS artist_name,
+       album.name AS album_name
+
+FROM song
+         LEFT JOIN artist ON artist.artist_id = song.artist_id
+         LEFT JOIN album ON album.album_id = song.album_id;
 
 
 
 -- Grabs regular user data minus password, plus total playlist count, total number songs user has liked, and most common artist in their playlists
 CREATE OR REPLACE view usersReport AS
-    SELECT users.user_id,
-        users.username,
-        users.first_name,
-        users.last_name,
-        users.admin_level,
-        users.join_date,
-        count(p1.playlist_id) AS playlist_count,
-        COALESCE(( SELECT sum(
-                    CASE
-                        WHEN likes.islike IS TRUE THEN 1
-                        ELSE 0
-                    END) AS sum
-            FROM likes,
+SELECT users.user_id,
+       users.username,
+       users.first_name,
+       users.last_name,
+       users.admin_level,
+       users.join_date,
+       count(p1.playlist_id) AS playlist_count,
+       COALESCE(( SELECT sum(
+                                 CASE
+                                     WHEN likes.islike IS TRUE THEN 1
+                                     ELSE 0
+                                     END) AS sum
+                FROM likes,
                 song
-            WHERE likes.song_id = song.song_id AND likes.user_id = users.user_id), 0) AS liked_songs_count,
-        COALESCE(( SELECT artist.name
-            FROM songplaylist
-                LEFT JOIN song ON song.song_id = songplaylist.song_id
-                LEFT JOIN artist ON artist.artist_id = song.artist_id
-            WHERE (songplaylist.playlist_id IN ( SELECT p2.playlist_id
-                    FROM playlist as p2
-                    WHERE p2.user_id = users.user_id))
-            GROUP BY artist.name
-            ORDER BY (count(artist.name)) DESC
-            LIMIT 1), 'N/A') AS common_artist
-    FROM users
-        LEFT JOIN playlist as p1 ON p1.user_id = users.user_id
-    GROUP BY users.user_id, users.username, users.first_name, users.last_name, users.admin_level, users.join_date
-    ORDER BY users.user_id;
+                WHERE likes.song_id = song.song_id AND likes.user_id = users.user_id), 0) AS liked_songs_count,
+       COALESCE(( SELECT artist.name
+                  FROM songplaylist
+                           LEFT JOIN song ON song.song_id = songplaylist.song_id
+                           LEFT JOIN artist ON artist.artist_id = song.artist_id
+                  WHERE (songplaylist.playlist_id IN ( SELECT p2.playlist_id
+                                                       FROM playlist as p2
+                                                       WHERE p2.user_id = users.user_id))
+                  GROUP BY artist.name
+                  ORDER BY (count(artist.name)) DESC
+                LIMIT 1), 'N/A') AS common_artist
+FROM users
+         LEFT JOIN playlist as p1 ON p1.user_id = users.user_id
+GROUP BY users.user_id, users.username, users.first_name, users.last_name, users.admin_level, users.join_date
+ORDER BY users.user_id;
 
 CREATE OR REPLACE VIEW artistsReport AS
- SELECT ar1.name,
-    ar1.artist_id,
-    ar1.join_date,
-    ( SELECT count(song_1.song_id) AS count
-           FROM song song_1
-          WHERE song_1.artist_id = ar1.artist_id) AS num_songs,
+SELECT ar1.name,
+       ar1.artist_id,
+       ar1.join_date,
+       ( SELECT count(song_1.song_id) AS count
+FROM song song_1
+WHERE song_1.artist_id = ar1.artist_id) AS num_songs,
     ( SELECT count(album.album_id) AS count
-           FROM album
-          WHERE album.artist_id = ar1.artist_id) AS num_albums,
+FROM album
+WHERE album.artist_id = ar1.artist_id) AS num_albums,
     sum(song.total_plays) AS total_plays,
     round(avg(song.total_plays), 0) AS average_plays,
     COALESCE(( SELECT song_1.title
-           FROM likes
-             LEFT JOIN song song_1 ON likes.song_id = song_1.song_id
-             LEFT JOIN artist ar2 ON ar2.artist_id = song_1.artist_id
-          WHERE song_1.artist_id = ar1.artist_id
-          GROUP BY song_1.title
-          ORDER BY (count(song_1.title)) DESC
-         LIMIT 1), 'N/A'::character varying) AS most_liked_song
-   FROM artist ar1,
+    FROM likes
+    LEFT JOIN song song_1 ON likes.song_id = song_1.song_id
+    LEFT JOIN artist ar2 ON ar2.artist_id = song_1.artist_id
+    WHERE song_1.artist_id = ar1.artist_id
+    GROUP BY song_1.title
+    ORDER BY (count(song_1.title)) DESC
+    LIMIT 1), 'N/A'::character varying) AS most_liked_song
+FROM artist ar1,
     song
-  WHERE song.artist_id = ar1.artist_id
-  GROUP BY ar1.name, ar1.artist_id, ar1.join_date
-  ORDER BY ar1.artist_id;
+WHERE song.artist_id = ar1.artist_id
+GROUP BY ar1.name, ar1.artist_id, ar1.join_date
+ORDER BY ar1.artist_id;
 
 -- likes_view is better
 -- CREATE OR REPLACE VIEW songReport as
