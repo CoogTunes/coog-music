@@ -1327,7 +1327,7 @@ tr.table-song-item:hover .control-playlist-item.remove {
 }
 
 .filter-type.selected {
-  background: #252525;
+  background: #4e4e4e;
 }
 
 .filter-type.selected::after {
@@ -1577,7 +1577,7 @@ span.playlist-song-count::after {
 }
 
 .filter-item.selected {
-  background: #252525;
+  background: #4e4e4e;
 }
 
 span.date-filter-span {
