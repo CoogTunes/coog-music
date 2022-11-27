@@ -572,7 +572,7 @@ func (m *Repository) GetPlaylistSongs(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Cannot convert string to int")
 	}
-	displaySongs, err := m.DB.GetSongsFromPlaylist(playlistID)
+	displaySongs, err := m.DB.GetSongsFromPlaylist(UserCache.User_id, playlistID)
 
 	if len(displaySongs) == 0 {
 		disSong := []models.Song{}

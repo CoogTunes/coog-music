@@ -257,13 +257,13 @@ func (m *postgresDBRepo) GetSongsForLikePage(userId int) ([]models.Song, error) 
 	return songs, err
 }
 
-func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_id int) ([]models.Song, error) {
+func (m *postgresDBRepo) GetSongsFromPlaylist(userId int, playlist_id int) ([]models.Song, error) {
 	var songsInfo []models.Song
 
 	query := `select coalesce(likes.isLike, false), likes_view.* from likes_view
-			left join likes on likes.song_id = likes_view.song_id
-			where likes_view.song_id in (select songplaylist.song_id from songplaylist where songplaylist.playlist_id = $1)`
-	rows, err := m.DB.Query(query, playlist_id)
+			left join likes on likes.song_id = likes_view.song_id and likes.user_id = $1
+			where likes_view.song_id in (select songplaylist.song_id from songplaylist where songplaylist.playlist_id = $2)`
+	rows, err := m.DB.Query(query, userId, playlist_id)
 	if err != nil {
 		log.Println("Cannot execute query")
 		return songsInfo, err
