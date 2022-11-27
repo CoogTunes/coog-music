@@ -142,11 +142,21 @@ CREATE OR REPLACE TRIGGER addAlbumIfSingle BEFORE INSERT ON Song
 
 -- This trigger delete the value from the likes table if it exists, when being added
 CREATE OR REPLACE FUNCTION onLikeInsert() RETURNS trigger AS $$
-BEGIN
-		IF EXISTS (select likes.user_id from likes where likes.user_id = new.user_id AND likes.song_id = new.song_id) THEN
-DELETE FROM likes WHERE likes.user_id = new.user_id AND likes.song_id = new.song_id;
-END IF;
 
+DECLARE
+		previousVal boolean;
+BEGIN
+
+IF EXISTS (select likes.isLike from likes
+                    where likes.user_id = new.user_id
+                    AND likes.song_id = new.song_id)
+		 THEN
+		 select likes.isLike into previousVal from likes
+		 where likes.user_id = new.user_id
+		 AND likes.song_id = new.song_id;
+		 	if (previousVal) then new.isLike = null; end if;
+	DELETE FROM likes WHERE likes.user_id = new.user_id AND likes.song_id = new.song_id;
+END IF;
 return new;
 END;
 $$ LANGUAGE plpgsql;
@@ -320,3 +330,5 @@ ORDER BY ar1.artist_id;
 --     WHERE  ARTIST.name = (SELECT name from ARTIST WHERE ARTIST.Artist_id = Song.artist_id)
 --     AND ALBUM.name = (SELECT name from ALBUM WHERE ALBUM.ALBUM_ID = Song.ALBUM_ID)
 --     ORDER BY SONG.total_plays desc;
+
+
