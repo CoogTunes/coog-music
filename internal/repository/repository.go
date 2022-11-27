@@ -60,7 +60,7 @@ type DatabaseRepo interface {
 	RemoveSongFromAlbum(song_id int, album_id int) error
 	RemoveSongFromPlaylist(song_id int, playlist_id int) error
 
-	GetLikesReport(minLikes int, maxLikes int) ([]models.Song, error)
+	GetLikesReport(minLikes int, maxLikes int, minDate string, maxDate string) ([]models.Song, error)
 	GetUsersReport(minDate string, maxDate string) ([]models.UserReport, error)
 	GetArtistReport(minDate string, maxDate string) ([]models.ArtistReport, error)
 	GetSongReport(minDate string, maxDate string, min_plays int, max_plays int) ([]models.Song, error)

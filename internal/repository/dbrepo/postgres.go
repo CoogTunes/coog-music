@@ -419,7 +419,7 @@ func (m *postgresDBRepo) GetSongsByName(song_name string) ([]models.Song, error)
 
 	// query := "select al.name, al.album_id, s.artist_id, s.title, s.song_id, s.cover_path, s.song_path, s.uploaded_date, ar.name from album as al, artist as ar, song as s where LOWER(s.title) LIKE LOWER ('" + song_name + "%') and s.artist_id = al.artist_id and s.artist_id = ar.artist_id"
 
-	query := "select * from likes_view where  LOWER(likes_view.title) LIKE LOWER ('" + song_name + "%')"
+	query := "select * from likes_view where  LOWER(likes_view.title) LIKE LOWER ('" + song_name + "%')  FETCH FIRST 7 ROWS ONLY"
 	rows, err := m.DB.Query(query)
 	if err != nil {
 		log.Println("Cannot get any rows")
@@ -452,7 +452,7 @@ func (m *postgresDBRepo) GetSongsByName(song_name string) ([]models.Song, error)
 
 func (m *postgresDBRepo) GetTopSongs() ([]models.Song, error) {
 	var songs []models.Song
-	query := "select * from likes_view order by total_plays desc Fetch first 14 rows only"
+	query := "select * from likes_view order by total_plays desc, title Fetch first 14 rows only"
 	rows, err := m.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -895,14 +895,16 @@ func (m *postgresDBRepo) SendUpdatedLikeValue(songID int) (models.Song, error) {
 }
 
 // REPORTS
-func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int) ([]models.Song, error) {
+func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int, minDate string, maxDate string) ([]models.Song, error) {
 	var likesReport []models.Song
 	query := `select * from likes_view 
 				where likes_view.likes >= $1
 				AND likes_view.likes <= $2
-				ORDER BY likes_view.likes DESC`
+				AND likes_view.uploaded_date >= $3
+				AND likes_view.uploaded_date <= $4
+				ORDER BY likes_view.likes DESC, likes_view.title`
 
-	rows, err := m.DB.Query(query, minLikes, maxLikes)
+	rows, err := m.DB.Query(query, minLikes, maxLikes, minDate, maxDate)
 	if err != nil {
 		log.Println(err)
 	}
@@ -930,7 +932,7 @@ func (m *postgresDBRepo) GetLikesReport(minLikes int, maxLikes int) ([]models.So
 
 func (m *postgresDBRepo) GetInitialUsersReport() ([]models.UserReport, error) {
 	var usersReport []models.UserReport
-	query := `select * from usersreport where admin_level = 1 or admin_level = 2 FETCH FIRST 14 ROWS ONLY`
+	query := `select * from usersreport where admin_level = 1 or admin_level = 2 ORDER BY join_date, last_name FETCH FIRST 14 ROWS ONLY`
 	rows, err := m.DB.Query(query)
 	if err != nil {
 		log.Println(err)
@@ -959,7 +961,7 @@ func (m *postgresDBRepo) GetInitialUsersReport() ([]models.UserReport, error) {
 
 func (m *postgresDBRepo) GetUsersReport(minDate string, maxDate string) ([]models.UserReport, error) {
 	var usersReport []models.UserReport
-	query := `select * from usersreport where (join_date >= to_date($1, 'YYYY-MM-DD') AND join_date <= to_date($2, 'YYYY-MM-DD')) and (admin_level = 1 or admin_level = 2) ORDER BY join_date`
+	query := `select * from usersreport where (join_date >= to_date($1, 'YYYY-MM-DD') AND join_date <= to_date($2, 'YYYY-MM-DD')) and (admin_level = 1 or admin_level = 2) ORDER BY join_date, last_name`
 
 	rows, err := m.DB.Query(query, minDate, maxDate)
 	if err != nil {
@@ -989,7 +991,7 @@ func (m *postgresDBRepo) GetUsersReport(minDate string, maxDate string) ([]model
 
 func (m *postgresDBRepo) GetArtistReport(minDate string, maxDate string) ([]models.ArtistReport, error) {
 	var artistReport []models.ArtistReport
-	query := `select * from artistsReport where join_date >= to_date($1, 'YYYY-MM-DD') AND join_date <= to_date($2, 'YYYY-MM-DD') ORDER BY join_date`
+	query := `select * from artistsReport where join_date >= to_date($1, 'YYYY-MM-DD') AND join_date <= to_date($2, 'YYYY-MM-DD') ORDER BY join_date desc, name`
 
 	rows, err := m.DB.Query(query, minDate, maxDate)
 	if err != nil {
@@ -1023,7 +1025,8 @@ func (m *postgresDBRepo) GetSongReport(minDate string, maxDate string, min_plays
 				where likes_view.uploaded_date >= $1
 				AND likes_view.uploaded_date <= $2
 				AND likes_view.total_plays >= $3
-				AND likes_view.total_plays <= $4`
+				AND likes_view.total_plays <= $4
+				ORDER BY likes_view.total_plays DESC, likes_view.title`
 
 	rows, err := m.DB.Query(query, minDate, maxDate, min_plays, max_plays)
 	if err != nil {

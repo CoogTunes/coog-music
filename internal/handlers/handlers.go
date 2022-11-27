@@ -894,6 +894,8 @@ func (m *Repository) GetLikesReport(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+	minDate := r.URL.Query().Get("start")
+	maxDate := r.URL.Query().Get("end")
 	//minDislikes, err := strconv.Atoi(r.Form.Get("min_dislikes"))
 	//if err != nil {
 	//	log.Println(err)
@@ -903,7 +905,7 @@ func (m *Repository) GetLikesReport(w http.ResponseWriter, r *http.Request) {
 	//	log.Println(err)
 	//}
 
-	likesReport, err := m.DB.GetLikesReport(minLikes, maxLikes)
+	likesReport, err := m.DB.GetLikesReport(minLikes, maxLikes, minDate, maxDate)
 	if len(likesReport) == 0 {
 		lReport := []models.Song{}
 		returnAsJSON(lReport, w, err)
