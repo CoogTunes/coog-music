@@ -30,7 +30,7 @@ type DatabaseRepo interface {
 	GetSongsByName(song_name string) ([]models.Song, error)
 	GetSongsFromPlaylist(playlist_id int) ([]models.Song, error)
 	GetSongsFromArtist(artist_name string) (map[string][]models.Song, error)
-	GetSongsFromArtistByID(artist_name string, artistID int) (map[string][]models.Song, error)
+	GetSongsFromArtistByID(userId int, artist_name string, artistID int) (map[string][]models.Song, error)
 	GetSongsFromAlbum(album_name string) ([]models.Song, error)
 	GetSongsFromAlbumByID(album_name string, albumID int) ([]models.Song, error)
 	GetSongsForLikePage(userId int) ([]models.Song, error)

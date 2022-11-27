@@ -12,6 +12,7 @@ type Users struct {
 }
 
 type Song struct {
+	IsLike        string
 	Likes         int
 	Dislikes      int
 	Song_id       int
