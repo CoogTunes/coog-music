@@ -16,7 +16,9 @@ function playlistDeleteControl() {
     let data = {
       playlistID: playlistId,
     };
-    ajaxPostHandler("/deletePlaylist", data)
+    let playlistName = document.getElementsByClassName('playlist-view-name')[0].innerHTML;
+   if (confirm('Are you sure you want to delete the playlist: ' + playlistName + '?')) {
+      ajaxPostHandler("/deletePlaylist", data)
       .then((data) => {
         redirectHome();
         deletePlayListFrontEnd(playlistId);
@@ -26,6 +28,7 @@ function playlistDeleteControl() {
         console.log("Error deleting playlist...");
         console.log(error);
       });
+    }
   }
 
   function deletePlayListFrontEnd(playListID){

@@ -8,11 +8,14 @@ function playlistDeleteSongControl() {
       let parentElement =
         target.closest(".content-wrapper") ??
         target.closest(".table-song-item");
-      removeSong(
-        parentElement.getAttribute("data-song-id"),
-        parentElement.getAttribute("data-playlist-id"),
-        parentElement
-      );
+        let songName = parentElement.getElementsByClassName('song-info-title')[0].innerHTML
+        if (confirm('Are you sure you want to delete ' + songName + '?')) {
+          removeSong(
+            parentElement.getAttribute("data-song-id"),
+            parentElement.getAttribute("data-playlist-id"),
+            parentElement
+          );
+        }
     }
   });
 
