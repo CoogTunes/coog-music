@@ -41,7 +41,16 @@ export let filterControl = {
                 let filterType = parent.querySelector('span').innerHTML;
                 filterControl.toggleSelection(parent);
                 if(filterControl.parentContains(parent)){
+                    // These would persist and end up resorting to the wrong report at times
+                    if (filterType == 'artists' || filterType == 'likes' || filterType == 'plays' || filterType == 'users') {
+                        filterControl.filterManager.remove('artists');
+                        filterControl.filterManager.remove('likes');
+                        filterControl.filterManager.remove('plays');
+                        filterControl.filterManager.remove('users');
+                    }
+        
                     filterControl.filterManager.add(filterType, parent);
+                    
                 }
                 else
                     filterControl.filterManager.remove(filterType);
