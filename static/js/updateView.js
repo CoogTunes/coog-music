@@ -23,7 +23,7 @@ function tableFilterHeaders(filterList) {
     <th>Joined Date</th>
     <th>Playlist Count</th>
     <th>Liked Songs Count</th>
-    <th>Common Artist</th>
+    <th>Favorite Artist</th>
     <th></th>`;
     filterOption = "users";
   } else if (filterList.has("artists")) {
@@ -35,7 +35,7 @@ function tableFilterHeaders(filterList) {
                             <th>Num. of Albums</th>
                             <th>Total Plays</th>
                             <th>Avg Plays</th>
-                            <th>Most Liked Songs</th>
+                            <th>Most Liked Song</th>
                             <th></th>
                           </tr></thead>`;
     filterOption = "artists";
@@ -133,6 +133,13 @@ export function updateTableView(data, tableContainer, songTotal, filterList) {
   let tableHTML = "";
 
   data.forEach((entry) => {
+    if (entry && entry.Admin_level) {
+      if (entry.Admin_level == 1) {
+        entry.Admin_level = 'User'
+      } else if (entry.Admin_level == 2) {
+        entry.Admin_level = 'Artist'
+      }
+    }
     const mapObj = {
       "{{likes}}": entry.Likes ?? entry.Total_likes ?? "",
       "{{dislikes}}": entry.Dislikes ?? "",
@@ -470,6 +477,13 @@ export function updateViewAdminControl(data, viewContainer, viewName, bodyContai
   // Fill the Table with Users
   let tableHTML = "";
   data.forEach((entry) => {
+    if (entry && entry.Admin_level) {
+      if (entry.Admin_level == 1) {
+        entry.Admin_level = 'User'
+      } else if (entry.Admin_level == 2) {
+        entry.Admin_level = 'Artist'
+      }
+    }
     const mapObj = {
       "{{song}}": entry.Title ?? entry.Song_title ?? "",
       "{{album}}": entry.Album ?? entry.Album_name ?? "",

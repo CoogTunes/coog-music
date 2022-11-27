@@ -22,7 +22,7 @@ function getDiscoverTemplate(){
                                             </div>               
                                             <div class="playlist-view-right">
                                                 <div class="playlist-view-name alt">{{viewName}}</div>
-                                                <div class="playlist-view-extra"><span class="playlist-song-count">{{song-count}}</span><span class="playlist-total-time">{{total-time}}</span></div>
+                                                <div class="playlist-view-extra"><span class="playlist-song-count">{{song-count}}</span></div>
                                            </div>                 
                                         </div>
                                    </div>
@@ -52,7 +52,7 @@ function getAdminControlTemplate() {
     <th>Joined Date</th>
     <th>Playlist Count</th>
     <th>Liked Songs Count</th>
-    <th>Common Artist</th>
+    <th>Favorite Artist</th>
     <th></th>
   </tr></thead>`;
         let template = `<div class="current-banner">
