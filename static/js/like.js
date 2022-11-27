@@ -4,7 +4,7 @@ function likeControl() {
     document.addEventListener('click', function (evt){
         let target = evt.target;
 
-        if(target.classList.contains('bi-heart')){
+        if(target.classList.contains('bi-heart') || target.classList.contains('bi-heart-fill')){
             let songTarget = target.closest('.content-wrapper') ?? target.closest('.table-song-item');
             console.log(songTarget.getAttribute('data-song-id'));
             updateLike(songTarget.getAttribute('data-song-id'), target.parentElement);
@@ -29,6 +29,13 @@ function likeControl() {
     function updateSongCount(parentElement, songLikes){
         let currentLike = parentElement.querySelector('.current-likes');
         currentLike.innerHTML = songLikes;
+        if (parentElement.querySelector('.bi-heart')) {
+            parentElement.querySelector('.bi-heart').classList.add('bi-heart-fill')
+            parentElement.querySelector('.bi-heart').classList.remove('bi-heart')
+        } else if (parentElement.querySelector('.bi-heart-fill')) {
+            parentElement.querySelector('.bi-heart-fill').classList.add('bi-heart')
+            parentElement.querySelector('.bi-heart-fill').classList.remove('bi-heart-fill')
+        }
     }
 
 }

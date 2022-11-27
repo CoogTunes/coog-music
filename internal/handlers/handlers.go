@@ -721,7 +721,7 @@ func (m *Repository) GetArtistInfo(w http.ResponseWriter, r *http.Request) {
 		log.Println("Cannot decode the artist id")
 	}
 
-	artistAlbums, err := m.DB.GetSongsFromArtistByID(decodedValue, aID)
+	artistAlbums, err := m.DB.GetSongsFromArtistByID(UserCache.User_id, decodedValue, aID)
 	if err != nil {
 		log.Println("Cannot get the artist albums")
 	}

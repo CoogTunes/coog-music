@@ -260,8 +260,9 @@ func (m *postgresDBRepo) GetSongsForLikePage(userId int) ([]models.Song, error) 
 func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_id int) ([]models.Song, error) {
 	var songsInfo []models.Song
 
-	query := `select * from likes_view where likes_view.song_id in (select songplaylist.song_id from songplaylist where songplaylist.playlist_id = $1)
-	`
+	query := `select coalesce(likes.isLike, false), likes_view.* from likes_view
+			left join likes on likes.song_id = likes_view.song_id
+			where likes_view.song_id in (select songplaylist.song_id from songplaylist where songplaylist.playlist_id = $1)`
 	rows, err := m.DB.Query(query, playlist_id)
 	if err != nil {
 		log.Println("Cannot execute query")
@@ -277,7 +278,7 @@ func (m *postgresDBRepo) GetSongsFromPlaylist(playlist_id int) ([]models.Song, e
 
 	for rows.Next() {
 		var currentRow models.Song
-		rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id,
+		rows.Scan(&currentRow.IsLike, &currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id,
 			&currentRow.SongPath, &currentRow.CoverPath, &currentRow.Uploaded_date, &currentRow.Total_plays, &currentRow.Duration, &currentRow.Artist_name, &currentRow.Album)
 
 		if err != nil {
@@ -321,10 +322,15 @@ func (m *postgresDBRepo) GetSongsFromArtist(artist_name string) (map[string][]mo
 	return songsInfo, nil
 }
 
-func (m *postgresDBRepo) GetSongsFromArtistByID(artist_name string, artistID int) (map[string][]models.Song, error) {
+func (m *postgresDBRepo) GetSongsFromArtistByID(userId int, artist_name string, artistID int) (map[string][]models.Song, error) {
 	songsInfo := make(map[string][]models.Song)
-	query := "select * from likes_view where LOWER(likes_view.artist_name) LIKE LOWER('" + artist_name + "%') and likes_view.artist_id = $1"
-	rows, err := m.DB.Query(query, artistID)
+	// query := "select * from likes_view where LOWER(likes_view.artist_name) LIKE LOWER('" + artist_name + "%') and likes_view.artist_id = $1"
+	query1 := "select coalesce(likes.islike, false), likes_view.* from likes_view "
+	query2 := "left join likes on likes.song_id = likes_view.song_id and likes.user_id = $1 "
+	query3 := "where LOWER(likes_view.artist_name) LIKE LOWER('" + artist_name + "%') and likes_view.artist_id = $2 order by likes_view.title"
+	query := query1 + query2 + query3
+
+	rows, err := m.DB.Query(query, userId, artistID)
 	if err != nil {
 		return nil, err
 	}
@@ -338,7 +344,7 @@ func (m *postgresDBRepo) GetSongsFromArtistByID(artist_name string, artistID int
 
 	for rows.Next() {
 		var currentRow models.Song
-		rows.Scan(&currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id,
+		rows.Scan(&currentRow.IsLike, &currentRow.Likes, &currentRow.Dislikes, &currentRow.Song_id, &currentRow.Title, &currentRow.Album_id, &currentRow.Artist_id,
 			&currentRow.SongPath, &currentRow.CoverPath, &currentRow.Uploaded_date, &currentRow.Total_plays, &currentRow.Duration, &currentRow.Artist_name, &currentRow.Album)
 
 		if err != nil {
