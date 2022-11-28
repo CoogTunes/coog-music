@@ -1,9 +1,9 @@
 # coog-music
 
 ## Steps to Run Project (Windows 10)
+1. [Install PostgreSQL (14.6)](https://www.google.com)
 
 To use the dumpfile, you can use DBeaver or PSQL.
-1. [Install PostgreSQL (14.6)](https://www.google.com)
 
 ### PSQL Method
 
