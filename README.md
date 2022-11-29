@@ -1,4 +1,4 @@
-# coog-music
+# CoogTunes
 
 ## Steps to Run Project (Windows 10)
 1. [Install PostgreSQL (14.6)](https://www.google.com)
